@@ -1,0 +1,9 @@
+1. Removed mergeIn from flows 
+(other than merge where it is necessary)
+What if a particular item inside the control
+structure is updated though?? (relaxed)
+How should I deal with that?
+2. If an item is updated or if a reference is updated
+there is no way to deal with it unless there is
+listening....  This is a flaw in the system 
+right now.
