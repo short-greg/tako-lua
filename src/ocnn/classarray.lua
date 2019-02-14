@@ -8,24 +8,32 @@ do
     'ocnn.ClassArray', oc.Nerve
   )
   ocnn.ClassArray = ClassArray
-  --! Outputs a series of inputs based on its class
-  --! @input {classIndex, moduleInput}
+  --!  ################################################
+  --! ClassArray chooses a nerve to send the input
+  --! through based on the class of the input.
+  --!
+  --! @example 
+  --!    numClasses = 2
+  --!    nn.Linear(2, 2) .. oc.Onto(oc.my.class) ..
+  --!       ocnn.ClassArray(numClasses, nn.Linear(2, 2))
+  --! 
+  --! @input {classIndex, nerveInput}
   --! @output moduleInput processed depending on the
   --!         class
-  --!
+  --! ################################################
 
-  function ClassArray:__init(k, processor)
+  function ClassArray:__init(k, nerves)
     --! @param k
     --! @param processor
     assert(k > 0, 'Argument k must be greater than 0')
     parent.__init(self)
     self.k = k or 1
-    if torch.type(processor) == 'table' then
-      self._modules = processor
+    if torch.type(nerves) == 'table' then
+      self._modules = nerves
     else
       self._modules = {}
       for i=1, k do
-        self._modules[i] = oc.nerve(processor):clone()
+        self._modules[i] = oc.nerve(nerves):clone()
       end
     end
     self._moduleInputs = {}

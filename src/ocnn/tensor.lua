@@ -5,6 +5,7 @@ do
   local Tensor = oc.class(
     'ocnn.Tensor'
   )
+  --! ###################################################
   --! Class to generate a tensor
   --! The  methods of objects of this class depend on the 
   --! state of the class.  Various types of tensors can be
@@ -24,6 +25,7 @@ do
   --! 
   --! @input nil
   --! @output Tensor
+  --! ###################################################
 
   function Tensor:__init(generator, genArgs)
     self._generator = generator

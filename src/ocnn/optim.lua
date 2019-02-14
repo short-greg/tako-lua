@@ -12,21 +12,21 @@ do
   ocnn.Optim = Optim
   --! ###########################################
   --! Wraps Torch optimizers to work in the context of a graph
+  --!
+  --! @example ocnn.Optim(
+  --!    optim.adadelta, 
+  --!    r(oc.my.autoencoder), -- the nerve to get parameters for
+  --!    config -- The config you send to the optimizer
+  --! )
+  --! 
   --! @input CriterionResult - float
   --! @output CriterionResult - float
   --! ############################################
-  
-  
+
   function Optim:__init(optim, nerve, config, toCache)
     --! Updates the parameters of the newtork
     --! @param optim - the optimizer to use - optim
     --! @param config - Config for the optimizer - {}
-    --! @param toCache - Whether or not to save 
-    --! the parameters for the nerve so that it 
-    --! does not need to retrieve each time - boolean
-    --! @param params.x - The initial point of the parameters to update
-    --! @param params.dx - The accumulated gradient 
-    --!        of the parameters to update
     parent.__init(self)
 
     local params = oc.bot.get.Param:reportFor(
@@ -40,7 +40,6 @@ do
     self._optim = optim or error('Must specify an optimizer')
     self._baseConfig = config
     self._config = oc.ops.table.deepCopy(config)
-    self._toCache = toCache or true
     self._curNerve = nil
     self._x = params.x
     self._dx = params.dx

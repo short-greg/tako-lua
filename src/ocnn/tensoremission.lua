@@ -7,6 +7,12 @@ do
   local TensorEmission, parent = oc.class(
     'oc.TensorEmission', oc.Emission
   )
+  --! ###################################################
+  --! TensorEmission sublcasses Emission so that the 
+  --! emission so that the Tensor can be modified in
+  --! place in the emission.
+  --!
+  --! ###################################################
   oc.TensorEmission = TensorEmission
 
   function TensorEmission:set(val)

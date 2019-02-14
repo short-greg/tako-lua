@@ -11,6 +11,10 @@ do
   --!  Adapter for criterions since nn.Criterion
   --!  since criterions do not inherit from nn.Module
   --!  their updateOutput method is different
+  --!
+  --!  @example nn.Linear(2, 2) .. oc.Onto(oc.my.target) ..
+  --!       ocnn.Criterion(nn.MSECriterion())
+  --! 
   --!  @input {output, target}
   --!  @gradOutput nil
   --!  ################################################
