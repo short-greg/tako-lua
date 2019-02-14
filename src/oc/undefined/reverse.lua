@@ -6,15 +6,28 @@ require 'oc.declaration'
 
 
 --! #############################################
---! Reverse a particular nerve (can be used in 
+--! Reverse a particular nerve 
+--! (can be used in autoencoders etc)
 --!
 --! nn.Linear:rev(nn.Linear(2, 4)) -> this will create
 --!   an nn.Linear(4, 2) upon definition
+--! 
+--! self.arm.encoder = nn.Linear(2, 4)
+--! self.arm.decoder = self.encoder:rev()
+--! 
+--! self.arm.autoencode = r(oc.my.encoder) .. r(oc.my.decoder)
+--! 
+--! self.autoencode:stimulate(torch.randn(2, 2)) -> will
+--!   output a 2 x 2 tensor
 --! 
 --! t:rev()
 --! nn.Linear:rev() <- no module have to 
 --! define dynamically overwrite the 
 --!
+--! DeclarationReverse is used for declarations
+--! n = nn.Linear:d(2, 4)
+--! n:rev() -> creates a DeclarationReverse
+--! 
 --! #############################################
 
 do

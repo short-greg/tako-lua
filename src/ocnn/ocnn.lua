@@ -1,19 +1,38 @@
 require 'ocnn.pkg'
 require 'oc.oc'
 
+--! ########################################
+--!
+--! Also provide nn.Module functionality
+--! to oc.Nerve
+--! 
+--! ########################################
+
 function ocnn.tensorSizeEqual(tensor1, tensor2)
+  --! TODO: I don't think this is necessary
+  --! @return whether or not the two tensors
+  --!         are of equal size
   return tostring(tensor1:size()) == 
          tostring(tensor2:size())
 end
 
 function ocnn.clone(val)
-  if type(val) == 'userdata' or type(val) == 'table' then
+  --! @return the value cloned if it is
+  --!         a clonable value (i.e. mutable)
+  --!         Otherwise the value is just returned
+  if type(val) == 'userdata' or
+     type(val) == 'table' then
     return torch.deserialize(torch.serialize(val))
   end
   return val
 end
 
 function ocnn.updateTensor(into, from)
+  --! @param into - The tensor to update - torch.Tensor
+  --! @param from - The tensor to update with - torch.Tensor
+  --! @post into will contain the same
+  --!       values as from
+  --! @return torch.Tensor - the updated 'into'
   if into == nil then
     into = from:clone()
   elseif into:isSameSizeAs(
@@ -27,7 +46,6 @@ function ocnn.updateTensor(into, from)
       from
     ):copy(from)
   end
-  --self._tensorMap[torch.pointer(from)] = into
   return into
 end
 
@@ -83,7 +101,8 @@ function ocnn.updateVal(val, with)
     val = nil
   end
   
-  if oc.type(with) == 'table' and oc.type(val) == 'table' then
+  if oc.type(with) == 'table' and 
+     oc.type(val) == 'table' then
     for k, v in pairs(val) do
       if with[k] == nil then
         --! TODO: is this okay?

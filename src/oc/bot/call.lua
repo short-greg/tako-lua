@@ -7,16 +7,22 @@ do
   local Call, parent = oc.class(
     'oc.bot.Call', oc.bot.Nano
   )
+  --! ###########################
   --! Call is for creating a bot that 
   --! will call a member of a nerve that it
   --! passes through.
   --!
-  --! @usage oc.bot.call:relax()
-  
+  --! @example oc.bot.call:relax() ->
+  --!     will create a bot that can
+  --!     relax nerves
+  --!
   --! For 'class methods' use dot
   --! oc.bot.call.func(
   --!   args={<arg>}
-  --!   cond=function(self, nerve) return nerve.func ~= nil end
+  --!   cond=
+  --!    function(self, nerve) 
+  --!      return nerve.func ~= nil 
+  --!    end
   --! )
   --!
   --! For 'instance methods' use colon and it will
@@ -24,7 +30,9 @@ do
   --! 
   --! oc.bot.call:func(
   --!   args={<arg>}
-  --!   cond=function(self, nerve) return nerve.func ~= nil end
+  --!   cond=function(self, nerve) 
+  --!      return nerve.func ~= nil 
+  --!   end
   --! )
   --! 
   --! Calls the function relax on all nerves
@@ -62,7 +70,7 @@ do
   end
   
   function Call:visit(nerve)
-    --! @brief Visit the module and relax it
+    --! Visit the module and relax it
     self:_process(
       nerve, self:_callFunc(nerve)
     )
@@ -70,7 +78,8 @@ do
   end
   
   function Call:spawn()
-    --! Spawn another Call Bot
+    --! Spawn a Call Bot with the same
+    --! attributes as this Call Bot
     return oc.Call(
       self._funcName, self._args, self.cond, self._process,
       self._report, self._callFunc == self._selfCallFunc

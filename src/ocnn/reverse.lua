@@ -5,10 +5,30 @@ require 'ocnn.pkg'
 --require 'ocnn.classarray'
 
 
+--! ########################################
+--! Nerves to be used in AutoEncoders 
+--! that reverse the encoding operation
+--!
+--! LinearReverse
+--! SpatialConvolutionReverse
+--! ReshapeReverse
+--! BatchNormalizationReverse
+--! FlattenBatchReverse
+--!
+--! ########################################
+
 do
   local LinearReverse, parent = oc.class(
     'ocnn.LinearReverse', oc.Reverse
   )
+  --! ################################
+  --! Reverses a Linear OPeration
+  --!
+  --! y = nn.Linear(2, 4)
+  --! y:rev() -> will result in a 
+  --!   nn.Linear(4, 2) once defined
+  --!
+  --! ################################
   ocnn.LinearReverse = LinearReverse
   
   function LinearReverse:__init(nerve, dynamic)
@@ -69,6 +89,9 @@ do
   local SpatialConvolutionReverse, parent = oc.class(
     'ocnn.SpatialConvolutionReverse', oc.Reverse
   )
+  --! ################################
+  --! Reverses SpatialConvolution
+  --! ################################
   ocnn.SpatialConvolutionReverse = 
     SpatialConvolutionReverse
 
@@ -117,7 +140,11 @@ do
   local SpatialMaxPoolingReverse, parent = oc.class(
     'ocnn.SpatialMaxPoolingReverse', oc.Reverse
   )
-  ocnn.SpatialMaxPoolingReverse = SpatialMaxPoolingReverse
+  --! ################################
+  --! Reverses SpatialMaxPooling
+  --! ################################
+  ocnn.SpatialMaxPoolingReverse =
+    SpatialMaxPoolingReverse
   
   function SpatialMaxPoolingReverse:_define(input)
     --! @brief Reverse a spatial max pooling operation
@@ -164,6 +191,9 @@ do
   local ReshapeReverse, parent = oc.class(
     'ocnn.ReshapeReverse', oc.Reverse
   )
+  --! ################################
+  --! Reverses Reshape
+  --! ################################
 
   ocnn.ReshapeReverse = ReshapeReverse
   
@@ -197,6 +227,9 @@ do
   local SpatialConvAndPoolReverse, parent = oc.class(
     'ocnn.SpatialConvAndPoolReverse', oc.Reverse
   )
+  --! ###################################
+  --! Reverses SpatialConvAndPoolReverse
+  --! ###################################
   
   ocnn.SpatialConvAndPoolReverse = 
     SpatialConvAndPoolReverse
@@ -251,6 +284,9 @@ do
   local FlattenBatchReverse, parent = oc.class(
     'ocnn.FlattenBatchReverse', oc.Reverse
   )
+  --! ###################################
+  --! Reverses FlattenBatch
+  --! ###################################
   ocnn.FlattenBatchReverse = FlattenBatchReverse
   
   function FlattenBatchReverse:_define(input)
@@ -308,6 +344,10 @@ do
   local SpatialConvAndPoolReverse2, parent = oc.class(
     'ocnn.SpatialConvAndPoolReverse2', oc.Reverse
   )
+  --! ###################################
+  --! Reverses a combination of 
+  --! SpatialConvolution with Pooling
+  --! ###################################
   ocnn.SpatialConvAndPoolReverse2 = 
     SpatialConvAndPoolReverse2
 
@@ -376,3 +416,93 @@ do
   end
 end
 -- {nn.SpatialConvolution, nn.SpatialMaxPooling},
+
+
+
+local resizeToBatch, updateTensor
+
+do
+  local BatchNormalizationReverse, parent = oc.class(
+    'ocnn.BatchNormalizationReverse', nn.Module
+  )
+  --! ###################################
+  --! Reverses BatchNormalization
+  --! ###################################
+  ocnn.BatchNormalizationReverse = BatchNormalizationReverse
+  
+  function BatchNormalizationReverse:std(self)
+    return self._normalizer.running_var:pow(0.5)
+  end
+
+  function BatchNormalizationReverse:mean(self)
+    return self._normalizer.running_mean
+  end
+
+  function BatchNormalizationReverse:__init(batchNorm)
+    parent.__init(self)
+    assert(
+      oc.isTypeOf(batchNorm, 'nn.BatchNormalization'),
+      'Argument batchNorm must be of type '..
+      'BatchNormalization'
+    )
+    self._normalizer = batchNorm
+  end
+
+  function BatchNormalizationReverse:updateOutput(input)
+    self.output = updateTensor(self.output, input):zero()
+    
+    if input:nElement() > 0 then
+      self.output:add(input):add(
+        resizeToBatch(input, self:mean())
+      ):cmul(
+        resizeToBatch(input, self:std())
+      )
+    end
+    return self.output
+  end
+  
+  function BatchNormalizationReverse:updateGradInput(
+    input, gradOutput
+  )
+    self.gradInput = updateTensor(
+      self.gradInput, 
+      input
+    ):zero()
+    self.gradInput:add(gradOutput):cmul(
+      resizeToBatch(input, self:std())
+    )
+    return self.gradInput
+  end
+  
+  
+  function nn.BatchNormalization:rev()
+    return ocnn.BatchNormalizationReverse(self)
+  end
+  --[[
+  function nn.SpatialBatchNormalization:rev(dynamic)
+    --! TODO Figure out what to od here.
+    --! probably need a reverse class here
+  end
+  --]]
+end
+
+resizeToBatch = function (target, base)
+  --! @param target
+  --! @param base
+  return torch.repeatTensor(
+    base, target:size(1), 1
+  )
+end
+
+updateTensor = function (curTensor, input_)
+  --! @param curTensor
+  --! @param input_
+  if tostring(input_:size()) ~= 
+     tostring(curTensor:size()) then
+    return curTensor:typeAs(
+      input_
+    ):resizeAs(input_)
+  else
+    return curTensor
+  end
+end

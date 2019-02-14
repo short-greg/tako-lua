@@ -3,9 +3,11 @@ require 'oc.bot.nano'
 require 'oc.class'
 
 
---! Bots used to retrieve 
---! information about the nerves that 
---! populate the system
+--! ################################
+--!
+--! Bots used to retrieve information
+--! from the nerves it passes through.
+--! ################################
 
 oc.bot.get = {}
 
@@ -13,9 +15,20 @@ do
   local Param, parent = oc.class(
     'oc.bot.get.Param', oc.bot.Nano
   )
+  --! #################################
+  --!
   --! Retrieve all of the trainable 
   --! parameters associated
   --! with a particular process tree.
+  --! This is used by Optim.
+  --!
+  --! y = nn.Linear(2, 2) ..
+  --!       nn.Linear(2, 2) ..
+  --!       nn.Sigmoid()
+  --!
+  --! params = oc.bot.get.Param:reportFor(y)
+  --!
+  --! #################################
   oc.bot.get.Param = Param
   
   function Param:__init(...)
@@ -46,9 +59,17 @@ do
   local Nerve, parent = oc.class(
     'oc.bot.get.Nerve', oc.bot.Nano
   )
-  --! Bot used to get all of the modules
-  --! in a particular arm.
-  --! 
+  --! #################################
+  --! Retrieves all the nerves that
+  --! the bot passes through.
+  --!
+  --! y = nn.Linear(2, 2) ..
+  --!       nn.Linear(2, 2) ..
+  --!       nn.Sigmoid()
+  --!
+  --! nerves = oc.bot.get.Nerve:reportFor(y)
+  --!
+  --! #################################
   oc.bot.get.Nerve = Nerve
   
   function Nerve:__init(...)
@@ -77,8 +98,17 @@ do
   local Leaf, parent = oc.class(
     'oc.bot.get.Leaf', oc.bot.get.Nerve
   )
-  --! Bot used to get all of the leaf
-  --! nerves in a tentacle.
+  --! #################################
+  --! Retrieves all the leaf nodes that
+  --! the bot passes through.
+  --!
+  --! y = nn.Linear(2, 2) ..
+  --!       nn.Linear(2, 2) ..
+  --!       nn.Sigmoid()
+  --!
+  --! leaves = oc.bot.get.Leaf:reportFor(y)
+  --!
+  --! #################################
   oc.bot.get.Leaf = Leaf
   
   function Leaf:toVisit(nerve)

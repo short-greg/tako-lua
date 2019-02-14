@@ -8,7 +8,11 @@ do
     'ocnn.Linear', oc.Nerve
   )
   --! ########################################
-  --! 
+  --! Modifies nn.Linear so that
+  --! the weights and biases are passed
+  --! in as inputs rather than treated as values
+  --! stored in the Linear nerve.
+  --!
   --! @input {input, weight, bias}
   --!   - {torch.Tensor, torch.Tensor, torch.Tensor}
   --! @output torch.Tensor
@@ -74,3 +78,4 @@ do
   function Linear:accGradParameters(input, gradOutput)
   end
 end
+

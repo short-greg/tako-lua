@@ -22,7 +22,7 @@ do
   --!          Note: y .. p4 will just extend
   --!          the chain.
   --!
-  --!          oc.nerve(y) will output an Arm
+  --!          oc.nerve(y) will output an Arm.
   --!
   --!          Chain also does not have
   --!          out and grad functions unlike Arm
@@ -210,7 +210,8 @@ do
   
   function Chain.__newindex__(self, key, val)
     --! Cannot add to the chain
-    -- TODO: Make sure I should not be able to add to the chain
+    -- TODO: Make sure I should not 
+    --! be able to add to the chain
     if not oc.isInstance(self) then
       rawset(self, key, val)
       return

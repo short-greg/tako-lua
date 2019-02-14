@@ -1,4 +1,5 @@
 require 'oc.pkg'
+require 'oc.class'
 require 'oc.nerve'
 
 
@@ -8,7 +9,7 @@ do
   local Update, parent = oc.class(
     'oc.Update', oc.Nerve
   )
-  --! 
+  --! ################################################
   --! Use separate nerves for forward and backward 
   --! propagation and accumulation.  Useful if some nerves    
   --! are not required for backpropagation or 
@@ -32,6 +33,7 @@ do
   --!      have its modules specified under modules
   --!      this results in the wrapper being said
   --!      to be relaxed if one of the inner modules is relaxed
+  --! ################################################
   
   oc.Update = Update
   
@@ -109,5 +111,4 @@ do
       end
     end
   end
-
 end

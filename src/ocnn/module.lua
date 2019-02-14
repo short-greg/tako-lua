@@ -1,5 +1,17 @@
 require 'oc.nerve'
 
+--! ########################################
+--! Extends nn.Module by making it 
+--! inherit all of the methods from oc.Nerve
+--! And update the constructor so that 
+--! the oc.Nerve constructor will be
+--! executed.
+--!
+--! Also provide nn.Module functionality
+--! to oc.Nerve
+--! 
+--! ########################################
+
 local moduleMeta = getmetatable(nn.Module)
 setmetatable(moduleMeta, oc.Nerve)
 
@@ -40,15 +52,6 @@ function oc.Nerve:parameters()
   return {}, {}
 end
 
-
---[[
--- TODO: Do I really need criterion meta?
-local criterionMeta = getmetatable(
-  getmetatable(nn.Criterion)
-)
-print(criterionMeta)
-setmetatable(criterionMeta, oc.Nerve)
---]]
 
 -- TODO: Update the clone function
 -- Modules clone function will copy its sub

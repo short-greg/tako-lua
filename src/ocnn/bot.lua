@@ -2,11 +2,24 @@ require 'oc.bot.store'
 require 'ocnn.ocnn'
 
 
+--! ################################
+--! Bots related to Torch
+--! 
+--! TensorStorer: Stores tensors
+--!   that it 
+--! ################################
+
+
 do
   local TensorStorer, parent = oc.class(
     'ocnn.bot.store.TensorStorer',
     oc.bot.store.Storer
   )
+  --! ################################
+  --! 
+  --! 
+  --!
+  --! ################################
   oc.bot.store.TensorStorer = TensorStorer
   
   function TensorStorer:__init(...)
@@ -15,7 +28,8 @@ do
   end
   
   function TensorStorer:_copyTensor(into, from)
-    if from and self._tensorMap[torch.pointer(from)] then
+    if from and 
+       self._tensorMap[torch.pointer(from)] then
       return self._tensorMap[torch.pointer(from)]
     end
     into = ocnn.updateTensor(into, from)
@@ -71,13 +85,17 @@ do
     )
   end
   
-  function TensorStorer:setNerveGradInput(nerve, gradInput)
+  function TensorStorer:setNerveGradInput(
+      nerve, gradInput
+  )
     self._gradInputs[nerve] = self:_copyVal(
       self._gradInputs[nerve], gradInput
     )
   end
 
-  function TensorStorer:setNerveGradOut(nerve, gradOutput)
+  function TensorStorer:setNerveGradOut(
+      nerve, gradOutput
+  )
     self._gradOutputs[nerve] = self:_copyVal(
       self._gradOutputs[nerve], gradOutput
     )

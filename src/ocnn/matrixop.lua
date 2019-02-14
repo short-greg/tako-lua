@@ -1,12 +1,15 @@
 local matrixops = {}
 
---! @module matrixops
---! Includes operations to help in doing row-column matrix 
+--! ########################################
+--! Includes operations to help in 
+--! doing row-column matrix 
 --! operations such as maxmin composition, 
 --! euclidean distance between and so on
---! Because some of these operations may require a lot of 
---! memory, there most of the operations are for dealing
+--! Because some of these operations 
+--! may require a lot of memory, there 
+--! most of the operations are for dealing
 --! with sub matrices.
+--! ########################################
 
 function matrixops.divideMatrix(m, count, dim)
   local result = {}
