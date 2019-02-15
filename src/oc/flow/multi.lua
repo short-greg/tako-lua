@@ -5,7 +5,7 @@ require 'oc.class'
 
 do
   local Multi, parent = oc.class(
-    'oc.flow.Multi', oc.Nerve
+    'oc.Multi', oc.Nerve
   )
   --! ########################################
   --! Multi sends an input through several 
@@ -26,7 +26,7 @@ do
   --!   p3:stimulate(1)
   --! }
   --! ########################################
-  oc.flow.Multi = Multi
+  oc.Multi = Multi
 
   function Multi:__init(streams)
     --!	@constructor	

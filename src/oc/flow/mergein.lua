@@ -45,7 +45,7 @@ end
 
 do
   local MergeInBase, parent = oc.class(
-    'oc.flow.MergeInBase', oc.Nerve
+    'oc.MergeInBase', oc.Nerve
   )
   --! ########################################
   --! 
@@ -54,7 +54,7 @@ do
   --! @output  depends on the nerve to merge in
   --!
   --! ########################################
-  oc.flow.MergeInBase = MergeInBase
+  oc.MergeInBase = MergeInBase
   
   function MergeInBase:__init(nerve, outer)
   --! Controls how MergeIn takes place
@@ -82,7 +82,7 @@ end
 
 do
   local MergeIn, parent = oc.class(
-    'oc.flow.MergeIn', oc.flow.MergeInBase
+    'oc.MergeIn', oc.MergeInBase
   )
   --! ########################################
   --!	Connective nerve to merge a sub nerve into
@@ -95,7 +95,7 @@ do
   --! @output  {}
   --!
   --! ########################################
-  oc.flow.MergeIn = MergeIn
+  oc.MergeIn = MergeIn
 
   function MergeIn:children()
     return {}
@@ -120,7 +120,7 @@ end
 
 do
   local Get, parent = oc.class(
-    'oc.Get', oc.flow.MergeInBase
+    'oc.Get', oc.MergeInBase
   )
   --! ########################################
   --!	Merges in the output of a nerve
@@ -158,7 +158,7 @@ end
 
 do
   local Exec, parent = oc.class(
-    'oc.Exec', oc.flow.MergeInBase
+    'oc.Exec', oc.MergeInBase
   )
   --! ########################################
   --!	Stimulates the nerve to mergeIn, though
@@ -190,7 +190,7 @@ end
 
 do
   local RefMerge, parent = oc.class(
-    'oc.flow.RefMerge', oc.flow.MergeInBase
+    'oc.RefMerge', oc.MergeInBase
   )
   --! ########################################
   --!	Stimulates the nerve to mergeIn, though
@@ -203,7 +203,7 @@ do
   --! @output  depends on the nerve to merge in
   --!
   --! ########################################
-  oc.flow.RefMerge = RefMerge
+  oc.RefMerge = RefMerge
   
   function RefMerge:out()
     return self._arm:stimulate()
@@ -221,7 +221,7 @@ end
 
 do
   local ArmRefMerge, parent = oc.class(
-    'oc.flow.ArmRefMerge', oc.flow.MergeInBase
+    'oc.ArmRefMerge', oc.MergeInBase
   )
   --! ########################################
   --!	Probes an Arm reference
@@ -233,7 +233,7 @@ do
   --! @output  depends on the nerve to merge in
   --!
   --! ########################################
-  oc.flow.ArmRefMerge = ArmRefMerge
+  oc.ArmRefMerge = ArmRefMerge
   
   function ArmRefMerge:out()
     self._arm:relaxStream(true)
@@ -251,15 +251,15 @@ end
 
 
 function oc.mergeIn(nerve, mergeTo)
-  local isMergeType = oc.isTypeOf(nerve, 'oc.flow.MergeInBase') 
+  local isMergeType = oc.isTypeOf(nerve, 'oc.MergeInBase') 
   if not isMergeType and 
      oc.isTypeOf(nerve, 'oc.ValRefBase') then
-    return oc.flow.RefMerge(nerve, mergeTo)
+    return oc.RefMerge(nerve, mergeTo)
   elseif not isMergeType and 
      oc.isTypeOf(nerve, 'oc.ArmRefBase') then
-    return oc.flow.ArmRefMerge(nerve, mergeTo)
+    return oc.ArmRefMerge(nerve, mergeTo)
   elseif not isMergeType then
-    return oc.flow.MergeIn(nerve, mergeTo)
+    return oc.MergeIn(nerve, mergeTo)
   end
   nerve:setMergeNerve(mergeTo)
   return nerve

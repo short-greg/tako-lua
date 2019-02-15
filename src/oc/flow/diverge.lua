@@ -5,7 +5,7 @@ require 'oc.nerve'
 
 do
   local Diverge, parent = oc.class(
-    'oc.flow.Diverge', oc.Nerve
+    'oc.Diverge', oc.Nerve
   )
   --! ########################################
   --! A flow structure that sends each 
@@ -24,7 +24,7 @@ do
   --!          p1, p2, p3 respectively.
   --! 
   --! ########################################
-  oc.flow.Diverge = Diverge
+  oc.Diverge = Diverge
   
   --! private method to determine how many 
   --! times to loop

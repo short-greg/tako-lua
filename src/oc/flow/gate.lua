@@ -6,7 +6,7 @@ require 'oc.flow.mergein'
 
 do
   local Gate, parent = oc.class(
-    'oc.flow.Gate', oc.Nerve
+    'oc.Gate', oc.Nerve
   )
   --! ########################################
   --! Control structure that passes the outputs based on
@@ -22,13 +22,13 @@ do
   --! @output - {passed?, <stream output>} - 
   --!            {boolean, <stream output>} - 
   --! 
-  --! @example  oc.flow.Gate(
+  --! @example  oc.Gate(
   --!   function (self, input) return input ~= nil end,
   --!   nn.Linear(2, 2)
   --! )
   --! 
   --! ########################################
-  oc.flow.Gate = Gate
+  oc.Gate = Gate
 
   function Gate:__init(condition, chain)
     --! 

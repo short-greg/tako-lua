@@ -5,7 +5,7 @@ require 'oc.class'
 
 do
   local Through, parent = oc.class(
-    'oc.flow.Through', oc.Nerve
+    'oc.Through', oc.Nerve
   )
   --! #####################################
   --! Stimulate an internal module and 
@@ -23,7 +23,7 @@ do
   --!       There are some issues with it and
   --!       it can be easily created with a stem
   --! #####################################
-  oc.flow.Through = Through
+  oc.Through = Through
   
   function Through:__init(nerve)
     --! @constructor

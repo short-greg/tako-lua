@@ -5,7 +5,7 @@ require 'oc.nerve'
 
 do
   local Router, parent = oc.class(
-    'oc.flow.Router', 
+    'oc.Router', 
     oc.Nerve
   )
   --! ########################################
@@ -23,7 +23,7 @@ do
   --! TODO: Some unit tests are broken.. 
   --! Need to look into this problem
   --! ########################################
-  oc.flow.Router = Router
+  oc.Router = Router
 
   Router.DEFAULT = 0
   local DEFAULT = Router.DEFAULT
@@ -33,8 +33,8 @@ do
     --! @param - nerves - {nervable}
     parent.__init(self)
     assert(
-      oc.type(self) ~= 'oc.flow.Router',
-      'Type oc.flow.Router is Abstract so '.. 
+      oc.type(self) ~= 'oc.Router',
+      'Type oc.Router is Abstract so '.. 
       'cannot be instantiated.'
     )
     self._modules = {}
@@ -86,8 +86,8 @@ end
 
 do
   local Switch, parent = oc.class(
-    'oc.flow.Switch',
-    oc.flow.Router
+    'oc.Switch',
+    oc.Router
   )
   --! ####################################
   --! Control module that sends data
@@ -108,7 +108,7 @@ do
   --! @output {path, nerve[path].output[2]}
   --! 
   --! ####################################
-  oc.flow.Switch = Switch
+  oc.Switch = Switch
 
   function Switch:__init(router, nerves)
     --! @constructor
@@ -161,8 +161,8 @@ end
 
 do
   local Case, parent = oc.class(
-    'oc.flow.Case', 
-    oc.flow.Router
+    'oc.Case', 
+    oc.Router
   )
   --! ####################################
   --! Control module that sends the input
@@ -186,7 +186,7 @@ do
   --! TODO: Some unit tests are broken.. 
   --! Need to look into this problem
   --! ####################################
-  oc.flow.Case = Case
+  oc.Case = Case
 
   function Case:out(input)
     --! Sends the input through each possible branch

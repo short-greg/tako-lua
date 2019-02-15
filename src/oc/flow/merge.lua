@@ -6,7 +6,7 @@ require 'oc.oc'
 
 do
   local Merge, parent = oc.class(
-    'oc.flow.Merge', oc.Nerve
+    'oc.Merge', oc.Nerve
   )
   --! ########################################
   --! Connect another process stream (chain) into 
@@ -34,7 +34,7 @@ do
   --! being merged with the input stream.
   --! ########################################
   
-  oc.flow.Merge = Merge
+  oc.Merge = Merge
 
   function Merge:__init(nerves, updatePost)
     parent.__init(self)
@@ -136,27 +136,27 @@ end
 
 do
   local Under, Onto, parent
-  oc.flow.Under = Under
+  oc.Under = Under
   Under, parent = oc.class(
-    'oc.flow.Under', oc.flow.Merge
+    'oc.Under', oc.Merge
   ) 
-  oc.flow.Under = Under
+  oc.Under = Under
   function Under:__init(...)
     parent.__init(self, table.pack(...), true)
   end
 
   Onto, parent = oc.class(
-    'oc.flow.Onto', oc.flow.Merge
+    'oc.Onto', oc.Merge
   ) 
-  oc.flow.Onto = Onto
+  oc.Onto = Onto
   
   function Onto:__init(...)
     parent.__init(self, table.pack(...), false)
   end
-  oc.flow.Onto = Onto
+  oc.Onto = Onto
 end
 
 function oc.lhsRhsMerge(lhs, rhs)
   --! merge two modules together and return the merge
-  return (lhs..oc.flow.Onto(rhs)):rhs()
+  return (lhs..oc.Onto(rhs)):rhs()
 end

@@ -5,7 +5,7 @@ require 'oc.class'
 
 do
   local Repeat, parent = oc.class(
-    'oc.flow.Repeat', oc.Nerve
+    'oc.Repeat', oc.Nerve
   )
   --! ########################################
   --! Repeat a process until the process outputs false
@@ -18,13 +18,13 @@ do
   --! well if they are turned on.
   --! @input Whatever the inner process takes
   --! @output nil
-  --! @usage oc.flow.Repeat(
+  --! @usage oc.Repeat(
   --!             oc.ref.getResponse():eq('Finished')
   --!        )
   --! @backpropagate TODO: Add in backpropagation?
   --!
   --! ########################################
-  oc.flow.Repeat = Repeat
+  oc.Repeat = Repeat
   
   function Repeat:__init(chain, gradOn)
     --! @param chain
