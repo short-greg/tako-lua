@@ -228,9 +228,3 @@ function octest.math_relation_neq_with_false()
     'Output should be false'
   )
 end
-
-
-
-
-
-
