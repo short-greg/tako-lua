@@ -137,7 +137,7 @@ do
     --! @param lower The index of the start of the chain
     --! @param upper the index of the end of the chain
     --! @return oc.Chain
-    local modules = self._rhs:getSeq(self._lhs)
+    local modules, found = self._rhs:getSeq(self._lhs)
     lower = lower or 1
     upper = upper or #modules
     assert(lower <= upper, 'Lower must be <= upper')
@@ -165,7 +165,8 @@ do
   end
 
   function Chain:modules()
-    return self._rhs:getSeq(self._lhs)
+    local seq, found = self._rhs:getSeq(self._lhs)
+    return seq
   end
 
   function Chain:validChain()

@@ -1,34 +1,29 @@
-
 require 'oc.tako'
+require 'oc.oc'
 
-do
-  require 'oc.tako'
-  require 'oc.oc'
-  require 'ocnn.module'
+
+function octest.tako_define()
   local Y = oc.tako('Y')
   local V = oc.tako('V', Y)
   local chain = nn.Linear(2, 2)
   local input_ = torch.randn(2, 2)
-  print('Stimulating')
   local target = chain:stimulate(input_)
   Y.arm.t = chain
   
   local z = V()
-  assert(
-    z.t:updateOutput(input_) == target,
+  octester:eq(
+    z.t:updateOutput(input_), target,
     'The output of z.t should be equal to the target.'
   )
-  assert(
-    oc.type(z.t) == 'oc.Arm',
+  octester:eq(
+    oc.type(z.t), 'oc.Arm',
     'Member t of z should be of type arm.'
   )
 end
 
 
-do
+function octest.tako_define_with_child()
   -- Assert that it calls the child
-  require 'oc.tako'
-  require 'oc.oc'
   local Y = oc.tako('Y')
   local V = oc.tako('V', Y)
   local chain1 = nn.Linear(2, 2)
@@ -40,25 +35,22 @@ do
   V.arm.t = chain2
   
   local z = V()
-  assert(
-    z.t:updateOutput(input_) == target,
+  octester:eq(
+    z.t:updateOutput(input_), target,
     'The output of z.t should be equal to the target.'
   )
-  assert(
-    z.t.output ~= nonTarget,
+  octester:ne(
+    z.t.output, nonTarget,
     'The output of z.t should not be equal to the target.'
   )
-  assert(
-    oc.type(z.t) == 'oc.Arm',
+  octester:eq(
+    oc.type(z.t), 'oc.Arm',
     'Member t of z should be of type arm.'
   )
 end
 
 
-do
-  -- Calls the instance member
-  require 'oc.tako'
-  require 'oc.oc'
+function octest.tako_calls_instance_member()
   local Y = oc.tako('Y')
   local V = oc.tako('V', Y)
   local chain1 = nn.Linear(2, 2)
@@ -70,22 +62,22 @@ do
   local z = V()
   z.arm.t = chain2
   
-  assert(
-    z.t:updateOutput(input_) == target,
+  octester:eq(
+    z.t:updateOutput(input_), target,
     'The output of z.t should be equal to the target.'
   )
-  assert(
-    z.t.output ~= nonTarget,
+  octester:ne(
+    z.t.output, nonTarget,
     'The output of z.t should not be equal to the target.'
   )
-  assert(
-    oc.type(z.t) == 'oc.Arm',
+  octester:eq(
+    oc.type(z.t), 'oc.Arm',
     'Member t of z should be of type arm.'
   )
 end
 
 
-do
+function octest.tako_calls_function()
   local T = oc.tako('T')
   function T:__init(size)
     self._size = size
@@ -96,12 +88,11 @@ do
   end
   local x = T(2)
   
-  assert(x:size() == 2, 'X should be of size 2')
+  octester:eq(x:size(), 2, 'X should be of size 2')
 end
 
 
-do
-  require 'oc.tako'
+function octest.tako_calls_base_class_function()
   local T = oc.tako('T')
   function T:__init(size)
     self._size = size
@@ -115,12 +106,11 @@ do
   
   local x = T2(2)
   
-  assert(x:size() == 2, 'X should be of size 2')
+  octester:eq(x:size(), 2, 'X should be of size 2')
 end
 
 
-do
-  require 'oc.tako'
+function octest.tako_retrieves_base_class_size()
   local T = oc.tako('T')
   function T:__init(size)
     self._size = size
@@ -132,12 +122,11 @@ do
   
   local x = T2(2)
   
-  assert(x.size == 2, 'X should be of size 2')
+  octester:eq(x.size, 2, 'X should be of size 2')
 end
 
 
-do
-  require 'oc.tako'
+function octest.tako_ensure_index_returns_the_correct_value()
   -- test_index
   local T = oc.tako('T')
   function T:__init(size)
@@ -152,12 +141,12 @@ do
   
   local x = T2(2)
   
-  assert(x.val == 2, 'X should be of size 2')
+  octester:eq(x.val, 2, 'X should be of size 2')
 end
 
 
-do
-  require 'oc.tako'
+
+function octest.tako_sets_newindex()
   -- test_index
   local T = oc.tako('T')
   local values = {}
@@ -172,12 +161,11 @@ do
   
   local x = T2(2)
   x.size = 2
-  assert(values.size == 2, 'Size of values should be 2')
+  octester:eq(values.size, 2, 'Size of values should be 2')
 end
 
 
-do
-  require 'oc.tako'
+function octest.tako_call_function_overloaded()
   -- test_index
   local T = oc.tako('T')
   local values = {}
@@ -191,28 +179,30 @@ do
   local T2 = oc.tako('T2', T)
   
   local x = T2(2)
-  assert(x(1) == 2, 'Size of values should be 2')
+  octester:eq(x(1), 2, 'Size of values should be 2')
 end
 
 
-do
-  require 'oc.tako'
-  -- test_index
+function octest.tako_concatenate_strings()
+  local str = 'x'
   local T = oc.tako('T')
   local values = {}
   function T:__init()
   end
+  function T:__tostring__()
+    return str
+  end
   local T2, parent = oc.tako('T2', T)
   
   local x = T2(2)
-  assert(
-    tostring(x) == str2..str1, 
+  octester:eq(
+    tostring(x), str, 
     'The output of tostring is not correct'
   )
 end
 
-do
-  require 'oc.tako'
+
+function octest.tako_retrieves_the_index_from_the_subclass()
   -- test_index
   local T = oc.tako('T')
   local values = {}
@@ -224,16 +214,14 @@ do
   T2.name = 'T2'
   
   local x = T2(2)
-  assert(
-    x.name == T2.name,
+  octester:eq(
+    x.name, T2.name,
     'The name of x should be the same as T2.'
   )
 end
 
 
-do
-  require 'oc.init'
-  require 'oc.tako'
+function octest.tako_arm_linear()
   -- test_index
   local T = oc.tako('T')
   local values = {}
@@ -242,22 +230,21 @@ do
   T.arm.linear = nn.Linear(2, 2) .. nn.Linear(2, 4)
   
   local T2, parent = oc.tako('T2', T)
-  --T2.arm.linear = nn.Linear(2, 2) .. nn.Linear(2, 2)
   
   local x = T2(2)
   local result = x.linear:stimulate(torch.rand(2))
-  assert(
-    x.linear.output ~= nil and 
-    x.linear.output:size(1) == 4 and
-    oc.type(x.linear) == 'oc.Arm',
+  octester:eq(
+    oc.type(x.linear), 'oc.Arm',
+    'The member linear should be of type Arm'
+  )
+  octester:eq(
+    x.linear.output:size(1), 4,
     'The output of x should be of size 4.'
   )
 end
 
 
-do
-  require 'oc.init'
-  require 'oc.tako'
+function octest.tako_test_arm_from_super()
   -- test_index
   local T = oc.tako('T')
   local values = {}
@@ -270,60 +257,65 @@ do
   
   local x = T2(2)
   local result = x.linear:stimulate(torch.rand(2))
-  assert(
-    x.linear.output == result and 
-    oc.type(x.linear) == 'oc.SuperArm',
+  octester:eq(
+    x.linear.output, result
+  )
+  octester:eq(
+    oc.type(x.linear), 'oc.NerveRef',
     'The output of x should be of size 4.'
   )
 end
 
 
-do
-  require 'oc.init'
-  require 'oc.tako'
+function octest.tako_test_my_arm()
   -- test_index
   local T = oc.tako('T')
   local values = {}
   function T:__init()
   end
   T.arm.linear = nn.Linear(2, 2) .. nn.Linear(2, 4)
-  T.arm.x = oc.my.arm.linear
+  T.arm.x = oc.r(oc.my.linear)
   
   local x = T(2)
   local result = x.linear:stimulate(torch.rand(2))
-  assert(
-    x.linear.output == result and 
-    oc.type(x.x) == 'oc.MyArm',
-    'The output of x should be of size 4.'
+  octester:eq(
+    x.linear.output, result,
+    'The output of the linear should be the same as the' ..
+    'stimulation result.'
+  )
+  octester(
+    oc.type(x.x), 'oc.NerveRef',
+    'Arm x should be of type NerveRef.'
   )
 end
 
 
-do
-  require 'oc.init'
-  require 'oc.tako'
+function octest.tako_test_my_arm_from_super()
   -- test_index
   local T = oc.tako('T')
   local values = {}
   function T:__init()
   end
   T.arm.linear = nn.Linear(2, 2) .. nn.Linear(2, 4)
-  T.arm.x = oc.my.arm.linear
+  T.arm.x = oc.r(oc.my.linear)
   
   local T2, parent = oc.tako('T2', T)
-  T2.arm.x = oc.my.arm.linear
+  T2.arm.x = oc.r(oc.my.linear)
   
   local x = T2(2)
   local result = x.linear:stimulate(torch.rand(2))
-  assert(
-    x.linear.output == result and 
-    oc.type(x.x) == 'oc.MyArm',
+  octester:eq(
+    x.linear.output, result, 
     'The output of x should be of size 4.'
+  )
+  octester:eq(
+    oc.type(x.x), 'oc.NerveRef',
+    'x should be of type nerve ref.'
   )
 end
 
 
-do
+function octest.tako_test_that_the_results_vary_with_stimulate()
   require 'oc.init'
   require 'oc.tako'
   -- test_index
@@ -339,13 +331,12 @@ do
   local inp2 = torch.rand(2)
   local resultB = x.linear:stimulate(inp2)
   
-  assert(
-    x.linear.output == resultB,
+  octester:eq(
+    x.linear.output, resultB,
     'The output of linear should be the same as resultB'
   )
-  assert( 
-    resultA ~= resultB,
+  octester:ne( 
+    resultA, resultB,
     'ResultA should not be the same as resultB.'
   )
 end
-  --

@@ -1,132 +1,95 @@
-require 'oc.my'
 require 'oc.arm'
 require 'oc.placeholder'
-
-
 require 'oc.ref'
-require 'oc.placeholder'
+require 'oc.noop'
+require 'oc.oc'
 
-do
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
-  
+
+function octest.ref_my_update_output()
   local t = {m=2}
   local y = oc.nerve(oc.my)
   y:setOwner(t)
   
-  assert(
-    y:updateOutput() == t,
+  octester:eq(
+    y:updateOutput(), t,
     'The output of y should be the owner t'
   )
 end
 
 
-do
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
-  
+function octest.ref_my_update_output_with_indexing()
   t = {m=2}
   y = oc.nerve(oc.my.m)
   y:setOwner(t)
   
-  assert(
-    y:updateOutput() == t.m,
-    'The output of y should be the owner t'
+  octester:eq(
+    y:updateOutput(), t.m,
+    'The output of y should be value m of t'
   )
 end
 
 
-do
-  -- test oc.input
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
-  
+function octest.ref_my_update_output_with_concat()
   local t = {m=2}
   local y = oc.nerve(oc.my.m) .. oc.nerve(oc.input)
   y[1]:setOwner(t)
   y = oc.nerve(y)
   
-  assert(
-    y:updateOutput() == t.m,
+  octester:eq(
+    y:updateOutput(), t.m,
     'The output of y should be the owner t'
   )
 end
 
 
-do
-  -- test oc.input
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
-  
+function octest.ref_input_update_output_with_concat()
   local t = {m=2}
   local y = oc.nerve(oc.my) .. oc.nerve(oc.input.m)
   y[1]:setOwner(t)
   y = oc.nerve(y)
-  assert(
-    y:updateOutput() == t.m,
+  octester:eq(
+    y:updateOutput(), t.m,
     'The output of y should be the owner t'
   )
 end
 
 
-do
-  -- test oc.input
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
-  
+function octest.ref_call_my_with_input()
   local t = {m=function (input_) return input_ * 2 end}
   local y = oc.nerve(oc.my.m(oc.input))
   y:setOwner(t)
-  assert(
-    y:updateOutput(2) == 4,
+  octester:eq(
+    y:updateOutput(2), 4,
     'The output of y should be the owner t'
   )
 end
 
-do
-  -- test oc.input
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
-  
+function octest.ref_call_super_function_with_input()
   local t = {m=function (input_) return input_ * 2 end}
   local y = oc.nerve(oc.super.m(oc.input))
   y:setSuper(t)
-  assert(
-    y:updateOutput(2) == 4,
+  octester:eq(
+    y:updateOutput(2), 4,
     'The output of y should be the owner t'
   )
 end
 
 
-do
-  -- test oc.input
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
+function octest.ref_call_my_function_with_two_inputs()
   local val1, val2 = 3, 4
   local t = {
     m=function (val1, val2) return val1 * val2 end
   }
   local y = oc.nerve(oc.my.m(oc.input, val2))
   y:setOwner(t)
-  assert(
-    y:updateOutput(val1) == val1 * val2,
+  octester:eq(
+    y:updateOutput(val1), val1 * val2,
     'The output of y should be the owner t'
   )
 end
 
 
-do
-  -- test two function calls
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
+function octest.ref_call_nested_function_with_input()
   local val1 = 3
   local t = {
     m=function () return {
@@ -135,18 +98,15 @@ do
   }
   local y = oc.nerve(oc.my.m().f(oc.input))
   y:setOwner(t)
-  assert(
-    y:updateOutput(val1) == val1 * 2,
+  octester:eq(
+    y:updateOutput(val1), val1 * 2,
     'The output of y should be the owner t'
   )
 end
 
 
-do
-  -- test retrieve vlaue after function call
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
+function octest.ref_test_member_after_call()
+  -- test retrieve value after function call
   local val = 3
   local t = {
     m=function () return {
@@ -155,18 +115,14 @@ do
   }
   local y = oc.nerve(oc.my.m().f)
   y:setOwner(t)
-  assert(
-    y:updateOutput() == 3,
+  octester:eq(
+    y:updateOutput(), 3,
     'The output of y should be the owner t'
   )
 end
 
 
-do
-  -- test retrieve vlaue after function call
-  require 'oc.init'
-  require 'oc.ref'
-  require 'oc.placeholder'
+function octest.ref_test_self_call()
   local val = 3
   local t = {
     t=2,
@@ -174,13 +130,13 @@ do
   }
   local y = oc.nerve(oc.my:m())
   y:setOwner(t)
-  assert(
-    y:updateOutput() == t.t,
+  octester:eq(
+    y:updateOutput(), t.t,
     'The output of y should be the owner t'
   )
 end
 
-
+--[[
 function octest.nerve_my()
   local owner = {
     nn2=nn.Linear(2, 2),
@@ -367,3 +323,213 @@ function octest.nerve_super_updateGradInput()
     'The gradInputs should be equal'
   )
 end
+
+
+
+
+
+
+function octest.oc_placeholder_input_with_three_levels()
+  local inp = oc.ref.input.x.y.z
+  local result = oc.ops.placeholder.eval(inp, nil, {x={y={z=1}}})
+  octester:eq(
+    result, 1,
+    'Input should be equal to 1'
+  )
+end
+
+function octest.oc_placeholder_my()
+  local owner = {x=1}
+  local my = oc.ref.my.x
+  octester:eq(
+    oc.ops.placeholder.eval(my, owner, nil), 1,
+    'Input should be equal to 1'
+  )
+end
+
+function octest.oc_placeholder_input_func()
+  local inp = oc.ref.input.x(1)
+  local tako = {x = function (y) return y + 1 end}
+  local result = oc.ops.placeholder.eval(inp, nil, tako)
+  octester:eq(
+    result, 2,
+    'Input should be equal to 2'
+  )
+end
+
+function octest.oc_placeholder_mod()
+  local inp = oc.ref.input.x(1)
+  local mod = oc.ops.placeholder.mod(inp)
+  
+  octester:eq(
+    torch.isTypeOf(mod, 'oc.ArgProcessor'), true,
+    'Module should be an arg processor'
+  )
+end
+
+function octest.oc_placeholder_nest()
+  local inp = oc.ref.input.x(oc.ref.input.y)
+  local result = oc.ops.placeholder.eval(
+    inp, nil, {
+        x=function (val) return val end,
+        y=2
+      }
+  )
+  
+  octester:eq(
+    result, 2,
+    'Input should be equal to 2'
+  )
+end
+
+function octest.oc_placeholder_eval()
+  local owner = {j=2}
+  local inp = oc.ref.my.j
+  local mod = oc.ops.placeholder.mod(inp)
+  local chain = mod .. oc.Noop()
+  mod:setOwner(owner)
+  
+  local result = chain:probe()
+  octester:eq(
+    result, owner.j,
+    'The result should equal the emmber j'
+  )
+end
+
+function octest.oc_placeholder_eval_with_func()
+  local owner = {j=2}
+  local addTogether = function (val1, val2)
+    return val1 + val2
+  end
+  local inp = oc.ref.input(oc.ref.my.j, 2)
+  local mod = oc.ops.placeholder.mod(inp)
+  local chain = mod .. oc.Noop()
+  mod:setOwner(owner)
+  
+  chain:inform(addTogether)
+  local result = chain:probe()
+  octester:eq(
+    result, owner.j + 2,
+    'The result should equal the member j + 2'
+  )
+end
+
+function octest.oc_declaration_module()
+  local declared = nn.Linear:d(2, 2)
+  local defined = declared:genNerve()
+  
+  octester:eq(
+    torch.type(declared), oc.Declaration.__typename,
+    'The module should be a declaration'
+  )
+  octester:eq(
+    torch.type(defined), nn.Linear.__typename,
+    'The module should be a linear'
+  )
+  
+  octester:eq(
+    defined.weight:size(1), 2,
+    'The module\'s size is not correct'
+  )
+  octester:eq(
+    defined.weight:size(2), 2,
+    'The module\'s size is not correct'
+  )
+end
+
+function octest.oc_declaration_updateOutput()
+  local declared = nn.Linear:d(2, 2)
+  
+  if pcall(declared.updateOutput, declared) then
+    error('Should not be able to update output.')
+  end
+end
+
+function octest.oc_declaration_updateGradInput()
+  local declared = nn.Linear:d(2, 2)
+  
+  if pcall(declared.updateGradInput, declared) then
+    error('Should not be able to update output.')
+  end
+end
+
+function octest.oc_declaration_accGradParameters()
+  local declared = nn.Linear:d(2, 2)
+  
+  if pcall(declared.accGradParameters, declared) then
+    error('Should not be able to update output.')
+  end
+end
+
+
+function octest.oc_placeholder_nerve_reference_wrap()
+  local ref = oc.wrap.x
+  
+  octester:eq(
+    torch.type(ref), 'oc.NerveReference',
+    'Type should be nerve reference'
+  )
+end
+
+function octest.oc_placeholder_nerve_reference_my()
+  local ref = oc.my.x
+  
+  octester:eq(
+    torch.type(ref), 'oc.NerveReference',
+    'Type should be nerve reference'
+  )
+end
+
+function octest.oc_placeholder_nerve_reference_mychain()
+  local ref = oc.mychain.x
+  
+  octester:eq(
+    torch.type(ref), 'oc.NerveReference',
+    'Type should be nerve reference'
+  )
+end
+
+function octest.oc_placeholder_nerve_reference_super()
+  local ref = oc.super.x
+  
+  octester:eq(
+    torch.type(ref), 'oc.NerveReference',
+    'Type should be nerve reference'
+  )
+end
+
+function octest.oc_placeholder_nerve_reference_wrap_concat()
+  local chain = oc.wrap.x .. oc.Noop()
+  octester:eq(
+    torch.type(chain[1]), 'oc.Wrap',
+    'Type should be a wrap module'
+  )
+end
+
+function octest.oc_placeholder_nerve_reference_my_init_concat()
+  local chain = oc.my.x .. oc.Noop()
+  octester:eq(
+    torch.type(chain[1]), 'oc.My',
+    'Type should be a My module'
+  )
+end
+
+function octest.oc_placeholder_nerve_reference_mychain_concat()
+  local chain = oc.mychain.x .. oc.Noop()
+  
+  octester:eq(
+    torch.type(chain[1]), 'oc.MyChain',
+    'Type should be a MyChain Module'
+  )
+end
+
+function octest.oc_placeholder_nerve_reference_super_concat()
+  local chain = oc.super.x .. oc.Noop()
+  
+  octester:eq(
+    torch.type(chain[1]), 'oc.Super',
+    'Type should be a Super module'
+  )
+end
+
+--]]

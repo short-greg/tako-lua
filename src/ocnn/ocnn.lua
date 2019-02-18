@@ -79,7 +79,9 @@ function ocnn.deepUpdate(
   for k, v in pairs(updateWith) do
     if torch.isTypeOf(v, torch.Tensor) then
       -- tensor Copy
-      if not torch.isTypeOf(toUpdate[k], torch.Tensor) then
+      if not torch.isTypeOf(
+        toUpdate[k], torch.Tensor
+      ) then
         toUpdate[k] = v:clone()
       else
         toUpdate[k]:resizeAs(v):copy(v)

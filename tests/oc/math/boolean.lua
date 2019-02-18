@@ -1,14 +1,15 @@
 require 'oc.math.boolean'
-require 'oc.var'
+require 'oc.coalesce'
+
 
 function octest.math_boolean_and()
   local name = 'nn1'
   local input = true
   local input2 = false
   local input3 = true
-  local var = oc.Var(input)
-  local var2 = oc.Var(input2)
-  local var3 = oc.Var(input3)
+  local var = oc.Coalesce(input)
+  local var2 = oc.Coalesce(input2)
+  local var3 = oc.Coalesce(input3)
   nn1 = var:AND(var2)
   nn2 = var:AND(var3)
   local output = nn1:probe()
@@ -28,9 +29,9 @@ function octest.math_boolean_or()
   local input = false
   local input2 = false
   local input3 = true
-  local var = oc.Var(input)
-  local var2 = oc.Var(input2)
-  local var3 = oc.Var(input3)
+  local var = oc.Coalesce(input)
+  local var2 = oc.Coalesce(input2)
+  local var3 = oc.Coalesce(input3)
   nn1 = var:OR(var2)
   nn2 = var:OR(var3)
   local output = nn1:probe()
@@ -50,9 +51,9 @@ function octest.math_boolean_nor()
   local input = false
   local input2 = false
   local input3 = true
-  local var = oc.Var(input)
-  local var2 = oc.Var(input2)
-  local var3 = oc.Var(input3)
+  local var = oc.Coalesce(input)
+  local var2 = oc.Coalesce(input2)
+  local var3 = oc.Coalesce(input3)
   nn1 = var:NOR(var2)
   nn2 = var:NOR(var3)
   local output = nn1:probe()
@@ -72,9 +73,9 @@ function octest.math_boolean_xor()
   local input = true
   local input2 = false
   local input3 = true
-  local var = oc.Var(input)
-  local var2 = oc.Var(input2)
-  local var3 = oc.Var(input3)
+  local var = oc.Coalesce(input)
+  local var2 = oc.Coalesce(input2)
+  local var3 = oc.Coalesce(input3)
   nn1 = var:XOR(var2)
   nn2 = var:XOR(var3)
   local output = nn1:probe()

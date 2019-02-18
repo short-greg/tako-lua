@@ -4,6 +4,7 @@ require 'oc.ops.table'
 require 'oc.chain'
 require 'oc.oc'
 require 'oc.ops.ops'
+require 'oc.ref'
 
 --! ######################################
 --! Placeholder is a convenience module used in order to 

@@ -29,9 +29,17 @@ do
   end
 
   function TableAccessor:get(indexWith)
+    print(self._dataTable)
     return self._dataTable:index(indexWith)
   end
   
+  function TableAccessor:put(indices, data)
+    error(
+      'Method put() has not been implemented in the '.. 
+      'table accessor class.'
+    )
+  end
+
   function TableAccessor:__len__()
     return #self._dataTable
   end

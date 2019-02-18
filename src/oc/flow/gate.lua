@@ -1,7 +1,10 @@
 require 'oc.flow.pkg'
+require 'oc.nerve'
 require 'oc.ops.module'
 require 'oc.oc'
 require 'oc.flow.mergein'
+require 'oc.chain'
+require 'oc.arm'
 
 
 do
@@ -30,18 +33,18 @@ do
   --! ########################################
   oc.Gate = Gate
 
-  function Gate:__init(condition, chain)
+  function Gate:__init(condition, nerve)
     --! 
     --! @param condition - Condition for passing the input
     --!   through the stream
-    --! @param chain - the chain of processing to execute
+    --! @param nerve - a nervable
     --! 
     parent.__init(self)
     self._modules = {}
     condition = condition or oc.Noop()
     self._modules.cond = oc.nerve(condition)
     self._input = nil
-    self._modules.stream = oc.nerve(chain)
+    self._modules.stream = oc.nerve(nerve)
   end
   
   function Gate:children()
@@ -54,14 +57,12 @@ do
     local output = {}
     self._input = input
     output[1] = self._modules.cond:stimulate(input[1])
-    if output[1] == 1 then
+    if output[1] == true then
       output[2] = self._modules.stream:stimulate(input[2])
     end
     self.output = output
     return output
   end
-  
-  Gate.out = Gate.updateOutput
 
   function Gate:grad(input, gradOutput)
     --! If the condition has passed on the forward
@@ -72,7 +73,7 @@ do
       gradOutput[1]
     )
     
-    if self.output[1] == 1 then
+    if self.output[1] == true then
       gradInput[2] = self._modules.stream:stimulateGrad(
         input[2], gradOutput[2]
       )
@@ -81,14 +82,16 @@ do
     return gradInput
   end
   
-  Gate.grad = Gate.updateGradInput
+  function Gate:children()
+    return {self._modules.cond, self._modules.stream}
+  end
   
   function Gate:accGradParameters(input, gradOutput)
     self._modules.cond:accGradParameters(
       input[1], gradOutput[1]
     )
     
-    if self.output[1] == 1 then
+    if self.output[1] == true then
       self._modules.stream:accGradParameters(
         input[2], gradOutput[2]
       )

@@ -68,15 +68,20 @@ local createIndexFunc = function (child)
       return result
     end
     result = parentIndex(myChild, index)
-    if result then
+    if result ~= nil then
       return result
     end
+    
     --! TODO: Not done in the right order....
     --! need to see if the index exists in the parent first
     local childIndex = rawget(myChild, '__index__')
     if childIndex ~= nil then
-      return childIndex(self, index)
+      result = childIndex(self, index)
+      if result ~= nil then
+        return result
+      end
     end
+
     result = parentIndexFunc(myChild, self, index)
     return result
   end

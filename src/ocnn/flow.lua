@@ -5,7 +5,7 @@ require 'ocnn.pkg'
 
 do
   local DivergeClone, parent = oc.class(
-    'ocnn.DivergeClone', oc.flow.Diverge
+    'ocnn.DivergeClone', oc.Diverge
   )
   --! ################################
   --! Clones a nerve k times 

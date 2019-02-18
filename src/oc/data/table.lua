@@ -51,13 +51,13 @@ do
   )
   oc.data.TableStorage = TableStorage
   
-  function TableStorage:__init(baseData)
+  function TableStorage:__init()
     rawset(self, '_data', {})
     rawset(self, '_length', #self._data)
   end
 
   function TableStorage:__len__()
-    return self._length
+    return table.maxn(self._data)
   end
   
   function TableStorage:empty()
@@ -75,7 +75,7 @@ do
     --! ensure that only data up
     --! is included
     return table.pack(
-      table.unpack(self._data, 1, self._length)
+      table.unpack(self._data, 1, #self)
     )
   end
 end

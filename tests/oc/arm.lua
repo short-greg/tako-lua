@@ -1,8 +1,10 @@
 require 'oc.arm'
 require 'oc.chain'
+require 'oc.noop'
+
 
 function octest.oc_arm_len()
-  local module = nn.Linear(2, 2):lab('hello')
+  local module = oc.Noop():label('hello')
   local arm = oc.Arm(
     oc.Chain(module)
   )
@@ -14,7 +16,7 @@ end
 
 function octest.oc_arm_getByName()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name) 
+  local nn1 = oc.Noop():label(name) 
   local arm = oc.Arm(oc.Chain(nn1))
   local nn = arm:getByName(name)
   octester:asserteq(
@@ -25,8 +27,8 @@ end
 
 function octest.oc_arm_get()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name) 
-  local nn2 = nn.Linear(2, 2) 
+  local nn1 = oc.Noop():label(name) 
+  local nn2 = oc.Noop()
   local arm = oc.Arm(nn1 .. nn2)
   local nn = arm:get(2)
   octester:asserteq(
@@ -37,8 +39,8 @@ end
 
 function octest.oc_arm_updateOutput()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name) 
-  local nn2 = nn.Linear(2, 2) 
+  local nn1 = oc.Noop():label(name) 
+  local nn2 = oc.Noop()
   local arm = oc.Arm(nn1 .. nn2)
   arm:inform(torch.rand(2, 2))
   local output = arm:probe()
@@ -50,10 +52,10 @@ end
 
 function octest.oc_arm_updateGradInput()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name) 
-  local nn2 = nn.Linear(2, 2) 
+  local nn1 = oc.Noop():label(name) 
+  local nn2 = oc.Noop()
   local arm = oc.Arm(nn1 .. nn2)
-  arm:inform(torch.rand(2, 2))
+  arm:inform(2)
   local output = arm:probe()
   arm:informGrad(output)
   local gradInput = arm:probeGrad()
@@ -65,8 +67,8 @@ end
 
 function octest.oc_arm_root()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name) 
-  local nn2 = nn.Linear(2, 2) 
+  local nn1 = oc.Noop():label(name) 
+  local nn2 = oc.Noop()
   local arm = oc.Arm(nn1 .. nn2)
   local root = arm:root()
   octester:asserteq(
@@ -77,7 +79,7 @@ end
 
 function octest.oc_arm_fromNerve()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name) 
+  local nn1 = oc.Noop():label(name) 
   local arm = oc.Arm.fromNerve(nn1)
   local root = arm:root()
   octester:asserteq(
@@ -88,12 +90,16 @@ end
 
 function octest.oc_arm_chain()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name) 
-  local nn2 = nn.Linear(2, 2)
+  local nn1 = oc.Noop():label(name) 
+  local nn2 = oc.Noop()
   local chain = nn1 .. nn2
   local arm = oc.Arm(chain)
   octester:asserteq(
-    arm:chain(), chain,
+    arm:chain():lhs(), chain:lhs(),
+    'The modules should be the same.'
+  )
+  octester:asserteq(
+    arm:chain():rhs(), chain:rhs(),
     'The modules should be the same.'
   )
 end

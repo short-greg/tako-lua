@@ -1,15 +1,16 @@
-require 'oc.emission'
-require 'oc.var'
+require 'oc.init'
+require 'ocnn.module'
 require 'ocnn.classarray'
-  
+
+
 function octest.nerve_classarray_output()
   local t = ocnn.ClassArray(2, nn.Linear(2, 2))
 	local input1 = torch.randn(2, 2)
 	local input2 = torch.zeros(2, 2)
 	input2[1]:add(input1[2])
 	input2[2]:add(input1[1])
-	local vv = oc.Emission(torch.Tensor{1, 2}, input1)
-	local vv2 = oc.Emission(torch.Tensor{2, 1}, input2)
+	local vv = {torch.Tensor{1, 2}, input1}
+	local vv2 = {torch.Tensor{2, 1}, input2}
   t:relaxStream()
 	local output = t:updateOutput(vv)
   t:relaxStream()
@@ -29,8 +30,8 @@ function octest.nerve_classarray_gradInput()
 	local input2 = torch.zeros(2, 2)
 	input2[1]:add(input1[2])
 	input2[2]:add(input1[1])
-	local vv = oc.Emission(torch.Tensor{1, 2}, input1)
-	local vv2 = oc.Emission(torch.Tensor{2, 1}, input2)
+	local vv = {torch.Tensor{1, 2}, input1}
+	local vv2 = {torch.Tensor{2, 1}, input2}
   t:relaxStream()
 	local output = t:updateOutput(vv)
 	local gradInput = t:updateGradInput(vv, output)
@@ -45,5 +46,4 @@ function octest.nerve_classarray_gradInput()
 		gradInput2b, gradInput[2],
 		'Grad inputs are not equal'
 	)
-	
 end

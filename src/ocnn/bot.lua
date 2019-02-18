@@ -12,7 +12,7 @@ require 'ocnn.ocnn'
 
 do
   local TensorStorer, parent = oc.class(
-    'ocnn.bot.store.TensorStorer',
+    'oc.bot.store.TensorStorer',
     oc.bot.store.Storer
   )
   --! ################################

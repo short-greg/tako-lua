@@ -1,6 +1,8 @@
 require 'oc.class'
+require 'oc.oc'
 require 'oc.pkg'
 
+-- TODO: Decide if I want to leave this
 
 do
   local Emission, parent = oc.class(
@@ -42,7 +44,41 @@ do
       self._vals, from, to  
     ))
   end
+  
+  function Emission:reset()
+    self._vals = {}
+  end
+  
 
+  
+  function Emission:__index__(self, index)
+    if self._vals[index] then
+      return self._vals[index]
+    end
+  end
+
+  function Emission:__newindex__(self, index, val)
+    assert(
+      type(index) == 'number' or not oc.isInstance(self),
+      'New index must be of type number'
+    )
+    assert(
+      not (not oc.isInstance(self) and type(index) == 'number'),
+      'Cannot add a numberical index to class of type Emission.'
+    )
+    if tonumber(index) then
+      self._vals[index] = val
+    end
+  end
+  
+  --[[
+  function Emission:get()
+    --! @return Value at the present index - 
+    return self._vals[self._index]
+  end
+  --]]
+
+  --[[
   function Emission:index(i)
     --! @param i - the index to set the current index to
     --!            i > 0
@@ -52,18 +88,11 @@ do
     )
     self._index = i
   end
-  
-  function Emission:reset()
-    self._vals = {}
-  end
-  
+  --]]
+    --[[
   function Emission:set(index, val)
     --! @param val - the value to set the current index to
     self._vals[index] = val
   end
-  
-  function Emission:get()
-    --! @return Value at the present index - 
-    return self._vals[self._index]
-  end
+  --]]
 end

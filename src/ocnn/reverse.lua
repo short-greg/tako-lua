@@ -1,6 +1,7 @@
 require 'oc.init'
+require 'ocnn.module'
 require 'nn'
-require 'trans.shape'
+require 'ocnn.shape'
 require 'ocnn.pkg'
 --require 'ocnn.classarray'
 
@@ -304,7 +305,7 @@ do
     )
   end
   
-  function trans.FlattenBatch:rev(dynamic)
+  function ocnn.FlattenBatch:rev(dynamic)
     return ocnn.FlattenBatchReverse(
       self, dynamic
     )

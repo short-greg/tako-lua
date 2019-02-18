@@ -6,10 +6,10 @@ require 'oc.flow.merge'
 
 
 local Relation, parent = oc.class(
-  'oc.math.Relation', oc.Nerve
+  'oc.Relation', oc.Nerve
 )
 
-oc.math.Relation = Relation
+oc.Relation = Relation
 --! 
 --! Relational operations to be used on numbers
 --! or other values that can be compared.
@@ -18,7 +18,7 @@ oc.math.Relation = Relation
 --!
 do
   local LT, parent = oc.class(
-    'oc.math.LT', Relation
+    'oc.LT', Relation
   )
   --! 
   --! Tests whether the lhs value is
@@ -27,7 +27,7 @@ do
   --! @output   boolean
   --!
 
-  oc.math.LT = LT
+  oc.LT = LT
 
   function LT:out(input)
     return input[1] < input[2]
@@ -37,7 +37,7 @@ end
 
 do
   local LE, parent = oc.class(
-    'oc.math.LE', Relation
+    'oc.LE', Relation
   )
   --! 
   --! Tests whether the lhs value is <= the rhs value
@@ -45,7 +45,7 @@ do
   --! @output   boolean
   --! 
   
-  oc.math.LE = LE
+  oc.LE = LE
   
   function LE:out(input)
     return input[1] <= input[2]
@@ -55,7 +55,7 @@ end
 
 do
   local GT, parent = oc.class(
-    'oc.math.GT', Relation
+    'oc.GT', Relation
   )
   --! 
   --! Tests whether the lhs value is > the rhs value
@@ -63,7 +63,7 @@ do
   --! @output   boolean
   --! 
   
-  oc.math.GT = GT
+  oc.GT = GT
   
   function GT:out(input)
     return input[1] > input[2]
@@ -73,14 +73,14 @@ end
 
 do
   local GE, parent = oc.class(
-    'oc.math.GE', Relation
+    'oc.GE', Relation
   )
   --! 
   --! Tests whether the lhs value is >= the rhs value
   --! @input    number
   --! @output   boolean
   --! 
-  oc.math.GE = GE
+  oc.GE = GE
   
   function GE:out(input)
     return input[1] >= input[2]
@@ -90,7 +90,7 @@ end
 
 do
   local EQ, parent = oc.class(
-    'oc.math.EQ', Relation
+    'oc.EQ', Relation
   )
   --!
   --! Tests whether the lhs value is >= the rhs value
@@ -98,7 +98,7 @@ do
   --! @output   boolean
   --!
   
-  oc.math.EQ = EQ
+  oc.EQ = EQ
   function EQ:out(input)
     return input[1] == input[2]
   end
@@ -106,10 +106,10 @@ end
 
 do
   local NEQ, parent = oc.class(
-    'oc.math.NEQ', Relation
+    'oc.NEQ', Relation
   )
   
-  oc.math.NEQ = NEQ
+  oc.NEQ = NEQ
   
   function NEQ:out(input)
     --! Tests whether the lhs value is ! 

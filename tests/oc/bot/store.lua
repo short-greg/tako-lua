@@ -1,28 +1,25 @@
+require 'oc.bot.store'
+require 'oc.init'
 
-do
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  
-  local store = oc.bot.nerve.Storer()
+
+function octest.bot_store_stimulate()
+  local store = oc.bot.store.Storer()
   
   local mod = nn.Linear(2, 2)
   mod:stimulate(torch.rand(2))
   
   store:probe():forward(mod)
   local outputs = store:getOutputs()
-  assert(
+  octester:assert(
     outputs[mod] == mod.output,
     'Must store the mod '
   )
-  
 end
 
-do
+
+function octest.bot_store_grad_stimulate()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  
-  local store = oc.bot.nerve.Storer()
+  local store = oc.bot.store.Storer()
   
   local mod = nn.Linear(2, 2)
   local output = mod.output
@@ -32,21 +29,16 @@ do
   
   store:grad():inform():forward(mod)
   local outputs = store:getOutputs()
-  assert(
+  octester:assert(
     output == mod.output,
     'Must store the mod '
   )
-  
 end
 
 
-do
+function octest.bot_store_probe_grad()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  
-  local store = oc.bot.nerve.Storer()
-  
+  local store = oc.bot.store.Storer()
   local mod = nn.Linear(2, 2)
   local output = mod.output
   mod:stimulate(torch.rand(2))
@@ -54,18 +46,16 @@ do
   store:grad():probe():forward(mod)
   
   local gradInputs = store:getGradInputs()
-  assert(
+  octester:assert(
     gradInputs[mod] == mod.gradInput,
     'Must store the mod '
   )
 end
 
 
-do
+function octest.bot_store_acc_inform()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  local store = oc.bot.nerve.Storer()
+  local store = oc.bot.store.Storer()
   local mod = nn.Linear(2, 2)
   local output = mod.output
   local gradInput = mod.gradInput
@@ -76,23 +66,23 @@ do
   mod.output = torch.rand(2)
   mod.gradInput = torch.rand(2)
   store:acc():inform():forward(mod)
-  assert(
+  octester:assert(
     output == mod.output,
     'Must store the mod output'
   )
-  print('Grad Input')
-  assert(
+  octester:assert(
     gradInput == mod.gradInput,
     'Must store the mod gradInput'
   )
 end
 
 
-do
+--[[
+--TODO: Looks the same as the test above
+
+function octest.bot_store_acc_inform()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  local store = oc.bot.nerve.Storer()
+  local store = oc.bot.store.Storer()
   local mod = nn.Linear(2, 2)
   local output = mod.output
   local gradInput = mod.gradInput
@@ -103,70 +93,63 @@ do
   mod.output = torch.rand(2)
   mod.gradInput = torch.rand(2)
   store:acc():inform():forward(mod)
-  assert(
+  octester:assert(
     output == mod.output,
     'Must store the mod output'
   )
-  assert(
+  octester:assert(
     gradInput == mod.gradInput,
     'Must store the mod gradInput'
   )
 end
+--]]
 
-
-do
+function octest.bot_null_storer_probe()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  local store = oc.bot.nerve.NullStorer()
+  local store = oc.bot.store.NullStorer()
   local mod = nn.Linear(2, 2)
   mod:stimulate(torch.rand(2))
   store:out():probe():forward(mod)
-  assert(
+  octester:assert(
     #store:getOutputs() == 0,
     'Should not have stored any outputs'
   )
 end
 
 
-do
+function octest.bot_null_storer_grad_probe()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  local store = oc.bot.nerve.NullStorer()
+  local store = oc.bot.store.NullStorer()
   local mod = nn.Linear(2, 2)
   mod:stimulate(torch.rand(2))
   mod:stimulateGrad(torch.rand(2))
   store:grad():probe():forward(mod)
-  assert(
+  octester:assert(
     #store:getGradInputs() == 0,
     'Should not have stored any outputs'
   )
 end
 
-do
+
+function octest.bot_null_storer_grad_inform()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  local store = oc.bot.nerve.NullStorer()
+  local store = oc.bot.store.NullStorer()
   local mod = nn.Linear(2, 2)
   mod:stimulate(torch.rand(2))
   local output = torch.rand(2)
   store:out():probe():forward(mod)
   mod.output = output
   store:grad():inform():forward(mod)
-  assert(
+  octester:assert(
     mod.output == output,
     ''
   )
 end
 
 
-do
+function octest.bot_null_storer_acc_inform()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  local store = oc.bot.nerve.NullStorer()
+  local store = oc.bot.store.NullStorer()
   local mod = nn.Linear(2, 2)
   mod:stimulate(torch.rand(2))
   local gradInput = torch.rand(2)
@@ -176,17 +159,17 @@ do
   
   mod.gradInput = gradInput
   store:acc():inform():forward(mod)
-  assert(
+  octester:assert(
     mod.gradInput == gradInput,
     ''
   )
 end
 
-do
+--[[
+-- TODO: check this
+function octest.bot_null_storer_acc_inform()
   -- Inform
-  require 'oc.init'
-  require 'oc.bot.nerve'
-  local store = oc.bot.nerve.NullStorer()
+  local store = oc.bot.store.NullStorer()
   local mod = nn.Linear(2, 2)
   mod:stimulate(torch.rand(2))
   local gradInput = torch.rand(2)
@@ -196,8 +179,9 @@ do
   
   mod.gradInput = gradInput
   store:acc():inform():forward(mod)
-  assert(
+  octester:assert(
     mod.gradInput == gradInput,
     ''
   )
 end
+--]]

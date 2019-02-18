@@ -149,8 +149,8 @@ do
       nerve, self._deepDive or deep
     )
     if visited then
-      for name, outgoing in nerve:outgoing() do
-        outgoing:forward(child)
+      for name, outgoing in pairs(nerve:outgoing()) do
+        self:forward(outgoing)
       end
     end
   end
@@ -166,7 +166,7 @@ do
     if visited then
       local incoming = nerve:incoming()
       if incoming ~= nil then
-        incoming:backward(child)
+        self:backward(incoming)
       end
     end
   end

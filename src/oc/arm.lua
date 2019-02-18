@@ -30,15 +30,16 @@ do
     parent.__init(self)
     self._modules = {}
     if not torch.isTypeOf(nerve, 'oc.Chain') then
-      self._modules.root = oc.nerve(mod)
+      self._modules.root = oc.nerve(nerve)
       self._modules.leaf = self._modules.root
     else
-      self._modules.root = mod:lhs()
-      self._modules.leaf = mod:rhs()
+      self._modules.root = nerve:lhs()
+      self._modules.leaf = nerve:rhs()
     end
     self._gradOn = nerve._gradOn
     self._accOn = nerve._accOn
   end
+  
   
   function Arm:out(input)
     self._modules.root:inform(input)
@@ -83,7 +84,7 @@ do
   function Arm:getByName(name)
     local modules = self._modules.leaf:getSeq()
     for i=1, #modules do
-      if modules[i]:name() == name then
+      if modules[i].name == name then
         return modules[i]
       end
     end

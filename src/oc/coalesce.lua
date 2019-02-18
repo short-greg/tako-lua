@@ -3,6 +3,7 @@ require 'oc.class'
 require 'oc.nerve'
 require 'oc.oc'
 
+
 do
   local Coalesce, parent = oc.class(
     'oc.Coalesce', oc.Nerve
@@ -24,14 +25,14 @@ do
   
   local valueDefault, placeholderDefault
   
-  function Coalesce:__init(defaultValue)
+  function Coalesce:__init(default)
     --! Nerve with a default value
     --! a tentacle
     --! @param defaultValue
     parent.__init(self)
-    self.default = value
+    self.default = default
     if oc.isTypeOf(self.default, oc.Placeholder) then
-      self.evalDefault = valueDefault
+      self.evalDefault = placeholderDefault
     else
       self.evalDefault = valueDefault
     end
@@ -44,6 +45,14 @@ do
     return input
   end
   
+  function Coalesce:grad(input, gradOutput)
+    if input == nil then
+      return nil
+    end
+    return gradOutput
+  end
+  
+  --TODO: Coalesce has no 'owner' yet
   placeholderDefault = function (self)
     return self.default:eval(
       self._owner, self.default

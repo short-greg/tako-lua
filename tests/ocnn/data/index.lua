@@ -1,98 +1,97 @@
+require 'ocnn.data.index'
 
-do
-  require 'ocnn.data.index'
+
+function octest.data_index_tensor_indices()
   local index = oc.data.index.Index(1)
   local indices = index:tensorIndices(
     torch.LongTensor{1}
   )
-  assert(
-    oc.type(indices) == 'ocnn.data.index.Indices',
+  octester:eq(
+    oc.type(indices), 'ocnn.data.index.Indices',
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
+function octest.data_index_range()
   local index = oc.data.index.IndexRange(1, 4)
   local indices = index:tensorIndices(
     torch.LongTensor{1, 2}
   )
-  assert(
-    oc.type(indices) == 'ocnn.data.index.Indices',
+  octester:eq(
+    oc.type(indices), 'ocnn.data.index.Indices',
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
+function octest.data_index_range_expand()
   local index = oc.data.index.IndexRange(1, 4)
   local expanded = index:expand(2)
-  assert(
-    oc.type(expanded) == 'oc.data.index.IndexRange',
+  octester:eq(
+    oc.type(expanded), 'oc.data.index.IndexRange',
     ''
   )
-  print(
-    expanded._startingVal, expanded._frameSize
-  )
-  assert(
-    expanded._startingVal == 1,
+  octester:eq(
+    expanded._startingVal, 1,
     ''
   )
-  assert(
-    expanded._frameSize == 8,
+  octester:eq(
+    expanded._frameSize, 8,
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
+function octest.data_index_range_rand_tensor()
   local index = oc.data.index.IndexRange(2, 2)
   local tensor = torch.randn(6)
   local subTensor = index:indexOnTensor(tensor)
-  assert(
-    subTensor:eq(tensor:index(1, torch.range(2, 3):long())),
+  octester:eq(
+    subTensor,
+      tensor:index(
+        1, torch.range(2, 3):long()
+      ),
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
+function octest.data_index_range_index_on_table()
   local index = oc.data.index.IndexRange(2, 2)
   local sub = index:indexOn({3, 2, 4, 5, 6, 7})
-  assert(
-    sub[1] == 2 and sub[2] == 4,
+  octester:eq(
+    sub[1], 2, ''
+  )
+  octester:eq(
+    sub[2], 4,
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
+function octest.data_indices_on_tensor()
   local index = ocnn.data.index.Indices(
     torch.LongTensor{5, 2, 1}
   )
   local tensor = torch.randn(6)
   local subTensor = index:indexOnTensor(tensor)
-  assert(
-    subTensor[1] == tensor[5],
+  octester:eq(
+    subTensor[1], tensor[5],
     ''
   )
-  assert(
-    subTensor[2] == tensor[2],
+  octester:eq(
+    subTensor[2], tensor[2],
     ''
   )
-  assert(
-    subTensor[3] == tensor[1],
+  octester:eq(
+    subTensor[3], tensor[1],
     ''
   )
 end
 
-do
-  require 'ocnn.data.index'
+
+function octest.data_indices_on_tensor_expanded()
   local index = ocnn.data.index.Indices(
     torch.LongTensor{4, 2}
   )
@@ -100,15 +99,14 @@ do
   local expandedComp = torch.LongTensor{
     7, 8, 3, 4
   }
-  assert(
-    expanded._indices:equal(expandedComp),
+  octester:eq(
+    expanded._indices, expandedComp,
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
+function octest.data_indices_on_tensor_offset()
   local index = ocnn.data.index.Indices(
     torch.LongTensor{4, 2}
   )
@@ -116,91 +114,108 @@ do
   local offsetComp = torch.LongTensor{
     6, 4
   }
-  assert(
-    offset._indices:equal(offsetComp),
+  octester:eq(
+    offset._indices, offsetComp,
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
-  local index = ocnn.data.index.Indices(torch.LongTensor{4, 2})
+function octest.data_indices_on_tensor_randomish_order()
+  local index = ocnn.data.index.Indices(
+    torch.LongTensor{4, 2}
+  )
   local sub = index:indexOn({3, 2, 4, 5, 6, 7})
-  assert(
-    sub[1] == 5 and sub[2] == 2,
+  octester:eq(
+    sub[1], 5
+  )
+  octester:eq(
+    sub[2], 2,
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
-  local index = ocnn.data.index.Indices(torch.LongTensor{4, 2, 3, 5})
-  local sub = index:tensorIndices(torch.LongTensor{2, 1, 4})
-  assert(
-    sub._indices[1] == 2 and sub._indices[2] == 4 and sub._indices[3] == 5,
+function octest.data_indices_on_tensor_indices()
+  local index = ocnn.data.index.Indices(
+    torch.LongTensor{4, 2, 3, 5}
+  )
+  local sub = index:tensorIndices(
+    torch.LongTensor{2, 1, 4}
+  )
+  octester:eq(
+    sub._indices[1], 2, ''
+  )
+  octester:eq(
+    sub._indices[2], 4, ''
+  )
+  octester:eq(
+    sub._indices[3], 5,
     ''
   )
 end
 
-do
-  require 'ocnn.data.index'
+function octest.data_indices_on_index_range_with_tensor_indices()
   local index = oc.data.index.IndexRange(2, 4)
   local sub = index:tensorIndices(torch.LongTensor{2, 1, 4})
-  assert(
-    sub._indices[1] == 3 and sub._indices[2] == 2 and sub._indices[3] == 5,
+  octester:eq(
+    sub._indices[1], 3, '' 
+  )
+  octester:eq(
+    sub._indices[2], 2, '' 
+  )
+  octester:eq(
+    sub._indices[3], 5,
     ''
   )
 end
 
-do
-  require 'ocnn.data.index'
+function octest.data_indices_on_index_with_tensor()
   local index = oc.data.index.Index(2)
   local sub = index:tensorIndices(torch.LongTensor{1})
-  assert(
-    sub._indices[1] == 2,
+  octester:eq(
+    sub._indices[1], 2,
     ''
   )
 end
 
-do
-  require 'ocnn.data.index'
+
+function octest.data_index_update_indexed_with_tensor()
   local index = oc.data.index.Index(2)
   local tensor1 = torch.zeros(4, 4)
   local tensor2 = torch.ones(1, 4)
   index:indexUpdateTensor(tensor1, tensor2)
-  assert(
-    tensor1:narrow(1, 2, 1):eq(tensor2),
+  octester:eq(
+    tensor1:narrow(1, 2, 1), tensor2,
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
+function octest.data_index_range_update_with_tensor()
   local index = oc.data.index.IndexRange(2, 2)
   local tensor1 = torch.zeros(4, 4)
   local tensor2 = torch.ones(2, 4)
   index:indexUpdateTensor(tensor1, tensor2)
-  assert(
-    tensor1:narrow(1, 2, 2):eq(tensor2),
+  octester:eq(
+    tensor1:narrow(1, 2, 2), tensor2,
     ''
   )
 end
 
 
-do
-  require 'ocnn.data.index'
-  local index = ocnn.data.index.Indices(torch.LongTensor{3, 1})
+function octest.data_indices_update_with_tensor()
+  local index = ocnn.data.index.Indices(
+    torch.LongTensor{3, 1}
+  )
   local tensor1 = torch.zeros(4, 4)
   local tensor2 = torch.randn(2, 4)
   
   index:indexUpdateTensor(tensor1, tensor2)
-  assert(
+  octester:eq(
     tensor1:index(
       1, torch.LongTensor{3, 1}
-    ):eq(tensor2),
+    ), tensor2,
     ''
   )
 end

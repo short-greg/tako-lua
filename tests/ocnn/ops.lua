@@ -1,8 +1,9 @@
 require 'torch'
 require 'oc.ops.tensor'
 
+
 function octest.ops_expandTo_with_one_dim()
-  local expandFrom = torch.Tensor{1, 1}
+  local expandFrom = torch.Tensor{{1, 1}}
   local expandBase = torch.Tensor{
     {1, 2},
     {3, 4},
@@ -14,7 +15,9 @@ function octest.ops_expandTo_with_one_dim()
     {1, 1}
   }
   octester:eq(
-    oc.ops.tensor.expandTo(expandFrom, expandBase),
+    oc.ops.tensor.expandTo(
+      expandFrom, expandBase
+    ),
     expandTo,
     'Tensor not expanded properly'
   )

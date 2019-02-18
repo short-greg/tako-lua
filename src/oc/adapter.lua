@@ -1,6 +1,6 @@
 require 'oc.pkg'
-require 'oc.nerve'
 require 'oc.class'
+require 'oc.nerve'
 
 
 --! converts all the members to nerves
@@ -48,29 +48,49 @@ do
     --! @param probeMembers {nervables to probe}
     parent.__init(self)
     self._modules = {}
-    self._modules.inform = nerveMembers(informMembers)
-    self._modules.probe = nerveMembers(probeMembers)
+    informMembers = nerveMembers(informMembers)
+    probeMembers = nerveMembers(probeMembers)
+    self._modules.inform = informMembers
+    self._modules.probe = probeMembers
+    local informChildren = {}
+    local probeChildren = {}
     
-    if torch.type(informMembers) == 'table' then
+    if oc.type(informMembers) == 'table' then
+      informChildren = informMembers
       self._informEmission = true
     else 
+      informChildren = {informMembers}
       self._informEmission = false
     end
-    if torch.type(self._modules.probe) == 'table' then
+    if oc.type(probeMembers) == 'table' then
+      probeChildren = probeMembers
+      self._children = {
+        table.unpack(informMembers)
+      }
       self._probeEmission = true
     else 
+      probeChildren = {probeMembers}
       self._probeEmission = false
     end
+    self._children = {table.unpack(informChildren)}
+    for i=1, #probeChildren do
+      table.insert(self._children, probeChildren[i])
+    end
   end
-
+  
+  function Adapter:children()
+    return self._children
+  end
+  
   function Adapter:out(input)
     local output
+  
     if self._informEmission then
       for i=1, #self._modules.inform do
-        self._modules.inform[i]:stimulate(input)
+        self._modules.inform[i]:inform(input[i])
       end
     else
-      self._modules.inform:stimulate(input)
+      self._modules.inform:inform(input)
     end
     
     if self._probeEmission then
@@ -82,6 +102,7 @@ do
       end
     else
       output = self._modules.probe:probe()
+
     end
     return output
   end

@@ -1,187 +1,128 @@
 require 'torch'
-require 'nn'
+require 'oc.nerve'
+require 'oc.chain'
 require 'oc.flow.router'
-require 'oc.var'
+require 'oc.const'
+require 'oc.coalesce'
+require 'oc.noop'
 
-function octest.flow_routeinput_output()
-  local input = torch.rand(2, 2)
-  local mod1a = nn.Linear(2, 2):lab('1a')
-  local mod1b = nn.Linear(2, 2):lab('1b')
-  local mod2a = nn.Linear(2, 2):lab('2a')
-  local mod2b = nn.Linear(2, 2):lab('2b')
-  local mod = oc.flow.RouteInput{
-  	{oc.Var(false), mod1a .. mod1b},
-  	{oc.Var(true), mod2a .. mod2b} 
-  }
-  mod:inform(input)
-  local output = mod:probe()
-  local mod2bOut = mod2b:probe()
+
+function octest.flow_switch_output()
+  local input_ = {1}
+  local routingFunc = oc.Noop()
+  local mod1 = oc.Coalesce(1)
+  local mod2 = oc.Coalesce(2)
+  local target = {1, 1}
+  local mod = oc.Switch(
+    routingFunc, {mod1, mod2}
+  )
   octester:eq(
-    output, mod2bOut,
+    mod:stimulate(input_), target,
     'The output of the module does not equal the target'
   )
 end
 
-function octest.flow_routeinput_output_with_default()
-  local input = torch.rand(2, 2)
-  local mod1a = nn.Linear(2, 2):lab('1a')
-  local mod1b = nn.Linear(2, 2):lab('1b')
-  local mod2a = nn.Linear(2, 2):lab('2a')
-  local mod2b = nn.Linear(2, 2):lab('2b')
-  local mod3a = nn.Linear(2, 2):lab('3a')
-  local mod3b = nn.Linear(2, 2):lab('3b')
-  local mod = oc.flow.RouteInput{
-  	{oc.Var(false), mod1a .. mod1b},
-  	{oc.Var(false), mod2a .. mod2b},
-  	default=mod3a .. mod3b
-  }
-  mod:inform(input)
-  local output1 = mod:probe()
-  local output = mod3b:probe()
+function octest.flow_switch_output_2()
+  local input_ = {2}
+  local routingFunc = oc.Noop()
+  local mod1 = oc.Coalesce(1)
+  local mod2 = oc.Coalesce(2)
+  local target = {2, 2}
+  local mod = oc.Switch(
+    routingFunc, {mod1, mod2}
+  )
   octester:eq(
-    output1, output,
+    mod:stimulate(input_), target,
     'The output of the module does not equal the target'
   )
 end
 
-function octest.flow_routeinput_gradInput()
-  local input = torch.rand(2, 2)
-  local mod1a = nn.Linear(2, 2):lab('1a')
-  local mod1b = nn.Linear(2, 2):lab('1b')
-  local mod2a = nn.Linear(2, 2):lab('2a')
-  local mod2b = nn.Linear(2, 2):lab('2b')
-  local mod = oc.flow.RouteInput{
-  	{oc.Var(false), mod1a .. mod1b},
-  	{oc.Var(true), mod2a .. mod2b} 
-  }
-  mod:inform(input)
-  local output = mod:probe()
-  mod:informGrad(output)
-  local compareGrad = mod:probeGrad()
-  local gradInput = mod2a:probeGrad()
-  
+function octest.flow_switch_output_default()
+  local input_ = {}
+  local routingFunc = oc.Noop()
+  local mod1 = oc.Coalesce(1)
+  local mod2 = oc.Coalesce(2)
+  local target = {nil, 2}
+  local mod = oc.Switch(
+    routingFunc, {mod1, default=mod2}
+  )
   octester:eq(
-    compareGrad, gradInput,
+    mod:stimulate(input_), target,
     'The output of the module does not equal the target'
   )
 end
 
 
-function octest.flow_routeoutput_output()
-  local input = torch.rand(2, 2)
-  local mod1a = nn.Linear(2, 2):lab('1a')
-  local mod1b = nn.Linear(2, 2):lab('1b')
-  local mod2a = nn.Linear(2, 2):lab('2a')
-  local mod2b = nn.Linear(2, 2):lab('2b')
-  local mod = oc.flow.RouteOutput{
-  	{mod1a .. mod1b, oc.Var(false)},
-  	{mod2a .. mod2b, oc.Var(true)} 
-  }
-  mod:inform(input)
-  local compareOut = mod:probe()
-  local output = mod2b:probe()
-  octester:eq(
-    compareOut, output,
-    'The output of the module does not equal the target'
+function octest.flow_switch_grad_input_default()
+  local input_ = {}
+  local routingFunc = oc.Noop()
+  local mod1 = oc.Coalesce(1)
+  local mod2 = oc.Coalesce(2)
+  local target = {}
+  local mod = oc.Switch(
+    routingFunc, {mod1, default=mod2}
   )
-end
-
-function octest.flow_routeoutput_output_with_default()
-  local input = torch.rand(2, 2)
-  local mod1a = nn.Linear(2, 2):lab('1a')
-  local mod1b = nn.Linear(2, 2):lab('1b')
-  local mod2a = nn.Linear(2, 2):lab('2a')
-  local mod2b = nn.Linear(2, 2):lab('2b')
-  local mod3a = nn.Linear(2, 2):lab('3a')
-  local mod3b = nn.Linear(2, 2):lab('3b')
-  local mod = oc.flow.RouteOutput{
-  	{mod1a .. mod1b, oc.Var(false)},
-  	{mod2a .. mod2b, oc.Var(false)},
-  	default=mod3a .. mod3b
-  }
-  mod:inform(input)
-  mod:probe()
-  local compareOutput = mod:updateOutput(input)
-  local output = mod3b:probe()
-  
+  local output = mod:stimulate(input_)
   octester:eq(
-    compareOutput, output,
-    'The output of the module does not equal the target'
-  )
-end
-
---[[ Cannot figure out why these do not work.  gradOutput gets
---!  set to some weird value lu-lua.input
---!  need to look into this!!!!
-function octest.flow_routeinput_gradInput_with_default()
-  local input = torch.rand(2, 2)
-  local mod1a = nn.Linear(2, 2):lab('1a')
-  local mod1b = nn.Linear(2, 2):lab('1b')
-  local mod2a = nn.Linear(2, 2):lab('2a')
-  local mod2b = nn.Linear(2, 2):lab('2b')
-  local mod3a = nn.Linear(2, 2):lab('3a')
-  local mod3b = nn.Linear(2, 2):lab('3b')
-  local mod = oc.flow.RouteInput{
-  	{oc.Var(false), mod1a .. mod1b},
-  	{oc.Var(false), mod2a .. mod2b},
-  	default=mod3a .. mod3b
-  }
-  mod:inform(input)
-  local output = mod:probe()
-	mod:informGrad(output)
-	local compareGradInput = mod:probeGrad()
-  local gradInput = mod3a:probeGrad()
-  octester:eq(
-    compareGradInput, gradInput,
-    'The output of the module does not equal the target'
-  )
-end
-
-function octest.flow_routeoutput_gradInput_with_default()
-  local input = torch.rand(2, 2)
-  local mod1a = nn.Linear(2, 2):lab('1a')
-  local mod1b = nn.Linear(2, 2):lab('1b')
-  local mod2a = nn.Linear(2, 2):lab('2a')
-  local mod2b = nn.Linear(2, 2):lab('2b')
-  local mod3a = nn.Linear(2, 2):lab('3a')
-  local mod3b = nn.Linear(2, 2):lab('3b')
-  local mod = oc.flow.RouteOutput{
-  	{mod1a .. mod1b, oc.Const(false)},
-  	{mod2a .. mod2b, oc.Const(false)},
-  	default=mod3a .. mod3b
-  }
-  mod:inform(input)
-  local output = mod:probe()
-  mod:informGrad(output)
-  local compareGradInput = mod:probeGrad()
-  local gradInput = mod3a:probeGrad()
-  
-  octester:eq(
-    compareGradInput, gradInput,
+    mod:stimulateGrad(output), target,
     'The output of the module does not equal the target'
   )
 end
 
 
-function octest.flow_routeoutput_gradInput()
-  local input = torch.rand(2, 2)
-  local mod1a = nn.Linear(2, 2):lab('1a')
-  local mod1b = nn.Linear(2, 2):lab('1b')
-  local mod2a = nn.Linear(2, 2):lab('2a')
-  local mod2b = nn.Linear(2, 2):lab('2b')
-  local mod = oc.flow.RouteOutput{
-  	{mod1a .. mod1b, oc.Const(false)},
-  	{mod2a .. mod2b, oc.Const(true)} 
+function octest.flow_case_output()
+  local routingFunc = oc.Noop()
+  local mod1 = oc.Coalesce({true, 1})
+  local mod2 = oc.Coalesce({false, 2})
+  local target = {1, 1}
+  local mod = oc.Case{
+    mod1, mod2
   }
-  mod:inform(input)
-  local output = mod:probe()
-  mod:informGrad(output)
-  local compareGradInput = mod:probeGrad()
-  local gradInput = mod2a:probeGrad()
-  
   octester:eq(
-    compareGradInput, gradInput,
+    mod:stimulate(nil), target,
     'The output of the module does not equal the target'
   )
 end
---]]
+
+function octest.flow_case_output_second()
+  local routingFunc = oc.Noop()
+  local mod1 = oc.Coalesce({false, 1})
+  local mod2 = oc.Coalesce({true, 2})
+  local target = {2, 2}
+  local mod = oc.Case{
+    mod1, mod2
+  }
+  octester:eq(
+    mod:stimulate(nil), target,
+    'The output of the module does not equal the target'
+  )
+end
+
+function octest.flow_case_output_default()
+  local routingFunc = oc.Noop()
+  local mod1 = oc.Coalesce({false, 1})
+  local mod2 = oc.Coalesce(2)
+  local target = {'default', 2}
+  local mod = oc.Case{
+    mod1, default=mod2
+  }
+  octester:eq(
+    mod:stimulate(nil), target,
+    'The output of the module does not equal the target'
+  )
+end
+
+
+function octest.flow_case_grad_input()
+  local mod1 = oc.Coalesce({false, 1})
+  local mod2 = oc.Coalesce({true, 2})
+  local target = nil
+  local mod = oc.Case{
+    mod1, mod2
+  }
+  local output = mod:stimulate(nil)
+  octester:eq(
+    mod:stimulateGrad(output), target,
+    'The output of the module does not equal the target'
+  )
+end

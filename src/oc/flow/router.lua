@@ -2,6 +2,7 @@ require 'oc.flow.pkg'
 require 'oc.class'
 require 'oc.nerve'
 
+local DEFAULT = 'default'
 
 do
   local Router, parent = oc.class(
@@ -25,8 +26,7 @@ do
   --! ########################################
   oc.Router = Router
 
-  Router.DEFAULT = 0
-  local DEFAULT = Router.DEFAULT
+  Router.DEFAULT = 'default'
 
   function Router:__init(nerves)
     --! @constructor
@@ -110,6 +110,12 @@ do
   --! ####################################
   oc.Switch = Switch
 
+  --! TODO: the switch backpropagation is
+  --! not correct right now.  If the default value
+  --! is output... it should still output the
+  --! actual value that is output and not 'defualt'
+  --! i think
+
   function Switch:__init(router, nerves)
     --! @constructor
     --! @param - nerves - oc.Nerve
@@ -125,27 +131,40 @@ do
     --! nerve to the output of the module
     local output = {}
     local path = self._modules.router:stimulate(input[1])
-    
+
     if path and self._modules[path] then
-      return self._modules[path]:stimulate(input[2])      
-    elseif self._modules[DEFAULT] then
-      return self._modules[DEFAULT]:stimulate(input[2])
+      return {
+        path, self._modules[path]:stimulate(input[2])
+      }    
+    elseif self._modules.default then
+      return {
+        path, self._modules.default:stimulate(input[2])
+      }
     else
       return {}
     end
-    return output
   end
   
   function Switch:grad(input, gradOutput)
-    local gradInput = {
-      self._modules.router:stimulateGrad(
-        input[1]
-      ),
-      parent.grad(
-        self, input, gradOutput
+    local gradInputStream
+    local gradInputRouter
+
+    local gradOutputRouter
+    local path = gradOutput[1]
+    if path and self._modules[path] then
+      gradInputStream = self._modules[path]:stimulateGrad(
+        gradOutput[2]
       )
-    }
-    return gradInput
+    elseif path then
+      gradInputStream = self._modules.default:stimulateGrad(
+        gradOutput[2]
+      )
+    end
+    
+    gradInputRouter = self._modules.router:stimulateGrad(
+      gradOutput[1]
+    )
+    return {gradInputRouter, gradInputStream}
   end
   
   function Switch:accGradParameters(input, gradOutput)
@@ -197,20 +216,19 @@ do
     local path
     for i=1, #self._modules do
       local curOut = self._modules[i]:stimulate(input)
-      if curOut[1] ~= true then
+      if curOut[1] == true then
         output = {
-          i, curOut
+          i, curOut[2]
         }
         break
       end
     end
+
     if output == nil and self._modules[DEFAULT] then
       local curOut = self._modules[DEFAULT]:stimulate(
         input
       )
-      if curOut[1] == true then
-        output = {DEFAULT, curOut}
-      end
+      output = {DEFAULT, curOut}
     end
 
     if output == nil then
@@ -218,13 +236,21 @@ do
     end
     return output
   end
-  
+
   function Case:grad(input, gradOutput)
-    --! Backgpropagates the grad output through the path
-    --! that was chosen in updateOutput
-    local gradInput = parent.updateGradInput(
-      self, input, gradOutput
-    )
-    return gradInput
+    local gradInputStream
+    local gradInputRouter
+
+    local path = gradOutput[1]
+    if path == DEFAULT then
+      return self._modules[path]:stimulateGrad(
+        gradOutput[2]
+      )
+    else
+      return self._modules[path]:stimulateGrad(
+        gradOutput
+      )
+    end
+    return
   end
 end

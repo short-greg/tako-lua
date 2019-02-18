@@ -1,6 +1,7 @@
 require 'oc.pkg'
 require 'oc.nerve'
 require 'oc.class'
+require 'oc.ops.table'
 
 
 do
@@ -13,7 +14,8 @@ do
   function Undefined:_define(input)
     error(
       'Method define(input) not '.. 
-      'defined for the abstract class Undefined.')
+      'defined for the abstract '.. 
+      'class Undefined.')
   end
   
   function Undefined:_defineBase(input)
@@ -23,7 +25,8 @@ do
       mod,
       string.format(
         'The nerve for %s '.. 
-        'has not been defined.', self._argName
+        'has not been defined.', 
+        self._argName
       )
     )
     
@@ -32,8 +35,10 @@ do
        mod:super() ~= self._super then
       error(
         string.format(
-          'The super of the nerve %s has already been '..
-          'set and it does not equal that of the '..
+          'The super of the nerve %s '..
+          'has already been '..
+          'set and it does not equal ' ..
+          'that of the '..
           'ArgNerve %s.',
           self._argName
         )
@@ -44,8 +49,10 @@ do
        mod:owner() ~= self._owner then
       error(
         string.format(
-          'The owner of the nerve %s has already been '..
-          'set and it does not equal that of the '..
+          'The owner of the nerve ' ..
+          '%s has already been '..
+          'set and it does not equal '..
+          'that of the '..
           'ArgNerve %s.',
           self._argName
         )
@@ -59,7 +66,7 @@ do
     mod._outAxons = self._outAxons
     mod._gradFunc = self._gradFunc
 
-    if self:owner() then
+    if self.owner and self:owner() then
       oc.bot.call:setOwner{
         args={self:owner()},
         cond=function (self, nerve) 
@@ -70,7 +77,7 @@ do
       )
     end
 
-    if self:super() then
+    if self.super and self:super() then
       oc.bot.call:setSuper{
         args={self:super()},
         cond=function (self, nerve)  

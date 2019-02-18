@@ -262,8 +262,16 @@ end
 
 do
   local NerveRef, parent = oc.class(
-    'oc.ArmRef', oc.Nerve
+    'oc.NerveRef', oc.Nerve
   )
+  
+  -- TODO: need to complete this
+  -- right now it can only be set to stimulate
+  -- the reference.. in some cases
+  -- this is not what one wants to do
+  -- like if using oc.Get <- just want to 
+  -- get the output of the nerve being referenced......
+  
   oc.NerveRef = NerveRef
   --! References a nerve.
   --! @input: Input needed for the nerve it refers to
@@ -273,47 +281,58 @@ do
     parent.__init(self)
     self._ref= oc.nerve(ref)
     self._nerve = nil
+    self._toProbe = true
   end
   
-  function NerveRef:out(input, toProbe)
-    toProbe = toProbe or true
-    local nerve = self._ref:out(input)
-    if toProbe then
-      return nerve:stimulate(input)
-    else
-      return nerve.output
-    end
-    self._nerve = nerve
-  end
-  
-  function NerveRef:updateOutput(input, toProbe)
-    local output = self:out(input, toProbe)
-    self.output = output
-    return output
+  function NerveRef:out(input)
+    self._nerve = self._ref:stimulate(input)
+    return self._nerve:stimulate(input)
   end
   
   function NerveRef:grad(input, gradOutput)
-    return self._nerve:stimulateGrad(
-      gradOutput
-    )
+    return self._nerve:stimulateGrad(input)
+  end
+  
+  function NerveRef:toProbe(toProbe)
+    --! 
+    --! @param toProbe - if set to false will not probe
+    self._toProbe = toProbe
   end
 
   function NerveRef:accGradParameters(input, gradOutput)
     self._nerve:accumulate()
   end
 
+  --[[
   function NerveRef:getRef()
     if self._owner then
       return getMember(self._owner, self._member)
     end
   end
+  --]]
 
+  --[[
   function NerveRef:getMemberName()
     return self._member
   end
+  --]]
   
   function NerveRef:children()
-    return {self:getRef()}
+    return {self._ref}
+  end
+  
+  function NerveRef:setOwner(owner)
+    if self._ref.setOwner then
+      return self._ref:setOwner(owner)
+    end
+    return false
+  end
+
+  function NerveRef:setSuper(super)
+    if self._ref.setSuper then
+      return self._ref:setSuper(super)
+    end
+    return false
   end
 end
 
@@ -386,17 +405,25 @@ do
   end
   
   function Call:setSuper(super)
+    local curArg
     for i=1, #self._args do
-      if oc.isTypeOf(self._args[i], 'oc.RefBase') then
-        self._args[i]:setSuper(super)
+      curArg =  self._args[i]
+      if (oc.isTypeOf(curArg, oc.Nerve) or
+          oc.type(curArg) == 'oc.Call') and
+         curArg.setSuper then
+        curArg:setSuper(owner)
       end
     end
   end
   
   function Call:setOwner(owner)
+    local curArg
     for i=1, #self._args do
-      if oc.isTypeOf(self._args[i], 'oc.RefBase') then
-        self._args[i]:setOwner(owner)
+      curArg =  self._args[i]
+      if (oc.isTypeOf(curArg, oc.Nerve) or
+          oc.type(curArg) == 'oc.Call') and
+         curArg.setOwner then
+        curArg:setOwner(owner)
       end
     end
   end

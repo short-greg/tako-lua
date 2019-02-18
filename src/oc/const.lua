@@ -30,7 +30,11 @@ do
   end
   
   function Const:out(input)
-    error('Cannot update the value of a Const nerve.')
+    assert(
+      input == nil,
+      'Cannot update the value of a constant'
+    )
+    return self._val
   end
   
   function Const:inform(input)

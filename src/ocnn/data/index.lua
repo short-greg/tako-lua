@@ -111,9 +111,7 @@ do
   function oc.data.index.Index:indexUpdate(
     sequence, val
   )
-    for i=1, self._frameSize do
-      sequence[i + self._startingVal - 1] = val[i]
-    end
+    sequence[self._index] = val
   end
   
   function oc.data.index.IndexRange:indexUpdateTensor(

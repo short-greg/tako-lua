@@ -7,9 +7,11 @@ local tens = oc.ops.tensor
 --! TODO: Move to ocnn or call oct (oct.expandTo) 
 --! is oct too similar?
 
-function tens.expandTo(tensor1, tensor2, secondDim)
+function tens.expandTo(
+    tensor1, tensor2, secondDim
+  )
   --! Expand a sample tensor to the same number 
-  --! of dimensions in
+  --! size as the other tensor
   --! @param tensor1 - torch.Tensor
   --! @param tensor2 - torch.Tensor
   --! @return torch.Tensor
@@ -23,7 +25,9 @@ function tens.expandTo(tensor1, tensor2, secondDim)
   else
     repeatSize[1] = tensor2:size(1)
   end
-  return torch.repeatTensor(tensor1, table.unpack(repeatSize))
+  return torch.repeatTensor(
+    tensor1, table.unpack(repeatSize)
+  )
 end
 
 
@@ -55,7 +59,9 @@ function tens.sizeEqual(tensor1, tensor2)
   --! @param tensor1 - torch.Tensor
   --! @param tensor2 - torch.Tensor
   --! @return boolean
-  return tostring(tensor1:size()) == tostring(tensor2:size())
+  return tostring(
+    tensor1:size()) == tostring(tensor2:size()
+  )
 end
 
 

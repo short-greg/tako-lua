@@ -120,7 +120,9 @@ do
     moduleGradInput = moduleGradInput:index(
       1, self._revIndex
     )
-    local gradInput = oc.Emission(nil, moduleGradInput)
+    local gradInput = {
+      nil, moduleGradInput
+    }
     self.gradInput = gradInput
     return gradInput
   end

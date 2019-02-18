@@ -2,6 +2,7 @@ require 'oc.machine.factor'
 require 'oc.machine.fsm'
 require 'oc.ops.table'
 
+
 function octest.machine_factorsm_construct()
   local machine1 = oc.machine.FSM(
     1,

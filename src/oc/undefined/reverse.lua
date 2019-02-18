@@ -1,9 +1,8 @@
 require 'oc.pkg'
 require 'oc.nerve'
 require 'oc.class'
-require 'oc.undefined'
-require 'oc.declaration'
-
+require 'oc.undefined.base'
+require 'oc.undefined.declaration'
 
 --! #############################################
 --! Reverse a particular nerve 

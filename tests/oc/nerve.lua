@@ -1,82 +1,75 @@
 require 'oc.nerve'
-  
-function octest.oc_module_concat_with_two()
-  local nn2 = nn.Linear(2, 2)
-  local nn1 = (nn.Linear(2, 2) .. nn2):lhs()
+require 'oc.noop'
+require 'oc.chain'
+require 'oc.const'
+
+
+function octest.oc_nerve_concat_with_two()
+  local nn2 = oc.Noop()
+  local nn1 = (oc.Noop() .. nn2):lhs()
   octester:asserteq(
     nn2:incoming(), nn1, 
-    "Incoming module after concat must be equal to concatenated module"
+    'Incoming module after concat must '..
+    'be equal to concatenated module'
   )
   octester:asserteq(
     nn1:outgoing()[1], nn2,
-    'Outgoing module after concat must be equal to concatenated module'
+    'Outgoing module after concat '..
+    'must be equal to concatenated module'
   )
 end
 
 function octest.oc_module_concat_with_two_streams()
-  local nn3 = nn.Linear(2, 2)
-  local nn2 = nn.Linear(2, 2)
-  local nn1 = (nn.Linear(2, 2) .. nn2):lhs()
+  local nn3 = oc.Noop()
+  local nn2 = oc.Noop()
+  local nn1 = (oc.Noop().. nn2):lhs()
   nn1 = (nn1 .. nn3):lhs()
   octester:asserteq(
     nn2:incoming(), nn1, 
-    "Incoming module after concat must be equal to concatenated module"
+    'Incoming module after concat must '.. 
+    'be equal to concatenated module'
   )
   octester:asserteq(
     nn1:outgoing()[1], nn2,
-    'Outgoing module after concat must be equal to concatenated module'
+    'Outgoing module after concat must '..
+    'be equal to concatenated module'
   )
   octester:asserteq(
     nn1:outgoing()[2], nn3,
-    'Outgoing module after concat must be equal to concatenated module'
+    'Outgoing module after concat must be '..
+    'equal to concatenated module'
   )
 end
 
 function octest.oc_module_concat_with_three()
-  local nn2 = nn.Linear(2, 2)
-  local nn1 = (nn.Linear(2, 2) .. nn2  .. nn.Linear(2, 2)):lhs()
+  local nn2 = oc.Noop()
+  local nn1 = (oc.Noop().. nn2  .. nn.Linear(2, 2)):lhs()
   octester:asserteq(
     nn2:incoming(), nn1, 
-    "Incoming module after concat must be equal to concatenated module"
+    'Incoming module after concat must '..
+    'be equal to concatenated module'
   )
   octester:asserteq(
     nn1:outgoing()[1], nn2,
-    'Outgoing module after concat must be equal to concatenated module'
+    'Outgoing module after concat must be '..
+    'equal to concatenated module'
   )
 end
 
 function octest.oc_module_lab()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name)
+  local nn1 = oc.Noop():label(name)
   
   octester:asserteq(
-    nn1:name(), name, 
+    nn1.name, name, 
     "The tentacles label must be "..name
-  )
-  octester:asserteq(
-    'nn.Linear', torch.type(nn1), 
-    "lab() should return the module"
   )
 end
 
-function octest.oc_module_clone()
-  local name = 'nn1'
-  local name2 = 'nn2'
-  local nn1 = nn.Linear(2, 2):lab(name)
-  local nn2 = nn1:clone(name2)
-  octester:asserteq(
-    nn1:name(), name, 
-    "name should not change for module after cloning"
-  )
-  octester:assertne(
-    name, nn2:name(), 
-    "lab() should be changed after cloning"
-  )
-end
 
 function octest.oc_module_inform()
   local name = 'nn1'
-  local nn1 = nn.Linear(2, 2):lab(name)
+  local nn1 = oc.Noop():label(name)
   local input = torch.randn(1, 4)
   octester:asserteq(
     nn1._relaxed, true,
@@ -96,8 +89,8 @@ end
 
 function octest.oc_module_probe()
   local name = 'nn1'
-  local nn2 = nn.Linear(2, 2):lab('nn2')
-  local nn1 = (nn.Linear(2, 2):lab(name) .. nn2):lhs()
+  local nn2 = oc.Noop():label('nn2')
+  local nn1 = (oc.Noop():label(name) .. nn2):lhs()
   local input = torch.zeros(1, 2)
   nn1:inform(input)
   local output = nn2:probe(input)
@@ -111,11 +104,11 @@ function octest.oc_module_probe()
   )
 end
 
-function octest.oc_module_relax_all()
+function octest.oc_nerve_relax_all()
   local name = 'nn1'
-  local nn2 = nn.Linear(2, 2):lab('nn2')
-  local nn3 = nn.Linear(2, 2):lab('nn3')
-  local nn1 = (nn.Linear(2, 2):lab(name) .. nn2):lhs()
+  local nn2 = oc.Noop():label('nn2')
+  local nn3 = oc.Noop():label('nn3')
+  local nn1 = (oc.Noop():label(name) .. nn2):lhs()
   nn1 = (nn1 .. nn3):lhs()
   local input = torch.zeros(1, 2)
   nn1:inform(input)
@@ -135,9 +128,9 @@ function octest.oc_module_relax_all()
   )
 end
 
-function octest.oc_module_unlink_with_two()
-  local nn2 = nn.Linear(2, 2)
-  local nn1 = (nn.Linear(2, 2) .. nn2):lhs()
+function octest.oc_nerve_unlink_with_two()
+  local nn2 = oc.Noop()
+  local nn1 = (oc.Noop() .. nn2):lhs()
   octester:asserteq(
     nn2:incoming(), nn1, 
     "Incoming module after concat must be equal to concatenated module"
@@ -149,60 +142,63 @@ function octest.oc_module_unlink_with_two()
 end
 
 
-function octest.oc_module_get_seq()
-  local nn1 = nn.Linear(2, 2):lab('nn1')
-  local nn2 = nn.Linear(2, 2):lab('nn2')
-  local nn3 = nn.Linear(2, 2):lab('nn3')
+function octest.oc_nerve_get_seq()
+  local nn1 = oc.Noop():label('nn1')
+  local nn2 = oc.Noop():label('nn2')
+  local nn3 = oc.Noop():label('nn3')
   local chain = nn1 .. nn2 .. nn3
-  local modules = nn3:getSeq(nn1)
+  local modules, found = nn3:getSeq(nn1)
   octester:eq(
-    modules[1]:name(), nn1:name(),
+    modules[1].name, nn1.name,
     'The sequences are not equal'
   )
   octester:eq(
-    modules[2]:name(), nn2:name(),
+    modules[2].name, nn2.name,
     'The sequences are not equal'
   )
   octester:eq(
-    modules[3]:name(), nn3:name(),
+    modules[3].name, nn3.name,
     'The sequences are not equal'
   )
 end
 
-function octest.oc_module_get_seq_no_from()
-  local nn1 = nn.Linear(2, 2):lab('nn1')
-  local nn2 = nn.Linear(2, 2):lab('nn2')
-  local nn3 = nn.Linear(2, 2):lab('nn3')
+function octest.oc_nerve_get_seq_no_from()
+  local nn1 = oc.Noop():label('nn1')
+  local nn2 = oc.Noop():label('nn2')
+  local nn3 = oc.Noop():label('nn3')
   local chain = nn1 .. nn2 .. nn3
-  local modules = nn3:getSeq()
+  local modules, found = nn3:getSeq()
   octester:eq(
-    modules[1]:name(), nn1:name(),
+    modules[1].name, nn1.name,
     'The sequences are not equal'
   )
   octester:eq(
-    modules[2]:name(), nn2:name(),
+    modules[2].name, nn2.name,
     'The sequences are not equal'
   )
   octester:eq(
-    modules[3]:name(), nn3:name(),
+    modules[3].name, nn3.name,
     'The sequences are not equal'
   )
 end
 
-function octest.oc_module_get_invalid_seq()
-  local nn1 = nn.Linear(2, 2):lab('nn1')
-  local nn2 = nn.Linear(2, 2):lab('nn2')
-  local nn3 = nn.Linear(2, 2):lab('nn3')
+function octest.oc_nerve_get_invalid_seq()
+  local nn1 = oc.Noop():label('nn1')
+  local nn2 = oc.Noop():label('nn2')
+  local nn3 = oc.Noop():label('nn3')
   local chain = nn2 .. nn3
-  if pcall(nn3.getSeq, nn3, nn1) then
-    error('Should not be able to retrieve the sequence')
-  end
+  local modules, found = nn3:getSeq(nn1)
+  --print(modules)
+  octester:asserteq(
+    found, false,
+    'Should not be able to retrieve the sequence'
+  )
 end
 
-function octest.oc_module_get_length()
-  local nn1 = nn.Linear(2, 2):lab('nn1')
-  local nn2 = nn.Linear(2, 2):lab('nn2')
-  local nn3 = nn.Linear(2, 2):lab('nn3')
+function octest.oc_nerve_get_length()
+  local nn1 = oc.Noop():label('nn1')
+  local nn2 = oc.Noop():label('nn2')
+  local nn3 = oc.Noop():label('nn3')
   local chain = nn1 .. nn2 .. nn3
   local length = nn3:getLength(nn1)
   octester:eq(
@@ -211,10 +207,10 @@ function octest.oc_module_get_length()
   )
 end
 
-function octest.oc_module_get_invalid_length()
-  local nn1 = nn.Linear(2, 2):lab('nn1')
-  local nn2 = nn.Linear(2, 2):lab('nn2')
-  local nn3 = nn.Linear(2, 2):lab('nn3')
+function octest.oc_nerve_get_invalid_length()
+  local nn1 = oc.Noop():label('nn1')
+  local nn2 = oc.Noop():label('nn2')
+  local nn3 = oc.Noop():label('nn3')
   local chain = nn2 .. nn3
   if pcall(nn3.getLength, nn3, nn1) then
     error('Should not be able to retrieve the sequence')

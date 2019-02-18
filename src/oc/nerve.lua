@@ -2,6 +2,7 @@ require 'oc.pkg'
 require 'oc.class'
 require 'oc.oc'
 require 'oc.ops.ops'
+require 'oc.bot.call'
 
 require 'oc.ops.math'
 local mathops = oc.ops.math
@@ -520,16 +521,21 @@ do
     --! @param to
     --! @param from
     local modules
+    local found
     if to == from or
-       (not to:incoming() and from == nil) then
+       (to:incoming() == nil and from == nil) then
       modules = {to}
-    elseif not to:incoming() and from ~= nil then
-      error('Not a valid sequence between from and to')
+      found = true
+    elseif to:incoming() == nil and to ~= from then
+      modules = {}
+      found = false
     else
-      modules = to:incoming():getSeq()
-      table.insert(modules, to)
+      modules, found = to:incoming():getSeq(from)
+      if found then
+        table.insert(modules, to)
+      end
     end
-    return modules
+    return modules, found
   end
   
   --! TODO USED BY connectsTo <- so remove

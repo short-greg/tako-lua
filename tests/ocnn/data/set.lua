@@ -1,8 +1,8 @@
+require 'ocnn.data.set'
+require 'ocnn.data.index'
 
-do
-  require 'ocnn.data.set'
-  require 'ocnn.data.index'
-  
+
+function octest.data_table_indexed_with_indices()
   local y = torch.rand(3, 2)
   local z = torch.rand(3, 2)
   local ind_ = torch.LongTensor{2, 1}
@@ -20,22 +20,20 @@ do
   
   local result = dataTable:index(index)
   
-  assert(
-    y:index(1, ind_):eq(result.data['y']),
+  octester:eq(
+    y:index(1, ind_), (result.data['y']),
     '' 
     
   )
-  assert(
-    z:index(1, ind_):eq(result.data['z']),
+  octester:eq(
+    z:index(1, ind_), (result.data['z']),
     '' 
     
   )
 end
 
-do
-  require 'ocnn.data.set'
-  require 'ocnn.data.index'
-  
+
+function octest.data_table_iter()
   local y = torch.rand(3, 2)
   local z = torch.rand(3, 2)
   local ind_ = torch.LongTensor{2, 1}
@@ -51,14 +49,13 @@ do
     result[k] = column
   end
   
-  assert(
-    result['y'] == y,
+  octester:eq(
+    result['y'], y,
     '' 
     
   )
-  assert(
-    result['z'] == z,
+  octester:eq(
+    result['z'], z,
     '' 
-    
   )
 end

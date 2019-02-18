@@ -8,6 +8,7 @@ do
   local DataTable, parent = oc.class(
     'ocnn.data.Table'
   )
+  --! for storing tables of Tensors
   ocnn.data.Table = DataTable
   
   function DataTable:__init(data)
@@ -32,6 +33,9 @@ do
   
   function DataTable:index(index)
     local subData = {}
+    if type(index) == 'number' then
+      index = oc.data.index.Index(index)
+    end
 
     for k, column in self:iter() do
       subData[k] = index:indexOnTensor(column)
@@ -48,9 +52,12 @@ do
   end
   
   function DataTable:__index__(index)
+    return self.data[index]
+    --[[
     if oc.type(index) == 'ocnn.data.index.Base' then
       return self:index(index)
     end
+    --]]
   end
   
   function DataTable:apply(func, columns)

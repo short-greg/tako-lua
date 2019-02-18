@@ -1,7 +1,7 @@
+require 'oc.class'
 
 
-do
-  require 'oc.class'
+function octest.oc_class_no_base_class()
   local T = oc.class('T')
   function T:__init(size)
     self._size = size
@@ -11,12 +11,14 @@ do
     return self._size
   end
   local x = T(2)
-  
-  assert(x:size() == 2, 'X should be of size 2')
+
+  octester:asserteq(
+    x:size(), 2, 'X should be of size 2'
+  )
 end
 
-do
-  require 'oc.class'
+
+function octest.oc_class_with_base_class()
   local T = oc.class('T')
   function T:__init(size)
     self._size = size
@@ -30,11 +32,13 @@ do
   
   local x = T2(2)
   
-  assert(x:size() == 2, 'X should be of size 2')
+  octester:asserteq(
+    x:size(), 2, 'X should be of size 2'
+  )
 end
 
-do
-  require 'oc.class'
+
+function octest.oc_class_member_variable()
   local T = oc.class('T')
   function T:__init(size)
     self._size = size
@@ -46,11 +50,27 @@ do
   
   local x = T2(2)
   
-  assert(x.size == 2, 'X should be of size 2')
+  octester:asserteq(
+    x.size, 2, 'X should be of size 2'
+  )
 end
 
+--[[
 
-do
+TODO:
+1. if __index__ returns self._size rather
+than rawget(self, '_size') it results in an
+infinite loop
+2. __newindex__ should check all of the base
+classes prior to setting a new index?? I am not
+sure. how I want this
+
+Anyway, need more testing to check for infinite loops
+and get a tighter system.
+
+--]]
+
+function octest.oc_class_member_variable_in_base()
   -- test_index
   local T = oc.class('T')
   function T:__init(size)
@@ -58,18 +78,20 @@ do
   end
   
   T.__index__ = function (self, index)
-    return self._size
+    return rawget(self, '_size')
   end
   
   local T2 = oc.class('T2', T)
   
   local x = T2(2)
   
-  assert(x.val == 2, 'X should be of size 2')
+  octester:asserteq(
+    x.val, 2, 'Index for base class should return size'
+  )
 end
 
 
-do
+function octest.oc_class_index_metamethod()
   -- test_index
   local T = oc.class('T')
   local values = {}
@@ -84,11 +106,13 @@ do
   
   local x = T2(2)
   x.size = 2
-  assert(values.size == 2, 'Size of values should be 2')
+  octester:asserteq(
+    values.size, 2, 'Size of values should be 2'
+  )
 end
 
 
-do
+function octest.oc_class_call_metamethod()
   -- test_index
   local T = oc.class('T')
   local values = {}
@@ -102,12 +126,13 @@ do
   local T2 = oc.class('T2', T)
   
   local x = T2(2)
-  assert(x(1) == 2, 'Size of values should be 2')
+  octester:asserteq(
+    x(1), 2, 'Size of values should be 2'
+  )
 end
 
 
-do
-  require 'oc.class'
+function octest.oc_class_tostring_metamethod()
   -- test_index
   local T = oc.class('T')
   local values = {}
@@ -125,15 +150,14 @@ do
   end
   
   local x = T2(2)
-  assert(
-    tostring(x) == str2..str1, 
+  octester:asserteq(
+    tostring(x), str2..str1, 
     'The output of tostring is not correct'
   )
 end
 
 
-do
-  require 'oc.class'
+function octest.oc_class_tostring_metamethod_with_base_class()
   -- test_index
   local T = oc.class('T')
   local values = {}
@@ -150,17 +174,16 @@ do
   T.__tostring__ = function (self)
     return str1
   end
-  
-  
-  
+
   local T2, parent = oc.class('T2', T)
   T2.__tostring__ = function (self)
     return str2..parent.__tostring__(self)
   end
   
   local x = T2(2)
-  assert(
-    tostring(x) == str2..str1, 
+
+  octester:asserteq(
+    tostring(x), str2..str1, 
     'The output of tostring is not correct'
   )
 end

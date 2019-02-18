@@ -2,12 +2,10 @@ require 'torch'
 require 'nn'
 require 'oc.nerve'
 require 'oc.flow.repeat'
-require 'oc.data.iter'
-require 'oc.var'
-require 'oc.emission'
+-- require 'oc.data.iter'
 require 'oc.math.arithmetic'
 require 'oc.flow.merge'
-require 'testsupport.testdata'
+-- require 'testsupport.testdata'
 require 'oc.sub'
 require 'oc.arm'
 require 'ocnn.criterion'
@@ -24,6 +22,7 @@ local testing = {
   oc.Emission(table.unpack(torch.range(1, 4):totable()))
 }--]]
 
+--[[
 function octest.flow_repeat_output_no_processing()
   local mod = oc.flow.Repeat(
     oc.Var(false)
@@ -60,7 +59,7 @@ function octest.flow_repeat_output_with_processing_grad()
   )
 
 end
-  
+--]]
   --[[
   local dataset = oc.data.set.TestSet(cols, training, testing)
   local x = oc.Noop() .. oc.flow.Repeat(

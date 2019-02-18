@@ -2,6 +2,8 @@ require 'oc.pkg'
 require 'oc.class'
 require 'oc.nerve'
 require 'oc.arm'
+require 'oc.undefined.arg'
+
 
 do
   oc.Stem = oc.class(
@@ -16,7 +18,8 @@ do
   --! convenience to  stems easily
   --! 
   --! sigmoidLayer = oc.stem(
-  --!    nn.Linear:d(oc.my.X, oc.my.Y) .. nn.Sigmoid:d() 
+  --!    nn.Linear:d(oc.my.X, oc.my.Y) ..
+  --!      nn.Sigmoid:d() 
   --! )
   --!
   --! Then to create a sigmoid layer the 

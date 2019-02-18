@@ -1,5 +1,6 @@
 require 'oc.class'
 require 'oc.data.storage'
+require 'oc.data.table'
 require 'ocnn.data.pkg'
 require 'ocnn.data.set'
 
