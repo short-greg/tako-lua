@@ -1,6 +1,6 @@
 require 'torch'
 require 'oc.nerve'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.flow.router'
 require 'oc.const'
 require 'oc.coalesce'

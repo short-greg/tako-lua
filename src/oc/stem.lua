@@ -55,7 +55,7 @@ do
           initArgs, args[arg:name()]
         )
       elseif oc.isTypeOf(self._initArgs[i], 'oc.Nerve') or
-             oc.isTypeOf(self._initArgs[i], 'oc.Chain') then
+             oc.isTypeOf(self._initArgs[i], 'oc.Strand') then
         local copy = oc.ops.table.deepCopy(arg)
         oc.bot.call:updateArgs{
           args={args},

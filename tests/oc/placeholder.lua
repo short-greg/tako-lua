@@ -11,14 +11,14 @@ end
 
 
 function octest.oc_placeholder_input_concat()
-  local chain = oc.input.x .. oc.my.x
+  local strand = oc.input.x .. oc.my.x
   octester:eq(
-    oc.type(chain:lhs()), 'oc.InputRef',
+    oc.type(strand:lhs()), 'oc.InputRef',
     'The lhs placeholder should become type InputRef'
   )
 
   octester:eq(
-    oc.type(chain:rhs()), 'oc.MyRef',
+    oc.type(strand:rhs()), 'oc.MyRef',
     'The rhs placeholder should become type MyRef'
   )
 end

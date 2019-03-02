@@ -59,11 +59,11 @@ do
   
   --! TODO: Do I really want to do this???
   --! 
-  function Declaration:children()
+  function Declaration:internals()
     local children = {}
     for i=1, #self._arguments do
       if oc.isTypeOf(self._arguments[i], 'oc.Nerve') or
-         oc.isTypeOf(self._arguments[i], 'oc.Chain') then
+         oc.isTypeOf(self._arguments[i], 'oc.Strand') then
         table.insert(children, self._arguments[i])
       end
     end

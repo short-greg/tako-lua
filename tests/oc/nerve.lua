@@ -1,6 +1,6 @@
 require 'oc.nerve'
 require 'oc.noop'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.const'
 
 
@@ -146,7 +146,7 @@ function octest.oc_nerve_get_seq()
   local nn1 = oc.Noop():label('nn1')
   local nn2 = oc.Noop():label('nn2')
   local nn3 = oc.Noop():label('nn3')
-  local chain = nn1 .. nn2 .. nn3
+  local strand = nn1 .. nn2 .. nn3
   local modules, found = nn3:getSeq(nn1)
   octester:eq(
     modules[1].name, nn1.name,
@@ -166,7 +166,7 @@ function octest.oc_nerve_get_seq_no_from()
   local nn1 = oc.Noop():label('nn1')
   local nn2 = oc.Noop():label('nn2')
   local nn3 = oc.Noop():label('nn3')
-  local chain = nn1 .. nn2 .. nn3
+  local strand = nn1 .. nn2 .. nn3
   local modules, found = nn3:getSeq()
   octester:eq(
     modules[1].name, nn1.name,
@@ -186,7 +186,7 @@ function octest.oc_nerve_get_invalid_seq()
   local nn1 = oc.Noop():label('nn1')
   local nn2 = oc.Noop():label('nn2')
   local nn3 = oc.Noop():label('nn3')
-  local chain = nn2 .. nn3
+  local strand = nn2 .. nn3
   local modules, found = nn3:getSeq(nn1)
   --print(modules)
   octester:asserteq(
@@ -199,7 +199,7 @@ function octest.oc_nerve_get_length()
   local nn1 = oc.Noop():label('nn1')
   local nn2 = oc.Noop():label('nn2')
   local nn3 = oc.Noop():label('nn3')
-  local chain = nn1 .. nn2 .. nn3
+  local strand = nn1 .. nn2 .. nn3
   local length = nn3:getLength(nn1)
   octester:eq(
     length, 3,
@@ -211,7 +211,7 @@ function octest.oc_nerve_get_invalid_length()
   local nn1 = oc.Noop():label('nn1')
   local nn2 = oc.Noop():label('nn2')
   local nn3 = oc.Noop():label('nn3')
-  local chain = nn2 .. nn3
+  local strand = nn2 .. nn3
   if pcall(nn3.getLength, nn3, nn1) then
     error('Should not be able to retrieve the sequence')
   end

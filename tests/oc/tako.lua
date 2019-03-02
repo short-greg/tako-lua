@@ -5,10 +5,10 @@ require 'oc.oc'
 function octest.tako_define()
   local Y = oc.tako('Y')
   local V = oc.tako('V', Y)
-  local chain = nn.Linear(2, 2)
+  local strand = nn.Linear(2, 2)
   local input_ = torch.randn(2, 2)
-  local target = chain:stimulate(input_)
-  Y.arm.t = chain
+  local target = strand:stimulate(input_)
+  Y.arm.t = strand
   
   local z = V()
   octester:eq(
@@ -26,13 +26,13 @@ function octest.tako_define_with_child()
   -- Assert that it calls the child
   local Y = oc.tako('Y')
   local V = oc.tako('V', Y)
-  local chain1 = nn.Linear(2, 2)
-  local chain2 = nn.Linear(2, 2)
+  local strand1 = nn.Linear(2, 2)
+  local strand2 = nn.Linear(2, 2)
   local input_ = torch.randn(2, 2)
-  local nonTarget = chain1:stimulate(input_)
-  local target = chain2:stimulate(input_)
-  Y.arm.t = chain1
-  V.arm.t = chain2
+  local nonTarget = strand1:stimulate(input_)
+  local target = strand2:stimulate(input_)
+  Y.arm.t = strand1
+  V.arm.t = strand2
   
   local z = V()
   octester:eq(
@@ -53,14 +53,14 @@ end
 function octest.tako_calls_instance_member()
   local Y = oc.tako('Y')
   local V = oc.tako('V', Y)
-  local chain1 = nn.Linear(2, 2)
-  local chain2 = nn.Linear(2, 2)
+  local strand1 = nn.Linear(2, 2)
+  local strand2 = nn.Linear(2, 2)
   local input_ = torch.randn(2, 2)
-  local nonTarget = chain1:stimulate(input_)
-  local target = chain2:stimulate(input_)
-  Y.arm.t = chain1
+  local nonTarget = strand1:stimulate(input_)
+  local target = strand2:stimulate(input_)
+  Y.arm.t = strand1
   local z = V()
-  z.arm.t = chain2
+  z.arm.t = strand2
   
   octester:eq(
     z.t:updateOutput(input_), target,

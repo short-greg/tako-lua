@@ -1,7 +1,7 @@
 require 'oc.flow.pkg'
 require 'oc.class'
 require 'oc.nerve'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.arm'
 
 
@@ -36,7 +36,7 @@ do
   --! @constructor
   --! @param	streams - Each of the processing 
   --! modules to process the emissions - {nn.Module}
-  --!  - Nerve | Chain
+  --!  - Nerve | Strand
   --! @param streams.n - number of modules 
   --! (if not defined will be table.maxn of streams)
     parent.__init(self)
@@ -48,6 +48,9 @@ do
   end
 
   function Diverge:out(input)
+    --! Send each index of the input through the
+    --! corresponding strand index.
+    --! @param input - {}
     local output = {}
     for i=1, self._n do
       output[i] = self._modules[i]:stimulate(input[i])
@@ -56,6 +59,8 @@ do
   end
 
   function Diverge:grad(input, gradOutput)
+    --! Send the element at each index of the gradInput
+    --! through its corresponding strand
     local gradInput = {}
     gradOutput = gradOutput or {}
     for i=1, self._n do

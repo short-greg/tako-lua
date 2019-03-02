@@ -140,21 +140,21 @@ end
 function octest.nerve_my()
   local owner = {
     nn2=nn.Linear(2, 2),
-    _chain=nn.Linear(2, 2) .. oc.My('nn2') .. nn.Linear(2, 2),
+    _strand=nn.Linear(2, 2) .. oc.My('nn2') .. nn.Linear(2, 2),
     get=
       function (self, val)
         return self.members[val]
       end
   }
-  local my = owner._chain[2]
+  local my = owner._strand[2]
   my:setOwner(owner)
-  local chain = owner._chain
+  local strand = owner._strand
   octester:eq(
     torch.pointer(my:getNerve()), torch.pointer(owner.nn2),
     'My was not replaced.'
   )
   octester:eq(
-    torch.pointer(owner._chain[2]), torch.pointer(owner.nn2),
+    torch.pointer(owner._strand[2]), torch.pointer(owner.nn2),
     'My was not replaced.'
   )
 end
@@ -162,14 +162,14 @@ end
 function octest.nerve_my_updateoutput()
   local owner = {
     nn2=nn.Linear(2, 2),
-    _chain=nn.Linear(2, 2) .. oc.My('nn2') .. nn.Linear(2, 2),
+    _strand=nn.Linear(2, 2) .. oc.My('nn2') .. nn.Linear(2, 2),
     get=
       function (self, val)
         return self.members[val]
       end
   }
-  local my = owner._chain[2]
-  if pcall(owner._chain.updateOutput, torch.randn(2, 2)) then
+  local my = owner._strand[2]
+  if pcall(owner._strand.updateOutput, torch.randn(2, 2)) then
     error('Should not be able to update output for my.')
   end
 end
@@ -177,14 +177,14 @@ end
 function octest.nerve_my_updategradInput()
   local owner = {
     nn2=nn.Linear(2, 2),
-    _chain=nn.Linear(2, 2) .. oc.My('nn2') .. nn.Linear(2, 2),
+    _strand=nn.Linear(2, 2) .. oc.My('nn2') .. nn.Linear(2, 2),
     get=
       function (self, val)
         return self.members[val]
       end
   }
-  local my = owner._chain[2]
-  if pcall(owner._chain.updateGradInput, torch.randn(2, 2), torch.randn(2, 2)) then
+  local my = owner._strand[2]
+  if pcall(owner._strand.updateGradInput, torch.randn(2, 2), torch.randn(2, 2)) then
     error('Should not be able to update gradInput for my.')
   end
 end
@@ -203,56 +203,56 @@ function octest.oc_wrap_check_dependenciesRelaxed()
   )
 end
 
-function octest.nerve_mychain()
+function octest.nerve_mystrand()
   local owner = {
     nn2=oc.Arm(nn.Linear(2, 2) .. nn.Linear(2, 2)),
-    _chain=nn.Linear(2, 2) .. oc.MyChain('nn2') .. nn.Linear(2, 2),
+    _strand=nn.Linear(2, 2) .. oc.MyStrand('nn2') .. nn.Linear(2, 2),
     get=
       function (self, val)
         return self.members[val]
       end
   }
-  local my = owner._chain[2]
+  local my = owner._strand[2]
   my:setOwner(owner)
-  local chain = owner._chain
+  local strand = owner._strand
   octester:eq(
-    torch.pointer(owner._chain[2]), torch.pointer(owner.nn2:chain()[1]),
+    torch.pointer(owner._strand[2]), torch.pointer(owner.nn2:strand()[1]),
     'My was not replaced.'
   )
   
   octester:eq(
-    torch.pointer(owner._chain[3]), torch.pointer(owner.nn2:chain()[2]),
+    torch.pointer(owner._strand[3]), torch.pointer(owner.nn2:strand()[2]),
     'My was not replaced.'
   )
 end
 
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.wrap'
 
 function octest.nerve_wrap()
   local owner = {
     nn2=nn.Linear(2, 2),
-    _chain=nn.Linear(2, 2) .. oc.Wrap('nn2') .. nn.Linear(2, 2),
+    _strand=nn.Linear(2, 2) .. oc.Wrap('nn2') .. nn.Linear(2, 2),
     get=
       function (self, val)
         return self.members[val]
       end
   }
-  local wrap = owner._chain[2]
+  local wrap = owner._strand[2]
   wrap:setOwner(owner)
-  local chain = owner._chain
-  local wrapPost = chain[2]
+  local strand = owner._strand
+  local wrapPost = strand[2]
   octester:eq(
     torch.pointer(wrap), torch.pointer(wrapPost),
     'The pre and post values should be equal.'
   )
   octester:eq(
-    torch.pointer(owner._chain[2]:getNerve()), torch.pointer(owner.nn2),
+    torch.pointer(owner._strand[2]:getNerve()), torch.pointer(owner.nn2),
     'Wrap was not replaced.'
   )
   
-  owner._chain[1]:inform(torch.randn(2, 2))
-  local output = owner._chain[3]:probe()
+  owner._strand[1]:inform(torch.randn(2, 2))
+  local output = owner._strand[3]:probe()
   octester:eq(
     output:dim(), 2,
     'The output should have a dimensionality of two.'
@@ -266,9 +266,9 @@ function octest.nerve_super()
     nn2=nn.Linear(2, 2)
   }
   local owner = {
-    _chain=nn.Linear(2, 2) .. oc.Super('nn2') .. nn.Linear(2, 2)
+    _strand=nn.Linear(2, 2) .. oc.Super('nn2') .. nn.Linear(2, 2)
   }
-  local superNerve = owner._chain[2]
+  local superNerve = owner._strand[2]
   superNerve:setSuper(super)
   local superPost = super.nn2
   octester:eq(
@@ -282,9 +282,9 @@ function octest.nerve_super_updateOutput()
     nn2=nn.Linear(2, 2)
   }
   local owner = {
-    _chain=nn.Linear(2, 2) .. oc.Super('nn2') .. nn.Linear(2, 2)
+    _strand=nn.Linear(2, 2) .. oc.Super('nn2') .. nn.Linear(2, 2)
   }
-  local superNerve = owner._chain[2]
+  local superNerve = owner._strand[2]
   superNerve:setSuper(super)
   
   local input_ = torch.rand(2, 2)
@@ -302,9 +302,9 @@ function octest.nerve_super_updateGradInput()
     nn2=nn.Linear(2, 2)
   }
   local owner = {
-    _chain=nn.Linear(2, 2) .. oc.Super('nn2') .. nn.Linear(2, 2)
+    _strand=nn.Linear(2, 2) .. oc.Super('nn2') .. nn.Linear(2, 2)
   }
-  local superNerve = owner._chain[2]
+  local superNerve = owner._strand[2]
   superNerve:setSuper(super)
   
   local input_ = torch.rand(2, 2)
@@ -386,10 +386,10 @@ function octest.oc_placeholder_eval()
   local owner = {j=2}
   local inp = oc.ref.my.j
   local mod = oc.ops.placeholder.mod(inp)
-  local chain = mod .. oc.Noop()
+  local strand = mod .. oc.Noop()
   mod:setOwner(owner)
   
-  local result = chain:probe()
+  local result = strand:probe()
   octester:eq(
     result, owner.j,
     'The result should equal the emmber j'
@@ -403,11 +403,11 @@ function octest.oc_placeholder_eval_with_func()
   end
   local inp = oc.ref.input(oc.ref.my.j, 2)
   local mod = oc.ops.placeholder.mod(inp)
-  local chain = mod .. oc.Noop()
+  local strand = mod .. oc.Noop()
   mod:setOwner(owner)
   
-  chain:inform(addTogether)
-  local result = chain:probe()
+  strand:inform(addTogether)
+  local result = strand:probe()
   octester:eq(
     result, owner.j + 2,
     'The result should equal the member j + 2'
@@ -480,8 +480,8 @@ function octest.oc_placeholder_nerve_reference_my()
   )
 end
 
-function octest.oc_placeholder_nerve_reference_mychain()
-  local ref = oc.mychain.x
+function octest.oc_placeholder_nerve_reference_mystrand()
+  local ref = oc.mystrand.x
   
   octester:eq(
     torch.type(ref), 'oc.NerveReference',
@@ -499,35 +499,35 @@ function octest.oc_placeholder_nerve_reference_super()
 end
 
 function octest.oc_placeholder_nerve_reference_wrap_concat()
-  local chain = oc.wrap.x .. oc.Noop()
+  local strand = oc.wrap.x .. oc.Noop()
   octester:eq(
-    torch.type(chain[1]), 'oc.Wrap',
+    torch.type(strand[1]), 'oc.Wrap',
     'Type should be a wrap module'
   )
 end
 
 function octest.oc_placeholder_nerve_reference_my_init_concat()
-  local chain = oc.my.x .. oc.Noop()
+  local strand = oc.my.x .. oc.Noop()
   octester:eq(
-    torch.type(chain[1]), 'oc.My',
+    torch.type(strand[1]), 'oc.My',
     'Type should be a My module'
   )
 end
 
-function octest.oc_placeholder_nerve_reference_mychain_concat()
-  local chain = oc.mychain.x .. oc.Noop()
+function octest.oc_placeholder_nerve_reference_mystrand_concat()
+  local strand = oc.mystrand.x .. oc.Noop()
   
   octester:eq(
-    torch.type(chain[1]), 'oc.MyChain',
-    'Type should be a MyChain Module'
+    torch.type(strand[1]), 'oc.MyStrand',
+    'Type should be a MyStrand Module'
   )
 end
 
 function octest.oc_placeholder_nerve_reference_super_concat()
-  local chain = oc.super.x .. oc.Noop()
+  local strand = oc.super.x .. oc.Noop()
   
   octester:eq(
-    torch.type(chain[1]), 'oc.Super',
+    torch.type(strand[1]), 'oc.Super',
     'Type should be a Super module'
   )
 end

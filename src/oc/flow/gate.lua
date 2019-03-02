@@ -3,7 +3,7 @@ require 'oc.nerve'
 require 'oc.ops.module'
 require 'oc.oc'
 require 'oc.flow.mergein'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.arm'
 
 
@@ -46,10 +46,6 @@ do
     self._input = nil
     self._modules.stream = oc.nerve(nerve)
   end
-  
-  function Gate:children()
-    return {self._modules.cond, self._modules.stream}
-  end
 
   function Gate:out(input)
     --!  If the condition passes then output
@@ -82,7 +78,7 @@ do
     return gradInput
   end
   
-  function Gate:children()
+  function Gate:internals()
     return {self._modules.cond, self._modules.stream}
   end
   

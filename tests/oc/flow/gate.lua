@@ -3,7 +3,7 @@ require 'oc.flow.gate'
 require 'oc.noop'
 require 'ocnn.module'
 require 'oc.math.init'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.arm'
 
 -- TODO Gate should reflect the changes made to this module

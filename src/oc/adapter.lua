@@ -78,7 +78,7 @@ do
     end
   end
   
-  function Adapter:children()
+  function Adapter:internals()
     return self._children
   end
   

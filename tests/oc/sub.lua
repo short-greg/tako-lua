@@ -1,6 +1,6 @@
 require 'oc.nerve'
 require 'oc.sub'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.noop'
 -- require 'torch'
 

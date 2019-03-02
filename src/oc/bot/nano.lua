@@ -45,7 +45,7 @@ do
   end
   
   function Nano:toVisit(nerve)
-    return not oc.isTypeOf(nerve, 'oc.Chain')
+    return not oc.isTypeOf(nerve, 'oc.Strand')
     --return self._visited[nerve] == nil
   end
 
@@ -61,15 +61,15 @@ do
     end
 
     local isNerve = oc.isTypeOf(nerve, 'oc.Nerve')
-    local isChain = oc.isTypeOf(nerve, 'oc.Chain')
+    local isStrand = oc.isTypeOf(nerve, 'oc.Strand')
 
     if deep and isNerve then
       for name, child in pairs(
-        nerve:children()
+        nerve:internals()
       ) do
         self:forward(child, deep)
       end
-    elseif isChain then
+    elseif isStrand then
       self:forward(nerve:lhs())
     end
 
@@ -80,7 +80,7 @@ do
         error(
           string.format(
             'Trying to visit item that '..
-            'is not a chain or nerve.  Type %s',
+            'is not a strand or nerve.  Type %s',
             oc.type(nerve)
           )
         )

@@ -1,7 +1,7 @@
 require 'oc.flow.pkg'
 require 'oc.nerve'
 require 'oc.class'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.arm'
 
 
@@ -32,7 +32,7 @@ do
 
   function Multi:__init(streams)
     --!	@constructor	
-    --! @param streams - {oc.Chain or oc.Nerve}
+    --! @param streams - {oc.Strand or oc.Nerve}
     --! @param streams.n - number of modules (if not defined will
     --! be table.maxn of streams)
     parent.__init(self)
@@ -71,7 +71,7 @@ do
     self._modules.root:accumulate()
   end
 
-  function Multi:children()
+  function Multi:internals()
     return {self._modules.root}
   end
 end

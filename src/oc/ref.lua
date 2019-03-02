@@ -317,7 +317,7 @@ do
   end
   --]]
   
-  function NerveRef:children()
+  function NerveRef:internals()
     return {self._ref}
   end
   

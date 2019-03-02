@@ -1,12 +1,12 @@
 require 'oc.arm'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.noop'
 
 
 function octest.oc_arm_len()
   local module = oc.Noop():label('hello')
   local arm = oc.Arm(
-    oc.Chain(module)
+    oc.Strand(module)
   )
   octester:asserteq(
     #arm, 1,
@@ -17,7 +17,7 @@ end
 function octest.oc_arm_getByName()
   local name = 'nn1'
   local nn1 = oc.Noop():label(name) 
-  local arm = oc.Arm(oc.Chain(nn1))
+  local arm = oc.Arm(oc.Strand(nn1))
   local nn = arm:getByName(name)
   octester:asserteq(
     nn, nn1,
@@ -88,18 +88,18 @@ function octest.oc_arm_fromNerve()
   )
 end
 
-function octest.oc_arm_chain()
+function octest.oc_arm_strand()
   local name = 'nn1'
   local nn1 = oc.Noop():label(name) 
   local nn2 = oc.Noop()
-  local chain = nn1 .. nn2
-  local arm = oc.Arm(chain)
+  local strand = nn1 .. nn2
+  local arm = oc.Arm(strand)
   octester:asserteq(
-    arm:chain():lhs(), chain:lhs(),
+    arm:strand():lhs(), strand:lhs(),
     'The modules should be the same.'
   )
   octester:asserteq(
-    arm:chain():rhs(), chain:rhs(),
+    arm:strand():rhs(), strand:rhs(),
     'The modules should be the same.'
   )
 end

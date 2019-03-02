@@ -1,4 +1,4 @@
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.arm'
 require 'oc.pkg'
 
@@ -43,7 +43,7 @@ do
   --! Normally the user will not interact 
   --! directly with this
   --! 
-  --! @usage <tako>.arm.y = <chain> or <nerve>
+  --! @usage <tako>.arm.y = <strand> or <nerve>
   --! The index 'arm' will create a new arm creator
   --! And the index y will add an arm 'y' to the tako (an
   --! arm that can be indexed with 'y')

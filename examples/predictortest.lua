@@ -9,7 +9,6 @@ local Predictor, Teacher
 local BATCH_SIZE = 32
 
 do
-  
   Predictor = oc.tako(
     'Predictor'
   )
@@ -264,4 +263,4 @@ collectgarbage()
 teacher.testBatch:stimulate()
 collectgarbage()
 --
---t = teacher.train._module:chain()[2]:super()
+--t = teacher.train._module:strand()[2]:super()

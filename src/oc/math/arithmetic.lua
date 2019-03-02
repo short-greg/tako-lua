@@ -181,7 +181,7 @@ end
 
 function oc.Nerve.__mul__(lhs, rhs)
   --! Multiply two modules together
-  --!	@return	oc.Chain x * y
+  --!	@return	oc.Strand x * y
   return lhs .. oc.Merge(rhs) .. oc.math.Mul()
 end
 
@@ -189,13 +189,13 @@ function oc.Nerve.__div__(lhs, rhs)
   --!	Divide one module from the other
   --! @param lhs
   --! @param rhs
-  --!	@return oc.Chain
+  --!	@return oc.Strand
 	return lhs .. oc.Merge(rhs) .. oc.math.Div()
 end
 
 
 function oc.Nerve.__exp__(lhs, rhs)
   --!Power of elements of one module to another
-  --!	@return oc.Chain
+  --!	@return oc.Strand
 	return lhs .. oc.Merge(rhs) .. oc.math.Exp()
 end

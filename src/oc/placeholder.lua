@@ -1,7 +1,7 @@
 require 'oc.pkg'
 require 'oc.class'
 require 'oc.ops.table'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.oc'
 require 'oc.ops.ops'
 require 'oc.ref'
@@ -9,7 +9,7 @@ require 'oc.ref'
 --! ######################################
 --! Placeholder is a convenience module used in order to 
 --! create references to other nerves, functions 
---! and data within the chain definition.
+--! and data within the strand definition.
 --! 
 --! 
 --! There are four basic types of placeholders
@@ -64,8 +64,8 @@ do
   --! nerve.
   --!
   --! nn.Linear(2, 2) .. oc.my.x
-  --! Will create a chain with an oc.MyRef at the
-  --! end of the chain.
+  --! Will create a strand with an oc.MyRef at the
+  --! end of the strand.
   --!
   --! Calling a placeholder will create a function
   --! call in the reference Call.  Placeholders can

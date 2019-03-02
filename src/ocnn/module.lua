@@ -34,7 +34,7 @@ function nn.Module:__index__(key)
   if (oc.type(key) == 'number' or 
      oc.type(key) == 'table') and
      oc.isInstance(self) then
-    local stream = oc.IndexChain(self, key)
+    local stream = oc.IndexStrand(self, key)
     return stream, true
   end
   return false

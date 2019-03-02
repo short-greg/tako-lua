@@ -7,8 +7,8 @@ require 'oc.oc'
 
 
 do
-  local Chain, parent = oc.class(
-    'oc.Chain'
+  local Strand, parent = oc.class(
+    'oc.Strand'
   )
   --! ####################################
   --! Links multiple nerves together
@@ -20,23 +20,23 @@ do
   --!          p3.
   --! 
   --!          Note: y .. p4 will just extend
-  --!          the chain.
+  --!          the strand.
   --!
   --!          oc.nerve(y) will output an Arm.
   --!
-  --!          Chain also does not have
+  --!          Strand also does not have
   --!          out and grad functions unlike Arm
   --! @input - Whatever the first member nerve takes
   --! @output - Whatever the member nerve outputs
   --! ####################################
 
-  oc.Chain = Chain
-  local myType = 'oc.Chain'
+  oc.Strand = Strand
+  local myType = 'oc.Strand'
 
-  function Chain:__init(...)
+  function Strand:__init(...)
     --! @constructor
     --! @param ... - the nerves or nervables that
-    --!              make up the chain
+    --!              make up the strand
     local modules = table.pack(...)
     self._gradOn = true
     rawset(self, '_lhs', modules[1])
@@ -44,24 +44,24 @@ do
   end
   
   function oc.concat(lhs, rhs)
-    --! Concatenate two nerves or chains together
-    --! to form a chain
-    --! @param lhs - left hand side - nerve | chain
-    --! @param rhs - right hand side - nerve | chain
-    --! @return oc.Chain
+    --! Concatenate two nerves or strands together
+    --! to form a strand
+    --! @param lhs - left hand side - nerve | strand
+    --! @param rhs - right hand side - nerve | strand
+    --! @return oc.Strand
     local stream
     local modules
     -- Arms should not be concatenated
     if oc.type(lhs) == 'oc.Arm' then
-      lhs = lhs:chain()
+      lhs = lhs:strand()
     end
     if oc.type(rhs) == 'oc.Arm' then
-      rhs = rhs:chain()
+      rhs = rhs:strand()
     end
     if oc.isTypeOf(lhs, myType) and 
        oc.isTypeOf(rhs, myType) then
       local mid = lhs:rhs() .. rhs:lhs()
-      return oc.Chain(
+      return oc.Strand(
         table.unpack(
           oc.ops.table.listCat(
             lhs:modules(), rhs:modules()
@@ -71,7 +71,7 @@ do
     elseif oc.isTypeOf(lhs, myType) then
       local rhsmod = oc.nerve(rhs)
       local _ = lhs:rhs() .. rhsmod
-      return oc.Chain(
+      return oc.Strand(
         table.unpack(
           oc.ops.table.listCat(lhs:modules(), {rhsmod})
         )
@@ -79,78 +79,78 @@ do
     elseif oc.isTypeOf(rhs, myType) then
       local lhsmod = oc.nerve(lhs)
       local _ = lhsmod .. rhs:lhs()
-      return oc.Chain(
+      return oc.Strand(
         table.unpack(
           oc.ops.table.listCat({lhsmod}, rhs:modules())
         )
       )
     else 
-      -- Neither are chains so simply create 
+      -- Neither are strands so simply create 
       --! modules and connect
       return oc.nerve(lhs):connect(oc.nerve(rhs))
     end
   end
 
-  function Chain:lhs()
-    --! Get the head of the chain
+  function Strand:lhs()
+    --! Get the head of the strand
     --! @return nn.Module
     return self._lhs
   end
 
-  function Chain:rhs()
-    --! Get the tail nerve of the chain
+  function Strand:rhs()
+    --! Get the tail nerve of the strand
     --! @return nn.Module
     return self._rhs
   end
 
-  Chain.root = Chain.lhs
-  Chain.leaf = Chain.rhs
+  Strand.root = Strand.lhs
+  Strand.leaf = Strand.rhs
 
-  function Chain:__len__()
-    --! The number of nerves in the chain
+  function Strand:__len__()
+    --! The number of nerves in the strand
     --! @return int
     return self._rhs:getLength(self._lhs)
   end
 
-  function Chain:gradOn()
+  function Strand:gradOn()
     --! Convenience function to turn grad on in
-    --! a chain
-    --! To be used to define a chain simply
-    --! @return oc.Chain
+    --! a strand
+    --! To be used to define a strand simply
+    --! @return oc.Strand
     self._gradOn = true
     oc.bot.call:gradOn():exec(self)
     return self
   end
 
-  function Chain:gradOff()
+  function Strand:gradOff()
     --! Convenience function to turn grad off
-    --! in a chain when defining the sequence
-    --! To be used to define a chain simply
-    --! @return oc.Chain
+    --! in a strand when defining the sequence
+    --! To be used to define a strand simply
+    --! @return oc.Strand
     self.gradOn = false
     oc.bot.call:gradOff():exec(self)
     return self
   end
 
-  function Chain:sub(lower, upper)
-    --! Retrieve a subchain of the chain
-    --! @param lower The index of the start of the chain
-    --! @param upper the index of the end of the chain
-    --! @return oc.Chain
+  function Strand:sub(lower, upper)
+    --! Retrieve a sub strand of the strand
+    --! @param lower The index of the start of the strand
+    --! @param upper the index of the end of the strand
+    --! @return oc.Strand
     local modules, found = self._rhs:getSeq(self._lhs)
     lower = lower or 1
     upper = upper or #modules
     assert(lower <= upper, 'Lower must be <= upper')
     
-    local chain = oc.Chain(table.unpack(
+    local strand = oc.Strand(table.unpack(
       modules, lower, upper
     ))
-    chain.gradOn = self.gradOn
-    return chain
+    strand.gradOn = self.gradOn
+    return strand
   end
 
-  function Chain:seq(lower, upper)
-    --! Convert a chain to an nn.Sequential
+  function Strand:seq(lower, upper)
+    --! Convert a strand to an nn.Sequential
     --! @param lower The lower bound of the 
     --! sequence - int
     --! @param upper The upper bound of the 
@@ -164,13 +164,13 @@ do
     return mod
   end
 
-  function Chain:modules()
+  function Strand:modules()
     local seq, found = self._rhs:getSeq(self._lhs)
     return seq
   end
 
-  function Chain:validChain()
-    --! Determine whether the chain is valid, which
+  function Strand:validStrand()
+    --! Determine whether the strand is valid, which
     --! means the left hand side connects to the right
     --! hand side
     --! @return if they connect or not - bool
@@ -181,24 +181,24 @@ do
     end
   end
 
-  --! Convert the chain or subchain to an Arm 
-  --! @param the start of the subchain to retrieve - int
-  --! @param the end of the subchain to retrieve - int
+  --! Convert the strand or substrand to an Arm 
+  --! @param the start of the substrand to retrieve - int
+  --! @param the end of the substrand to retrieve - int
   --! @return Arm
-  function Chain:arm(lower, upper)
-    local subChain = self:sub(lower, upper)
-    local arm = oc.Arm(subChain)
+  function Strand:arm(lower, upper)
+    local subStrand = self:sub(lower, upper)
+    local arm = oc.Arm(subStrand)
     return arm
   end
 
-  Chain.__nerve__ = Chain.arm
+  Strand.__nerve__ = Strand.arm
 
-  function Chain.__index__(self, key)
-    --! Retrieve a module or member from a chain
+  function Strand.__index__(self, key)
+    --! Retrieve a module or member from a strand
     --! @param key - Key specifying the module
     --! @return nerve, true if exists otherwise false
-    if rawget(Chain, key) then
-      return rawget(Chain, key)
+    if rawget(Strand, key) then
+      return rawget(Strand, key)
     end
     
     if type(key) == 'number' then
@@ -209,10 +209,10 @@ do
     end
   end
   
-  function Chain.__newindex__(self, key, val)
-    --! Cannot add to the chain
+  function Strand.__newindex__(self, key, val)
+    --! Cannot add to the strand
     -- TODO: Make sure I should not 
-    --! be able to add to the chain
+    --! be able to add to the strand
     if not oc.isInstance(self) then
       rawset(self, key, val)
       return
@@ -226,29 +226,29 @@ do
     return false
   end
 
-  function Chain:relaxed()
-    --! Check whether the chain is relaxed
+  function Strand:relaxed()
+    --! Check whether the strand is relaxed
     --! by checking the tail nerve
     --! @return bool
     return self._rhs:relaxed()
   end
 
-  function Chain:relaxedGrad()
-    --! Check whether the gradient for the chain
+  function Strand:relaxedGrad()
+    --! Check whether the gradient for the strand
     --! is relaxed by checking the head
     --! @return bool
     return self._lhs.relaxedGrad()
   end
 
-  Chain.__concat__ = oc.concat
+  Strand.__concat__ = oc.concat
 
-  function Chain:replaceModule(oldModule, replaceWith)
-    --! Replace a nerve in the chain with a new module
-    --! If the chain has been updated
+  function Strand:replaceModule(oldModule, replaceWith)
+    --! Replace a nerve in the strand with a new module
+    --! If the strand has been updated
     --!
     --! @param oldModule - The nerve to replace
     --! @param replaceWith - The new nerve 
-    --! to put in the chain
+    --! to put in the strand
     if self._lhs == oldModule then
       self._lhs = replaceWith
     end
@@ -257,21 +257,21 @@ do
     end
   end
 
-  function Chain:updateRefs(oldValue, newValue)
+  function Strand:updateRefs(oldValue, newValue)
     --! 
     --! @param oldValue
     --! @param newValue
     oc.ops.table.updateRefs(self, oldModule, newModule)
   end
 
-  function Chain.rewire(replaceWith, toReplace)  
+  function Strand.rewire(replaceWith, toReplace)  
     --!	@brief Replace an nn.Module 
     --! in an arm with another module
     --!        
     --! @param replaceWith - Module to replace 
-    --! self with - oc.Chain
+    --! self with - oc.Strand
     --! @param toReplace - Module to replace 
-    --! itself with - nn.Module | oc.Chain
+    --! itself with - nn.Module | oc.Strand
     if oc.type(toReplace) == myType then
       replaceWith:lhs():rewireIn(toReplace:lhs())
       replaceWith:rhs():rewireOut(toReplace:rhs())
@@ -281,34 +281,34 @@ do
     end
   end
 
-  function Chain:incoming()
-    --! Chain should not have incoming
+  function Strand:incoming()
+    --! Strand should not have incoming
     --! Used primarily for sending the bot 
     --! through the network
     return nil
   end
   
-  function Chain:outgoing()
-    --! Chain should not have outgoing modules
+  function Strand:outgoing()
+    --! Strand should not have outgoing modules
     --! Used primarily for tubing
     return {}
   end
   
-  function Chain:children()
+  function Strand:internals()
     return {
       self._lhs
     }
   end
 
-  function Chain:informGrad(gradOutput)
-    --! Inform grad for the end nerve of the chain
+  function Strand:informGrad(gradOutput)
+    --! Inform grad for the end nerve of the strand
     --! @param gradOutput GradOutput
     self._rhs:informGrad(gradOutput)
   end
 
-  function Chain:probeGrad()
-    --! Probe the gradient at the head of the chain
-    --! @return Grad from the start of the chaing
+  function Strand:probeGrad()
+    --! Probe the gradient at the head of the strand
+    --! @return Grad from the start of the strand
     if self.gradOn then
       return self._lhs:probeGrad()
     else
@@ -316,39 +316,39 @@ do
     end
   end
 
-  function Chain:inform(input)
-    --! Inform input for the chain.  
+  function Strand:inform(input)
+    --! Inform input for the strand.  
     --! Will update the head nerve 
-    --! of the chain
-    --! @param input Input to the start of the chain
+    --! of the strand
+    --! @param input Input to the start of the strand
     self._lhs:inform(input)
   end
 
-  function Chain:probe()
-    --! Probe the end of the chain
-    --! @return output of the beginning of the chain
+  function Strand:probe()
+    --! Probe the end of the strand
+    --! @return output of the beginning of the strand
     return self._rhs:probe()
   end
 
-  function Chain:stimulate(input)
-    --! inform and probe output for the chain
+  function Strand:stimulate(input)
+    --! inform and probe output for the strand
     --! @return value returned from probing the tail nerve
     self:inform(input)
     return self:probe()
   end
   
-  function Chain:accumulate()
+  function Strand:accumulate()
     self._lhs:accumulate()
   end
 
-  function Chain:stimulateGrad(gradOutput)
-    --! inform and probe grad for the chain
+  function Strand:stimulateGrad(gradOutput)
+    --! inform and probe grad for the strand
     --! @return value returned from probing the head nerve
     self:informGrad(gradOutput)
     return self:probeGrad()
   end
 
-  function Chain.__eq__(lhs, rhs)
+  function Strand.__eq__(lhs, rhs)
     return lhs:lhs() == rhs:lhs() and
             lhs:rhs() == rhs:rhs()
     --return torch.isequal(lhs:lhs(), rhs:lhs()) and 

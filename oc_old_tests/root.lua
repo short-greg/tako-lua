@@ -9,11 +9,11 @@ function octest.oc_root_value()
   )
 end
 
-function octest.oc_root_value_in_chain()
+function octest.oc_root_value_in_strand()
   local inp = oc.Root(1)
-  local chain = inp .. oc.Noop()
+  local strand = inp .. oc.Noop()
   octester:eq(
-    chain:probe(), 1,
+    strand:probe(), 1,
     'Output should be equal to 1'
   )
 end

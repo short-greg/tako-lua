@@ -26,8 +26,8 @@ do
   --! ########################################
   oc.Repeat = Repeat
   
-  function Repeat:__init(chain, gradOn)
-    --! @param chain
+  function Repeat:__init(strand, gradOn)
+    --! @param strand
     --! @param gradOn
     parent.__init(self)
     if gradOn == nil then
@@ -42,7 +42,7 @@ do
       )
     )
     self.gradOn = gradOn
-    self._module = oc.nerve(chain)
+    self._module = oc.nerve(strand)
     self.output = nil
   end
   

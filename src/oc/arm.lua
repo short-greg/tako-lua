@@ -1,6 +1,6 @@
 require 'oc.pkg'
 require 'oc.nerve'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.class'
 
 
@@ -29,7 +29,7 @@ do
     --! @param nerve - nervable
     parent.__init(self)
     self._modules = {}
-    if not torch.isTypeOf(nerve, 'oc.Chain') then
+    if not torch.isTypeOf(nerve, 'oc.Strand') then
       self._modules.root = oc.nerve(nerve)
       self._modules.leaf = self._modules.root
     else
@@ -63,15 +63,15 @@ do
     return modules[val]
   end
   
-  function Arm:chain()
-    --! Convert the arm into a chain
-    --! @return oc.Chain
-    return oc.Chain(
+  function Arm:strand()
+    --! Convert the arm into a strand
+    --! @return oc.Strand
+    return oc.Strand(
       self._modules.root, self._modules.leaf
     )
   end
   
-  function Arm:children()
+  function Arm:internals()
     return {self._modules.root}
   end
 
@@ -94,7 +94,7 @@ do
   function Arm.fromNerve(nerve)
     --! Convert a nerve into an arm
     --! @return Arm
-    return oc.Arm(oc.Chain(nerve))
+    return oc.Arm(oc.Strand(nerve))
   end
 
   function Arm:__len__()

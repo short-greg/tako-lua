@@ -2,7 +2,7 @@ require 'oc.pkg'
 require 'oc.nerve'
 require 'oc.oc'
 require 'oc.ops.table'
-require 'oc.chain'
+require 'oc.strand'
 
 --! TODO: Need to edit this
 
@@ -92,21 +92,21 @@ do
 end
 
 do
-  local IndexChain, parent = oc.class(
-    'oc.IndexChain', oc.Chain
+  local IndexStrand, parent = oc.class(
+    'oc.IndexStrand', oc.Strand
   )
   --! ################################
   --!
-  --! Used for chaining sub nerves for indexing
+  --! Used for stranding sub nerves for indexing
   --! as in x[1][2]
   --! @input  Input to retrieve the sub of (must be indexable)
   --! @output The output for the nerve indexed
   --! 
   --! ##############################
 
-  oc.IndexChain = IndexChain
+  oc.IndexStrand = IndexStrand
 
-  function IndexChain:__init(mod, ...)
+  function IndexStrand:__init(mod, ...)
     local subItems = table.pack(...)
     local prev = mod
     for i=1, #subItems do
@@ -118,9 +118,9 @@ do
     rawset(self, '_rhs', prev)
   end
 
-  function IndexChain:__index__(key)
-    --! Index the IndexChain.  Overrides the 
-    --! __index___ function for chain
+  function IndexStrand:__index__(key)
+    --! Index the IndexStrand.  Overrides the 
+    --! __index___ function for strand
     local res = rawget(self, key)
     
     if res then
@@ -133,11 +133,11 @@ do
     return self
   end
 
-  function IndexChain.__nerve__(self)
-    return oc.nerve(oc.Chain(self._lhs, self._rhs))
+  function IndexStrand.__nerve__(self)
+    return oc.nerve(oc.Strand(self._lhs, self._rhs))
   end
 
-  function IndexChain.__tostring(self)
+  function IndexStrand.__tostring(self)
     return string.format(
       '%s .. %s', 
       oc.type(self._lhs), oc.type(self._rhs)
@@ -159,9 +159,9 @@ function oc.Nerve:__index__(key)
     return res
   end
   if (oc.type(key) == 'number' or 
-     oc.type(key) == 'table') and
+      oc.type(key) == 'table') and
      oc.isInstance(self) then  
-    local stream = oc.IndexChain(self, key)
+    local stream = oc.IndexStrand(self, key)
     return stream
   end
 end

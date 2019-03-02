@@ -274,7 +274,7 @@ do
     ))
   end
   
-  function SpatialConvAndPoolReverse:children()
+  function SpatialConvAndPoolReverse:internals()
     return {}
     -- return self._toReverse
   end
@@ -411,7 +411,7 @@ do
     return oc.Arm(upscale .. revConv)
   end
 
-  function SpatialConvAndPoolReverse2:children()
+  function SpatialConvAndPoolReverse2:internals()
     return {}
     --return self._toReverse
   end

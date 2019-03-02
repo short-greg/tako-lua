@@ -1,7 +1,7 @@
 require 'oc.flow.pkg'
 require 'oc.class'
 require 'oc.oc'
-require 'oc.chain'
+require 'oc.strand'
 require 'oc.arm'
 require 'oc.ref'
 require 'oc.placeholder'
@@ -21,7 +21,7 @@ do
     'oc.Merge', oc.Nerve
   )
   --! ########################################
-  --! Connect another process stream (chain) into 
+  --! Connect another process stream (strand) into 
   --! this stream.  It makes it possible to 
   --! get around the issue of it being 
   --! possible to only have one incoming stream
@@ -40,7 +40,7 @@ do
   --!   (will not probe x)
   --!
   --! Merging in References will
-  --! not form a 'chain' and the gradient will not be 
+  --! not form a 'strand' and the gradient will not be 
   --! informed.  References will always be probed, however
   --! Outputs an emission with the items 
   --! being merged with the input stream.
@@ -53,7 +53,7 @@ do
     self._modules = {}
     self._updatePost = updatePost
     
-    local curChain
+    local curStrand
     for i, cur in ipairs(nerves) do
       self._modules[i] = mergeIn(
         oc.nerve(cur), self
@@ -141,7 +141,7 @@ do
     return self._modules[index]
   end
   
-  function Merge:children()
+  function Merge:internals()
     return self._modules
   end
 end
@@ -180,7 +180,7 @@ do
     'oc.MergeNoop', oc.Noop
   )
   --! ########################################
-  --! Connect another process stream (chain) into 
+  --! Connect another process stream (strand) into 
   --! this stream.  It makes it possible to 
   --! get around the issue of it being 
   --! possible to only have one incoming stream
@@ -262,7 +262,7 @@ do
   --! ########################################
   oc.MergeIn = MergeIn
 
-  function MergeIn:children()
+  function MergeIn:internals()
     return {}
   end
 
@@ -342,7 +342,7 @@ do
     return gradOutput
   end
   
-  function Exec:children()
+  function Exec:internals()
     return {self._arm}
   end
 end
@@ -374,7 +374,7 @@ do
     return gradOutput
   end
   
-  function RefMerge:children()
+  function RefMerge:internals()
     return {self._arm}
   end
 end
@@ -406,7 +406,7 @@ do
     return gradOutput
   end
   
-  function NerveRefMerge:children()
+  function NerveRefMerge:internals()
     return {self._arm}
   end
 end

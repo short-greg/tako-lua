@@ -349,7 +349,7 @@ do
   function Nerve:gradOn(state)
     --! Turn the gradient back propagation off 
     --! (returns nil) 
-    --! @return self (to use in a chain)
+    --! @return self (to use in a strand)
     state = state or true
     assert(
       type(state) == 'boolean',
@@ -362,7 +362,7 @@ do
   function Nerve:accOn(state)
     --! Turn the accumulation of the gradient 
     --! off (returns nil) 
-    --! @return self (to use in a chain)
+    --! @return self (to use in a strand)
     state = state or true
     assert(
       type(state) == 'boolean',
@@ -375,7 +375,7 @@ do
   function Nerve:backOn(state)
     --! Turn the accumulation of the gradient 
     --! off (returns nil) 
-    --! @return self (to use in a chain)
+    --! @return self (to use in a strand)
     state = state or true
     self:gradOn(state)
     self:accOn(state)
@@ -472,10 +472,10 @@ do
   end
   
   function Nerve.connect(from, to)
-    --! Connect two nerves together to form a chain
+    --! Connect two nerves together to form a strand
     --! @param from - nn.Module
     --! @param to - nn.Module
-    --! @return oc.Chain
+    --! @return oc.Strand
     assert(
       not rawget(to, '_inAxon'),
       'A node cannot have more than one '.. 
@@ -485,7 +485,7 @@ do
     table.insert(from._outAxons, axon)
     to:connectInAxon(axon)
     
-    return oc.Chain(from, to)
+    return oc.Strand(from, to)
   end
 
   --! TODO: I don't think this is necessary
@@ -497,7 +497,7 @@ do
   
   --! TODO: decide whether to use this
   --! or getChildNerves
-  function Nerve:children()
+  function Nerve:internals()
     --! TODO: RENAME AND USE ITERATOR
     --! Retrieve all of the child nerves for the 
     --! nerve.  Child nerves should be in either
@@ -514,7 +514,7 @@ do
     return {}
   end
   
-    --! TODO: Change getSeq in chain to use this (probably)
+    --! TODO: Change getSeq in strand to use this (probably)
   function Nerve.getSeq(to, from)
     --! Get a sequence of modules to a particular 
     --! module from another module
