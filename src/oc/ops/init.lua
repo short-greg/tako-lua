@@ -1,6 +1,5 @@
 require 'oc.ops.math'
 require 'oc.ops.module'
-require 'oc.ops.ops'
 --require 'oc.ops.reverse'
 require 'oc.ops.string'
 require 'oc.ops.table'

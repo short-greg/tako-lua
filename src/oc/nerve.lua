@@ -1,7 +1,6 @@
 require 'oc.pkg'
 require 'oc.class'
 require 'oc.oc'
-require 'oc.ops.ops'
 require 'oc.bot.call'
 
 require 'oc.ops.math'

@@ -4,7 +4,6 @@ require 'oc.oc'
 require 'oc.nerve'
 require 'oc.ops.table'
 require 'oc.strand'
-require 'oc.ops.ops'
 
 --! ################################################
 --! @module Reference
