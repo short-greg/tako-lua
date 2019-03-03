@@ -1,15 +1,13 @@
 local matrixops = {}
 
---! ########################################
---! Includes operations to help in 
---! doing row-column matrix 
---! operations such as maxmin composition, 
---! euclidean distance between and so on
---! Because some of these operations 
---! may require a lot of memory, there 
---! most of the operations are for dealing
---! with sub matrices.
---! ########################################
+--- Includes operations to help in 
+-- doing row-column matrix 
+-- operations such as maxmin composition, 
+-- euclidean distance between and so on
+-- Because some of these operations 
+-- may require a lot of memory, there 
+-- most of the operations are for dealing
+-- with sub matrices.
 
 function matrixops.divideMatrix(m, count, dim)
   local result = {}
@@ -24,17 +22,18 @@ function matrixops.divideMatrix(m, count, dim)
   return result
 end
 
+
+--- Loop through two sets of matrices (can be created
+-- with divideMatrix) and output each combination
+-- @param m1s - {torch.Tensor()} 
+-- @param m2s - {torch.Tensor()}
+-- @return function (for looping)
 function matrixops.subMatrixLoop(m1s, m2s)
-  --! Loop through two sets of matrices (can be created
-  --! with divideMatrix) and output each combination
-  --! @param m1s - {torch.Tensor()} 
-  --! @param m2s - {torch.Tensor()}
-  --! @return function (for looping)
   local i, j = 1, 1
-  
+
+  --- returns tensor combination
+  -- @return torch.Tensor, torch.Tensor
   local function loop()
-    --! returns tensor combination
-    --! @return torch.Tensor, torch.Tensor
     if j > #m2s then
       return
     end
@@ -51,18 +50,17 @@ function matrixops.subMatrixLoop(m1s, m2s)
   return loop
 end
 
-
+--- Expand two matrices so that they have the 
+-- 3 dimensions and the first dimension size is 
+-- equal to m1:size(1) and the second dimesnion size
+-- is m2:size(1) and the third is equal to m1:size(2) 
+-- and m2:size(2)
+-- @param m1 - torch.Tensor
+-- @param m2 - torch.Tensor
+-- @return torch.Tensor, torch.Tensor
 function matrixops.getExpanded(
     m1, m2
 )
-  --! Expand two matrices so that they have the 
-  --! 3 dimensions and the first dimension size is 
-  --! equal to m1:size(1) and the second dimesnion size
-  --! is m2:size(1) and the third is equal to m1:size(2) 
-  --! and m2:size(2)
-  --! @param m1 - torch.Tensor
-  --! @param m2 - torch.Tensor
-  --! @return torch.Tensor, torch.Tensor
   local m1BaseSize = m1:size()
   local m2BaseSize = m2:size()
   local mExpandedSize = torch.LongStorage(
@@ -78,20 +76,19 @@ function matrixops.getExpanded(
   return m1Expanded, m2Expanded
 end
 
+--- If dimension size / step size  != floor(dimension size /
+-- step size) the final matrix may not be of the same
+-- size as the other.  In this case the expanded matrix
+-- should be narrowed to accomadate for matrices of a
+-- smaller size.
+-- @param m1
+-- @param m1Expanded
+-- @param m2
+-- @param m2Expanded
 function matrixops.narrowExpanded(
     m1, m1Expanded,
     m2, m2Expanded
 )
-  --! If dimension size / step size  != floor(dimension size /
-  --! step size) the final matrix may not be of the same
-  --! size as the other.  In this case the expanded matrix
-  --! should be narrowed to accomadate for matrices of a
-  --! smaller size.
-  --! @param m1
-  --! @param m1Expanded
-  --! @param m2
-  --! @param m2Expanded
-
   local narrowed1, narrowed2 = m1Expanded, m2Expanded
   if m1:size(1) < m1Expanded:size(1) then
     narrowed1 = narrowed1:narrow(1, 1, m1:size(1))
@@ -104,21 +101,20 @@ function matrixops.narrowExpanded(
   return narrowed1, narrowed2
 end
 
+--- Expands the matrices m1 and m2 so that they
+-- are the same size 
+-- @param m1
+-- @param m1Expanded 
+-- @param m1BaseSize
+-- @param m2
+-- @param m2Expanded
+-- @param m2BaseSize
+-- the resulting tensors should be the same
+-- size for m1 and m2
 function matrixops.expandMatrices(
     m1, m1Expanded, m1BaseSize, 
     m2, m2Expanded, m2BaseSize
 )
-  --! Expands the matrices m1 and m2 so that they
-  --! are the same size 
-  --! @param m1
-  --! @param m1Expanded 
-  --! @param m1BaseSize
-  --! @param m2
-  --! @param m2Expanded
-  --! @param m2BaseSize
-  
-  -- the resulting tensors should be the same
-  -- size for m1 and m2
   torch.repeatTensor(
     m1Expanded,
     m1:view(1, m1:size(1), m1:size(2)), 
@@ -131,16 +127,14 @@ function matrixops.expandMatrices(
   )
 end
 
-
+--- Merge all of the matrices in the parameter matrices
+-- into one matrix (the result matrix)
+-- @param matrices {tensor} (2 dimensional)
+-- @param resultMatrix - Matrix to put the result into
+--   (2 dimensional)
 function matrixops.mergeMatricesLoop(
     matrices, resultMatrix, rSize, cSize
 )
-  --! Merge all of the matrices in the parameter matrices
-  --! into one matrix (the result matrix)
-  --! @param matrices {tensor} (2 dimensional)
-  --! @param resultMatrix - Matrix to put the result into
-  --!   (2 dimensional)
-  --! 
   local rSubResult
   local cSubResult
   local idx = 1

@@ -14,11 +14,11 @@ do
   function Storage:__init()
     --
   end
-  
+
+  --- Empty out the data being stored
+  -- 
+  -- @post - The data should be reset to the initial state
   function Storage:empty()
-    --! Empty out the data being stored
-    --! 
-    --! @post - The data should be reset to the initial state
     error(
       'Method empty() not defined for Storage.'
     )
@@ -58,7 +58,6 @@ do
       'data() not defined for base Storage class '
     )
   end
-
 end
 
 
@@ -71,11 +70,12 @@ do
   function NullStorage:__init()
     --
   end
-  
+
+  --- Empty out the data being stored
+  -- 
+  -- @post - The data should be reset to the initial state
   function NullStorage:empty()
-    --! Empty out the data being stored
-    --! 
-    --! @post - The data should be reset to the initial state
+    --
   end
   
   function NullStorage:setData(index, val)

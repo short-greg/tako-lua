@@ -17,34 +17,32 @@ oc.exec(y) <- always executes updateOutput
 --]]
 
 do
+  --- Connect another process stream (strand) into 
+  -- this stream.  It makes it possible to 
+  -- get around the issue of it being 
+  -- possible to only have one incoming stream
+  --
+  -- @input    value
+  -- @output  {}
+  -- 
+  -- @usage
+  -- oc.Linear() .. 
+  --   oc.Under(oc.my.arm.x) .. 
+  --   oc.Add()
+  --   (will probe x)
+  -- oc.Linear() ..
+  --   oc.Append(oc.my.arm.x) ..
+  --   oc.Add()
+  --   (will not probe x)
+  --
+  -- Merging in References will
+  -- not form a 'strand' and the gradient will not be 
+  -- informed.  References will always be probed, however
+  -- Outputs an emission with the items 
+  -- being merged with the input stream.
   local Merge, parent = oc.class(
     'oc.Merge', oc.Nerve
   )
-  --! ########################################
-  --! Connect another process stream (strand) into 
-  --! this stream.  It makes it possible to 
-  --! get around the issue of it being 
-  --! possible to only have one incoming stream
-  --!
-  --! @input    value
-  --! @output  {}
-  --! 
-  --! @usage
-  --! oc.Linear() .. 
-  --!   oc.Under(oc.my.arm.x) .. 
-  --!   oc.Add()
-  --!   (will probe x)
-  --! oc.Linear() ..
-  --!   oc.Append(oc.my.arm.x) ..
-  --!   oc.Add()
-  --!   (will not probe x)
-  --!
-  --! Merging in References will
-  --! not form a 'strand' and the gradient will not be 
-  --! informed.  References will always be probed, however
-  --! Outputs an emission with the items 
-  --! being merged with the input stream.
-  --! ########################################
   
   oc.Merge = Merge
 
@@ -136,8 +134,8 @@ do
   function Merge:accGradParameters(input, gradOutput)
   end
 
+  -- get a stream that 'Merge' merges in
   function Merge:getMergeIn(index)
-    --! get a stream that 'Merge' merges in
     return self._modules[index]
   end
   
@@ -176,24 +174,21 @@ end
 
 
 do
+  --- Connect another process stream (strand) into 
+  -- this stream.  It makes it possible to 
+  -- get around the issue of it being 
+  -- possible to only have one incoming stream
+  --
+  -- @input   nil
+  -- @output  depends on the nerve to merge in
   local MergeNoop, parent = oc.class(
     'oc.MergeNoop', oc.Noop
   )
-  --! ########################################
-  --! Connect another process stream (strand) into 
-  --! this stream.  It makes it possible to 
-  --! get around the issue of it being 
-  --! possible to only have one incoming stream
-  --!
-  --! @input   nil
-  --! @output  depends on the nerve to merge in
-  --!
-  --! ########################################
   oc.MergeNoop = MergeNoop
   
+  --- mergenoop should not have outgoing nerve
   function MergeNoop:__init(mergeNerve)
     parent.__init(self)
-    --! mergenoop should not have outgoing nerve
     self._outgoing = nil
     self._mergeNerve = mergeNerve
   end
@@ -209,26 +204,21 @@ end
 
 
 do
+  --- @input   nil
+  -- @output  depends on the nerve to merge in
   local MergeInBase, parent = oc.class(
     'oc.MergeInBase', oc.Nerve
   )
-  --! ########################################
-  --! 
-  --!
-  --! @input   nil
-  --! @output  depends on the nerve to merge in
-  --!
-  --! ########################################
   oc.MergeInBase = MergeInBase
-  
+
+  --- Controls how MergeIn takes place
+  -- 
+  -- @constructor
+  -- @param outer - The module or stream to retrieve from
+  -- @param toProbe - Whether to probe in 
+  -- module to merge or just get the ouptut 
+  -- - boolean (default=true)
   function MergeInBase:__init(nerve, outer)
-  --! Controls how MergeIn takes place
-  --! 
-  --! @constructor
-  --! @param outer - The module or stream to retrieve from
-  --! @param toProbe - Whether to probe in 
-  --! module to merge or just get the ouptut 
-  --! - boolean (default=true)
     parent.__init(self)
     self._toGet = oc.nerve(nerve)
     self._noop = oc.MergeNoop(outer)
@@ -246,20 +236,17 @@ end
 
 
 do
+  ---	Connective nerve to merge a sub nerve into
+  -- a Merge nerve.
+  --
+  -- MergeIn should be defined implicitly rather than
+  -- explicitly when creating an arm.
+  -- 
+  -- @input    value
+  -- @output  {}
   local MergeIn, parent = oc.class(
     'oc.MergeIn', oc.MergeInBase
   )
-  --! ########################################
-  --!	Connective nerve to merge a sub nerve into
-  --! a Merge nerve.
-  --!
-  --! MergeIn should be defined implicitly rather than
-  --! explicitly when creating an arm.
-  --! 
-  --! @input    value
-  --! @output  {}
-  --!
-  --! ########################################
   oc.MergeIn = MergeIn
 
   function MergeIn:internals()
@@ -279,21 +266,18 @@ end
 
 
 do
+  --	Merges in the output of a nerve
+  -- It will not call probe on the output
+  --
+  -- Useful for RNNs where the nerve to check
+  -- may have been informed and thus probe
+  -- would update its value.
+  -- 
+  -- @input   nil
+  -- @output  depends on the nerve to merge in
   local Get, parent = oc.class(
     'oc.Get', oc.MergeInBase
   )
-  --! ########################################
-  --!	Merges in the output of a nerve
-  --! It will not call probe on the output
-  --!
-  --! Useful for RNNs where the nerve to check
-  --! may have been informed and thus probe
-  --! would update its value.
-  --! 
-  --! @input   nil
-  --! @output  depends on the nerve to merge in
-  --!
-  --! ########################################
   oc.Get = Get
   
   function Get:out(input)
@@ -317,20 +301,17 @@ end
 
 
 do
+  ---	Stimulates the nerve to mergeIn, though
+  -- does not inform it.
+  --
+  -- Useful if the nerve to merge in is a 
+  -- trainable tensor
+  -- 
+  -- @input   nil
+  -- @output  depends on the nerve to merge in
   local Exec, parent = oc.class(
     'oc.Exec', oc.MergeInBase
   )
-  --! ########################################
-  --!	Stimulates the nerve to mergeIn, though
-  --! does not inform it.
-  --!
-  --! Useful if the nerve to merge in is a 
-  --! trainable tensor
-  --! 
-  --! @input   nil
-  --! @output  depends on the nerve to merge in
-  --!
-  --! ########################################
   oc.Exec = Exec
   
   function Exec:out()
@@ -349,28 +330,25 @@ end
 
 
 do
+  ---	Stimulates the nerve to mergeIn, though
+  -- does not inform it.
+  --
+  -- Useful if the nerve to merge in is a 
+  -- reference to a value or a function.
+  -- 
+  -- @input   nil
+  -- @output  depends on the nerve to merge in
   local RefMerge, parent = oc.class(
     'oc.RefMerge', oc.MergeInBase
   )
-  --! ########################################
-  --!	Stimulates the nerve to mergeIn, though
-  --! does not inform it.
-  --!
-  --! Useful if the nerve to merge in is a 
-  --! reference to a value or a function.
-  --! 
-  --! @input   nil
-  --! @output  depends on the nerve to merge in
-  --!
-  --! ########################################
   oc.RefMerge = RefMerge
   
   function RefMerge:out()
     return self._arm:stimulate()
   end
 
+  --! ref does not have a grad
   function RefMerge:grad(input, gradOutput)
-    --! ref does not have a grad
     return gradOutput
   end
   
@@ -381,19 +359,16 @@ end
 
 
 do
+  ---	Probes an Arm reference
+  --
+  -- Used if the nerve to merge in is a 
+  -- reference to an arm
+  -- 
+  -- @input   nil
+  -- @output  depends on the nerve to merge in
   local NerveRefMerge, parent = oc.class(
     'oc.NerveRefMerge', oc.MergeInBase
   )
-  --! ########################################
-  --!	Probes an Arm reference
-  --!
-  --! Used if the nerve to merge in is a 
-  --! reference to an arm
-  --! 
-  --! @input   nil
-  --! @output  depends on the nerve to merge in
-  --!
-  --! ########################################
   oc.NerveRefMerge = NerveRefMerge
   
   function NerveRefMerge:out()
@@ -426,5 +401,3 @@ end
   nerve:setMergeNerve(mergeTo)
   return nerve
 end
-
-

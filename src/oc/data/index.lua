@@ -5,13 +5,10 @@ oc.data.index = oc.data.index or {}
 
 
 do
+  --- IndexBatch
   local IndexBase, parent = oc.class(
     'oc.data.index.IndexBase'
   )
-  --! IndexBatch
-  --! 
-  --! 
-  --!
   
   oc.data.index.IndexBase = IndexBase
 
@@ -34,29 +31,26 @@ do
   function IndexBase:decr()
     error('decr() not defined.')
   end
-  
+
+  --- @param sequence - a value that 
+  -- allows for sequential access
   function IndexBase:indexOn(sequence)
-    --! @param sequence - a value that
-    --!        allows for sequential access
     error('indexOn() not defined.')
   end
 end
 
 
 do
+  --! Index
+  --! 
   local Index, parent = oc.class(
     'oc.data.index.Index', 
     oc.data.index.IndexBase
   )
-  --! Index
-  --! 
-  --! 
-  --! 
   oc.data.index.Index = Index
-  
+
+  --- @param index - Index to the data - number
   function Index:__init(index)
-    --! 
-    --! @param index - Index to the data - number
     self._index = index
   end
   
@@ -78,8 +72,8 @@ do
     return Index(size - self._index + 1)
   end
 
+  --
   function Index:expand(expandBy)
-    --
     return oc.data.index.IndexRange(
       self._expandHelper(self._index, expandBy),
       expandBy, 1
@@ -105,18 +99,18 @@ end
 
 
 do
+
+  --- IndexRange selects a range of values
+  -- from a sequential
+  -- 
   local IndexRange, parent = oc.class(
     'oc.data.index.IndexRange', 
     oc.data.index.IndexBase
   )
-  --! IndexRange selects a range of values
-  --! from a sequential
-  --! 
   oc.data.index.IndexRange = IndexRange
-  
+
+  --- @param index - Index to the data - number
   function IndexRange:__init(startVal, frameSize, shiftSize)
-    --! 
-    --! @param index - Index to the data - number
     self._startingVal = startVal or 1
     self._frameSize = frameSize or 1
     self._shiftSize = shiftSize or 1

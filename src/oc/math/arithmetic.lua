@@ -5,17 +5,15 @@ require 'oc.nerve'
 require 'oc.flow.merge'
 
 
+--- Modules used for doing basic arithmetic such as
+-- subtraction (oc.Sub), addition (oc.Add), 
+-- multiplication (oc.Mul)
+-- division (oc.Div), and exponentiation (oc.Exp)
 local BasicArithmetic = oc.class(
   'oc.math.BasicArithmetic', oc.Nerve
 )
 oc.math.BasicArithmetic = BasicArithmetic
 
---!	####################################################
---! Modules used for doing basic arithmetic such as
---! subtraction (oc.Sub), addition (oc.Add), 
---! multiplication (oc.Mul)
---! division (oc.Div), and exponentiation (oc.Exp)
---!	####################################################
 
 do
   local Sub, parent = oc.class(
@@ -40,10 +38,10 @@ end
 
 
 do
+  --- Add the output of one module to another
   local Add, parent = oc.class(
     'oc.math.Add', BasicArithmetic
   )
-  --! Add the output of one module to another
   oc.math.Add = Add
 
   function Add:out(input)
@@ -60,11 +58,10 @@ end
 
 
 do
+  --- Multiply one module by another
   local Mul, parent = oc.class(
     'oc.math.Mul', BasicArithmetic
   )
-  --! Multiply one module by another
-  
   oc.math.Mul = Mul
   
   function Mul:out(input)
@@ -98,13 +95,13 @@ end
 
 
 do
+  --- Divide the output of one nere by 
+  -- the output of another
+  -- @input Dividable value
+  -- @output the output of the division
   local Div, parent = oc.class(
     'oc.math.Div', BasicArithmetic
   )
-  --! Divide the output of one nere by 
-  --! the output of another
-  --! @input Dividable value
-  --! @output the output of the division
   oc.math.Div = Div
 
   function Div:out(input)
@@ -143,11 +140,11 @@ end
 
 
 do
+  --- @input exponentiated value
   local Exp, parent = oc.class(
     'oc.math.Exp', BasicArithmetic
   )
   oc.math.Exp = Exp
-  --! @input exponentiated value
 
   function Exp:out(input)
     assert(
@@ -165,37 +162,34 @@ do
   end
 end
 
---!	@brief	Add two modules together
---!	@return	octo.Composite
+---	Add two modules together
+--	@return	octo.Composite
 function oc.Nerve.__add__(lhs, rhs)
 	return lhs .. oc.Merge(rhs) .. oc.math.Add()
 end
 
-
+---	Subtract one module from another
+-- @return octo.Composite
 function oc.Nerve.__sub__(lhs, rhs)
-  --!	Subtract one module from another
-  --! @return octo.Composite
   return lhs .. oc.Merge(rhs) .. oc.math.Sub()
 end
 
-
+--- Multiply two modules together
+--	@return	oc.Strand x * y
 function oc.Nerve.__mul__(lhs, rhs)
-  --! Multiply two modules together
-  --!	@return	oc.Strand x * y
   return lhs .. oc.Merge(rhs) .. oc.math.Mul()
 end
 
+---	Divide one module from the other
+-- @param lhs
+-- @param rhs
+-- @return oc.Strand
 function oc.Nerve.__div__(lhs, rhs)
-  --!	Divide one module from the other
-  --! @param lhs
-  --! @param rhs
-  --!	@return oc.Strand
 	return lhs .. oc.Merge(rhs) .. oc.math.Div()
 end
 
-
+--- Power of elements of one module to another
+--	@return oc.Strand
 function oc.Nerve.__exp__(lhs, rhs)
-  --!Power of elements of one module to another
-  --!	@return oc.Strand
 	return lhs .. oc.Merge(rhs) .. oc.math.Exp()
 end

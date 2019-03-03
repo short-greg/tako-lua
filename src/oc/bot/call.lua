@@ -4,40 +4,39 @@ require 'oc.bot.nano'
 
 
 do
+  --- Call is for creating a bot that 
+  -- will call a member of a nerve that it
+  -- passes through.
+  --
+  -- @usage oc.bot.call:relax() ->
+  -- will create a bot that can
+  -- relax nerves
+  --
+  -- For 'class methods' use dot
+  -- oc.bot.call.func(
+  --   args={<arg>}
+  --   cond=
+  --    function(self, nerve) 
+  --      return nerve.func ~= nil 
+  --    end
+  -- )
+  --
+  -- For 'instance methods' use colon and it will
+  -- pass self as the first algorithm
+  -- 
+  -- oc.bot.call:func(
+  --   args={<arg>}
+  --   cond=function(self, nerve) 
+  --      return nerve.func ~= nil 
+  --   end
+  -- )
+  -- 
+  -- Calls the function relax on all nerves
+  --
+  
   local Call, parent = oc.class(
     'oc.bot.Call', oc.bot.Nano
   )
-  --! ###########################
-  --! Call is for creating a bot that 
-  --! will call a member of a nerve that it
-  --! passes through.
-  --!
-  --! @example oc.bot.call:relax() ->
-  --!     will create a bot that can
-  --!     relax nerves
-  --!
-  --! For 'class methods' use dot
-  --! oc.bot.call.func(
-  --!   args={<arg>}
-  --!   cond=
-  --!    function(self, nerve) 
-  --!      return nerve.func ~= nil 
-  --!    end
-  --! )
-  --!
-  --! For 'instance methods' use colon and it will
-  --! pass self as the first algorithm
-  --! 
-  --! oc.bot.call:func(
-  --!   args={<arg>}
-  --!   cond=function(self, nerve) 
-  --!      return nerve.func ~= nil 
-  --!   end
-  --! )
-  --! 
-  --! Calls the function relax on all nerves
-  --!
-  
   oc.bot.Call = Call
   
   --! default function calls
@@ -69,17 +68,18 @@ do
     return false
   end
   
+  --- Visit the module and relax it
+  -- @param nerve - oc.Nerve
   function Call:visit(nerve)
-    --! Visit the module and relax it
     self:_process(
       nerve, self:_callFunc(nerve)
     )
     return nerve
   end
-  
+
+  --- Spawn a Call Bot with the same
+  -- attributes as this Call Bot
   function Call:spawn()
-    --! Spawn a Call Bot with the same
-    --! attributes as this Call Bot
     return oc.Call(
       self._funcName, self._args, self.cond, self._process,
       self._report, self._callFunc == self._selfCallFunc
@@ -110,15 +110,15 @@ do
     return self._results
   end
 
+  --- convenience table for create a call class
+  -- 
   oc.bot.call = {}
-  --! convenience table for create a call class
-  --! 
   
   local callmeta
   local function createCallFunc(index)
+    ---
+    --
     local _ = function(arg1, arg2)
-      --! 
-      --!
       local args
       if arg1 == oc.bot.call then
         args = arg2 or {}
@@ -145,6 +145,7 @@ do
     __newindex=function () error(
       'Cannot define new index for the table call'
       ) end,
+
     __index=function (self, index)
       return createCallFunc(index) 
     end

@@ -3,49 +3,46 @@ require 'oc.class'
 require 'oc.nerve'
 
 
---! converts all the members to nerves
+--- converts all the members to nerves
 local nerveMembers
 
 do
+  --- An interface to define nerves which
+  -- to inform and nerves to probe.  This is useful
+  -- when there are nerves merged (using Merge) 
+  -- into others using
+  -- and you want to inform both nerves with the same
+  -- call.
+  -- 
+  -- @usage: y = nn.Linear(2, 2) .. oc.flow.Onto(x) .. 
+  --           ocnn.Concat(1)
+  --           x = nn.Linear(2, 2)
+  --           adapter = oc.Adapter({x, y}, y)
+  -- adapter:stimulate({torch.rand(2), torch.rand(2))
+  -- 
+  -- This will inform x and y then probe y
+  --
+  -- @input: {inputs} - inputs to each of the 
+  -- inform nerves which are clamped.
+  -- @output: {outputs} - outputs from each 
+  -- of the probe nerves which are clamped.
+  --
+  -- TODO: Change this so we don't need if
+  -- statements.  Just use a different
+  -- out and grad function depending
+  -- on whether a table is passed into
+  -- the constructor.
   local Adapter, parent = oc.class(
     'oc.Adapter', oc.Nerve
   )
-  --! ##################################
-  --! An interface to define nerves which
-  --! to inform and nerves to probe.  This is useful
-  --! when there are nerves merged (using Merge) 
-  --! into others using
-  --! and you want to inform both nerves with the same
-  --! call.
-  --! 
-  --! @example: y = nn.Linear(2, 2) .. oc.flow.Onto(x) .. 
-  --!           ocnn.Concat(1)
-  --!           x = nn.Linear(2, 2)
-  --!           adapter = oc.Adapter({x, y}, y)
-  --! adapter:stimulate({torch.rand(2), torch.rand(2))
-  --! 
-  --! This will inform x and y then probe y
-  --!
-  --! @input: {inputs} - inputs to each of the 
-  --! inform nerves which are clamped.
-  --! @output: {outputs} - outputs from each 
-  --! of the probe nerves which are clamped.
-  --!
-  --! TODO: Change this so we don't need if
-  --! statements.  Just use a different
-  --! out and grad function depending
-  --! on whether a table is passed into
-  --! the constructor.
-  --! 
-  --! ##################################
-  
   oc.Adapter = Adapter
 
+  --- @constructor
+  -- @param informMembers {nervables to inform}
+  -- @param probeMembers {nervables to probe}
   function Adapter:__init(
       informMembers, probeMembers
   )
-    --! @param informMembers {nervables to inform}
-    --! @param probeMembers {nervables to probe}
     parent.__init(self)
     self._modules = {}
     informMembers = nerveMembers(informMembers)
@@ -64,7 +61,7 @@ do
     end
     if oc.type(probeMembers) == 'table' then
       probeChildren = probeMembers
-      self._children = {
+      self._internals = {
         table.unpack(informMembers)
       }
       self._probeEmission = true
@@ -72,19 +69,19 @@ do
       probeChildren = {probeMembers}
       self._probeEmission = false
     end
-    self._children = {table.unpack(informChildren)}
+    self._internals = {table.unpack(informChildren)}
     for i=1, #probeChildren do
-      table.insert(self._children, probeChildren[i])
+      table.insert(self._internals, probeChildren[i])
     end
   end
   
   function Adapter:internals()
-    return self._children
+    return self._internals
   end
   
   function Adapter:out(input)
     local output
-  
+
     if self._informEmission then
       for i=1, #self._modules.inform do
         self._modules.inform[i]:inform(input[i])
@@ -107,9 +104,9 @@ do
     return output
   end
   
+  --- Inform all of the nerves to inform and
+  -- probe all of them to probe
   function Adapter:grad(input, gradOutput)
-    --! Backpropagate the gradients 
-    --! for which the output was turned on
     self:updateOutput(input)
     gradOutput = gradOutput or {}
     local gradInput
@@ -150,10 +147,6 @@ do
       self._modules.inform:accumulate()
     end
   end
-  
-  function Adapter:getMemberName()
-    return {self._modules.inform, self._modules.probe}
-  end
 
   function Adapter:getNerves()
     local members = {{}, {}}
@@ -172,12 +165,11 @@ do
   end
 end
 
+--- Convert all the members 
+-- in a list to nerves
+-- @param members - Table of nervables - {nervable}
+-- @return Table of modules - {oc.Nerve}
 nerveMembers = function (members)
-  --! Mod all the members 
-  --! in a list
-  --! @param members - Table of member 
-  --! modables - {modules}
-  --! @return Table of modules - {nn.Module}
   if oc.type(members) == 'table' then
     local modded = {}
     for i=1, #members do

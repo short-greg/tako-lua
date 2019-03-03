@@ -1,10 +1,4 @@
 require 'ocnn.pkg'
-
---################################################
---!
---!
---################################################
-
 require 'oc.nerve'
 require 'oc.emission'
 require 'oc.class'
@@ -12,18 +6,19 @@ require 'oc.ops.tensor'
 
 
 do
+  --- Nerve that flattens the input for batch mode.
+  -- The output  is a tensor of N feature vectors.
+  -- N is determined by the first size of the first 
+  -- dimension of the input
+  -- @param numClasses - Total number of classes - integer
+  -- @param zeroStart - Whether the class numbering starts 
+  -- from zero or not
   local FlattenBatch, parent = oc.class(
     'ocnn.FlattenBatch',
     oc.Nerve
   )
   ocnn.FlattenBatch = FlattenBatch
-  --! Nerve that flattens the input for batch mode.
-  --! The output  is a tensor of N feature vectors.
-  --! N is determined by the first size of the first 
-  --! dimension of the input
-  --! @param numClasses - Total number of classes - integer
-  --! @param zeroStart - Whether the class numbering starts 
-  --! from zero or not
+
   function ocnn.FlattenBatch:__init()
     parent.__init(self)
   end
@@ -39,14 +34,14 @@ end
 
 
 do
+  --- Nerve that flattens the input.
+  -- The output  is a tensor of 1 feature vector.
+  -- @input  torch.Tensor
+  -- @output torch.Tensor (1 dimensional)
   local Flatten, parent = oc.class(
     'ocnn.Flatten',
     oc.Nerve
   )
-  --! Nerve that flattens the input.
-  --! The output  is a tensor of 1 feature vector.
-  --! @input  torch.Tensor
-  --! @output torch.Tensor (1 dimensional)
   ocnn.Flatten = Flatten
 
   function ocnn.Flatten:__init()
@@ -68,15 +63,15 @@ end
 
 
 do
+  --- View a tensor to be of the same dimension as another
+  -- tensor.  Can be used to undo a flatten operation.
+  -- @input  Emission{torch.Tensor, torch.Tensor}
+  -- @output torch.Tensor
   local ViewAs, parent = oc.class(
     'ocnn.ViewAs',
     oc.Nerve
   )
   ocnn.ViewAs = ViewAs
-  --! View a tensor to be of the same dimension as another
-  --! tensor.  Can be used to undo a flatten operation.
-  --! @input  Emission{torch.Tensor, torch.Tensor}
-  --! @output torch.Tensor
   
   function ViewAs:__init()
     parent.__init(self)
@@ -98,14 +93,14 @@ end
 
 
 do
+  --- Concatenate an emission of tensors together into 
+  -- åone tensor.
+  -- @input oc.Emission{torch.Tensor}
+  -- @output torch.Tensor
   local Concat, parent = oc.class(
     'ocnn.Concat',
     oc.Nerve
   )
-  --! Concatenate an emission of tensors together into 
-  --! åone tensor.
-  --! @input oc.Emission{torch.Tensor}
-  --! @output torch.Tensor
   ocnn.Concat = Concat
   
   function Concat:__init(dim)
@@ -137,14 +132,15 @@ end
 
 
 do
+  --- Get the sub tensor of a tensor that has 
+  -- been passed in
+  -- @input torch.Tensor
+  -- @output torch.Tensor
   local Sub, parent = oc.class(
     'ocnn.Sub',
     oc.Nerve
   )
-  --! Get the sub tensor of a tensor that has 
-  --! been passed in
-  --! @input torch.Tensor
-  --! @output torch.Tensor
+  ocnn.Sub = Sub
 
   function Sub:__init(dim, first, count)
     --! @param dim - The dimension to concatenate on
@@ -179,26 +175,27 @@ end
 
 
 do
+
+  --- Concatenate multiple tensors together of
+  -- which some may be batch tensors and some 
+  -- may not be.
+  -- It repeats the tensor for as many elements
+  -- there are in the batch tensors
+  -- It is able to deal with combinations of batch 
+  -- and non-batch tensors but there will be
+  -- no effect if all are non-batch tensors
+  --
+  -- @input oc.Emission{torch.Tensor} (batch or not batch)
+  -- each BatchTensor and each non-batch tensor
+  -- must be of the same number of dimensions
+  -- and non-batch tensors must only be a maximum
+  -- of one dimension smaller than batch tensors
+  --
+  -- @output torch.Tensor
   local BatchConcat, parent = oc.class(
     'ocnn.BatchConcat',
     parent
   )
-  --! Concatenate multiple tensors together of
-  --! which some may be batch tensors and some 
-  --! may not be.
-  --! It repeats the tensor for as many elements
-  --! there are in the batch tensors
-  --! It is able to deal with combinations of batch 
-  --! and non-batch tensors but there will be
-  --! no effect if all are non-batch tensors
-  --!
-  --! @input oc.Emission{torch.Tensor} (batch or not batch)
-  --! each BatchTensor and each non-batch tensor
-  --! must be of the same number of dimensions
-  --! and non-batch tensors must only be a maximum
-  --! of one dimension smaller than batch tensors
-  --!
-  --! @output torch.Tensor
   
   function BatchConcat:_calcMaxDim(input)
     local maxDim = 0

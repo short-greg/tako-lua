@@ -2,24 +2,24 @@ require 'oc.class'
 
 
 do
+  --- Module that checks whether a tensor is valid
+  -- @usage
+  -- 1) Checking whether a tensor is valid
+  -- 2) For generating modules whose arguments have
+  --    not been fully defined like with 
+  --    nn.Linear():d(nil, 16) <- must figure out what the
+  --    input size is
+  
+  -- @usage
+  -- tensor = ocnn.CheckTensor(1, 1, 1):type('double'):range(-1, 1)
+  -- tensor:sample() -> Tensor{{{-1.0}}} 
+  --
+  -- @input - Tensor
+  -- @output - Tensor
+  -- raises error if tensor does not meet the conditions specified
   local CheckTensor = oc.class(
     'ocnn.CheckTensor'
   )
-  --! Module that checks whether a tensor is valid
-  --! @usage
-  --! 1) Checking whether a tensor is valid
-  --! 2) For generating modules whose arguments have
-  --!    not been fully defined like with 
-  --!    nn.Linear():d(nil, 16) <- must figure out what the
-  --!    input size is
-  
-  --! @usage
-  --! tensor = ocnn.CheckTensor(1, 1, 1):type('double'):range(-1, 1)
-  --! tensor:sample() -> Tensor{{{-1.0}}} 
-  --!
-  --! @input - Tensor
-  --! @output - Tensor
-  --! raises error if tensor does not meet the conditions specified
   
   local SIZE_POS = 1
   local TYPE_POS = 2
@@ -47,11 +47,11 @@ do
   )
     return gradOutput
   end
-  
+
+  --- generate a sample tensor that passes the
+  -- check conditions
+  -- @return torch.Tensor
   function CheckTensor:sample()
-    --! generate a sample tensor that passes the
-    --! check conditions
-    --! @return torch.Tensor
     local tensor
     if self._checklist[SIZE_POS] then
       local size = torch.LongStorage(self._size.n)
@@ -78,12 +78,12 @@ do
     end
     return tensor
   end
-  
+
+  --- specify the size of each dimension of the tensor
+  -- and the number of dimensions the tensor should have
+  -- to avoid specifying the dimension for a particular
+  -- dimension set that dimension size to nil
   function CheckTensor:size(...)
-    --! specify the size of each dimension of the tensor
-    --! and the number of dimensions the tensor should have
-    --! to avoid specifying the dimension for a particular
-    --! dimension set that dimension size to nil
     self._size = table.pack(...)
     if self._size.n > 0 then
       self._checklist[SIZE_POS] = self.sizeCheck
@@ -93,8 +93,8 @@ do
     return self
   end
   
+  --- Ensure that the type of the input is the proper type
   function CheckTensor:typeCheck(input)
-    --! Ensure that the type of the input is the proper type
     assert(
       input:type() == self._typeString,
       string.format(
@@ -103,10 +103,10 @@ do
       )
     )
   end
-  
+
+  --- Ensure that no values int he input are less
+  -- than the specified minimum value
   function CheckTensor:minCheck(input)
-    --! Ensure that no values int he input are less
-    --! than the specified minimum value
     local inputMin = input[input:lt(self._min)]:min()
     assert(
       inputMin >= self._min,
@@ -145,10 +145,10 @@ do
     end
     return self
   end
-  
+
+  --- Ensure that no values in the input are greater
+  -- than the specified maximum value
   function CheckTensor:maxCheck(input)
-    --! Ensure that no values in the input are greater
-    --! than the specified maximum value
     local inputMax = input[input:gt(self._max)]:max()
     assert(
       inputMax <= self._max,
@@ -158,10 +158,10 @@ do
       )
     )
   end
-  
+
+  --- Ensure that the size of the tensor to input
+  -- is the same as that of the 
   function CheckTensor:sizeCheck(input)
-    --! Ensure that the size of the tensor to input
-    --! is the same as that of the 
     local inputSize = input:size()
     assert(
       #inputSize == self._size.n,

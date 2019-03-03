@@ -29,11 +29,11 @@ function mathops.sub(lhs, rhs)
 	return lhs - rhs
 end
 
+--- TODO: maybe I do want to use 
+-- a table class rather than just a table so 
+-- I don't need this
 local function tableOp(lhs, rhs, op)
   local result = {}
-  --! TODO: maybe I do want to use 
-  --! a table class rather than just a table so 
-  --! I don't need this
   for i=1, math.max(table.maxn(lhs), table.maxn(rhs)) do
     result[i] = mathops.opIfNotNil(lhs[i], rhs[i], op)
   end

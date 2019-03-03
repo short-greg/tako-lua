@@ -6,30 +6,24 @@ require 'ocnn.pkg'
 --require 'ocnn.classarray'
 
 
---! ########################################
---! Nerves to be used in AutoEncoders 
---! that reverse the encoding operation
---!
---! LinearReverse
---! SpatialConvolutionReverse
---! ReshapeReverse
---! BatchNormalizationReverse
---! FlattenBatchReverse
---!
---! ########################################
+--- Nerves to be used in AutoEncoders 
+-- that reverse the encoding operation
+--
+-- LinearReverse
+-- SpatialConvolutionReverse
+-- ReshapeReverse
+-- BatchNormalizationReverse
+-- FlattenBatchReverse
 
 do
+  --- Reverses a Linear OPeration
+  --
+  -- y = nn.Linear(2, 4)
+  -- y:rev() -> will result in a 
+  --   nn.Linear(4, 2) once defined
   local LinearReverse, parent = oc.class(
     'ocnn.LinearReverse', oc.Reverse
   )
-  --! ################################
-  --! Reverses a Linear OPeration
-  --!
-  --! y = nn.Linear(2, 4)
-  --! y:rev() -> will result in a 
-  --!   nn.Linear(4, 2) once defined
-  --!
-  --! ################################
   ocnn.LinearReverse = LinearReverse
   
   function LinearReverse:__init(nerve, dynamic)
@@ -87,22 +81,19 @@ end
   
 
 do
+  --- Reverses SpatialConvolution
   local SpatialConvolutionReverse, parent = oc.class(
     'ocnn.SpatialConvolutionReverse', oc.Reverse
   )
-  --! ################################
-  --! Reverses SpatialConvolution
-  --! ################################
   ocnn.SpatialConvolutionReverse = 
     SpatialConvolutionReverse
 
+  --- Reverse a spatialConvolution operation 
+  -- with an upsampling operation
+  -- @param conv - The convolution 
+  -- operation - nn.SpatialConvolution
+  -- @return nn.SpatialFullConvolution
   function SpatialConvolutionReverse:_define(input)
-    --! Reverse a spatialConvolution operation 
-    --! with an upsampling
-    --!        operation
-    --! @param conv - The convolution 
-    --!         operation - nn.SpatialConvolution
-    --! @return nn.SpatialFullConvolution
     local conv = self._toReverse
     
     local beforeConv, afterConv = getBeforeAfter(conv)
@@ -138,22 +129,20 @@ end
   
 
 do
+  --- Reverses SpatialMaxPooling
   local SpatialMaxPoolingReverse, parent = oc.class(
     'ocnn.SpatialMaxPoolingReverse', oc.Reverse
   )
-  --! ################################
-  --! Reverses SpatialMaxPooling
-  --! ################################
   ocnn.SpatialMaxPoolingReverse =
     SpatialMaxPoolingReverse
-  
+
+  --- @brief Reverse a spatial max pooling operation
+  -- @param pool - The pooling operation - nn.Pool
+  -- @param nInputs - The number of inputs into the pooling op - number
+  -- @param nOutputs - The number of outputs into the 
+  -- pooling op - number
+  -- @return nn.SpatialFullConvolution
   function SpatialMaxPoolingReverse:_define(input)
-    --! @brief Reverse a spatial max pooling operation
-    --! @param pool - The pooling operation - nn.Pool
-    --! @param nInputs - The number of inputs into the pooling op - number
-    --! @param nOutputs - The number of outputs into the 
-    --! pooling op - number
-    --! @return nn.SpatialFullConvolution
     local pool = self._toReverse
     local beforePool, afterPool = getBeforeAfter(pool)
     
@@ -189,21 +178,18 @@ end
 
 
 do
+  --- Reverses Reshape
   local ReshapeReverse, parent = oc.class(
     'ocnn.ReshapeReverse', oc.Reverse
   )
-  --! ################################
-  --! Reverses Reshape
-  --! ################################
-
   ocnn.ReshapeReverse = ReshapeReverse
-  
+
+  --- Reverse a spatial max pooling operation
+  -- @param pool - The pooling operation - nn.Pool
+  -- @param nInputs - The number of inputs into the pooling op - number
+  -- @param nOutputs - The number of outputs into the pooling op - number
+  -- @return nn.SpatialFullConvolution
   function ReshapeReverse:_define(input)
-    --! Reverse a spatial max pooling operation
-    --! @param pool - The pooling operation - nn.Pool
-    --! @param nInputs - The number of inputs into the pooling op - number
-    --! @param nOutputs - The number of outputs into the pooling op - number
-    --! @return nn.SpatialFullConvolution
     local reshape = self._toReverse
     local baseSize = reshape:getInput():size()
     local updatedSize = {}
@@ -225,20 +211,17 @@ end
 
 
 do
+  --- Reverses SpatialConvAndPoolReverse
   local SpatialConvAndPoolReverse, parent = oc.class(
     'ocnn.SpatialConvAndPoolReverse', oc.Reverse
   )
-  --! ###################################
-  --! Reverses SpatialConvAndPoolReverse
-  --! ###################################
   
   ocnn.SpatialConvAndPoolReverse = 
     SpatialConvAndPoolReverse
 
-  function SpatialConvAndPoolReverse:_define(input)
   --! Reverses a combination of spatial and pooling
   --! This version makes use of FullConvolution (deconvolution)
-  
+  function SpatialConvAndPoolReverse:_define(input)
     local conv, pool = 
       self._toReverse[1], self._toReverse[2]
     local beforePool, afterPool = getBeforeAfter(pool)
@@ -282,17 +265,15 @@ end
 
 
 do
+  --- Reverses FlattenBatch
   local FlattenBatchReverse, parent = oc.class(
     'ocnn.FlattenBatchReverse', oc.Reverse
   )
-  --! ###################################
-  --! Reverses FlattenBatch
-  --! ###################################
   ocnn.FlattenBatchReverse = FlattenBatchReverse
-  
+
+  --- Reverse a spatial max pooling operation
+  -- @return nn.SpatialFullConvolution
   function FlattenBatchReverse:_define(input)
-  --! Reverse a spatial max pooling operation
-  --! @return nn.SpatialFullConvolution
     local pool = self._toReverse
     local baseSize = self._toReverse:getInput():size()
     local updatedSize = {}
@@ -319,12 +300,12 @@ do
   )
   ocnn.NarrowReverse = NarrowReverse
 
+  --- Narrow the output after upsampling based 
+  -- on the input into the layer
+  -- @param inputSize size of input to create 
+  -- torch.LongStorage
+  -- @param conv The upsampling convolution to narrow
   function NarrowReverse:_define(input)
-  --! @brief Narrow the output after upsampling based 
-  --!   on the input into the layer
-  --! @param inputSize size of input to create 
-  --!   - torch.LongStorage
-  --! @param conv The upsampling convolution to narrow
     local narrow = self._toReverse
     local input_ = narrow:getInput()
     local postPoolSize = input_:size()[narrow.dimension]
@@ -342,19 +323,17 @@ end
 --! The below will be in the Stem 
 
 do
+  --- Reverses a combination of 
+  -- SpatialConvolution with Pooling
   local SpatialConvAndPoolReverse2, parent = oc.class(
     'ocnn.SpatialConvAndPoolReverse2', oc.Reverse
   )
-  --! ###################################
-  --! Reverses a combination of 
-  --! SpatialConvolution with Pooling
-  --! ###################################
   ocnn.SpatialConvAndPoolReverse2 = 
     SpatialConvAndPoolReverse2
 
+  --- Reverses a combination of spatial and pooling
+  -- This version makes use of UpSampling
   function SpatialConvAndPoolReverse2:_define(input)
-    --! Reverses a combination of spatial and pooling
-    --! This version makes use of UpSampling
     local conv, pool = self._toReverse[1], self._toReverse[2]
 
     local beforePool, afterPool = getBeforeAfter(pool)
@@ -419,16 +398,13 @@ end
 -- {nn.SpatialConvolution, nn.SpatialMaxPooling},
 
 
-
 local resizeToBatch, updateTensor
 
 do
+  --- Reverses BatchNormalization
   local BatchNormalizationReverse, parent = oc.class(
     'ocnn.BatchNormalizationReverse', nn.Module
   )
-  --! ###################################
-  --! Reverses BatchNormalization
-  --! ###################################
   ocnn.BatchNormalizationReverse = BatchNormalizationReverse
   
   function BatchNormalizationReverse:std(self)
@@ -487,17 +463,17 @@ do
   --]]
 end
 
+--- @param target
+-- @param base
 resizeToBatch = function (target, base)
-  --! @param target
-  --! @param base
   return torch.repeatTensor(
     base, target:size(1), 1
   )
 end
 
+--- @param curTensor
+-- @param input_
 updateTensor = function (curTensor, input_)
-  --! @param curTensor
-  --! @param input_
   if tostring(input_:size()) ~= 
      tostring(curTensor:size()) then
     return curTensor:typeAs(

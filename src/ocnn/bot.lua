@@ -2,24 +2,16 @@ require 'oc.bot.store'
 require 'ocnn.ocnn'
 
 
---! ################################
---! Bots related to Torch
---! 
---! TensorStorer: Stores tensors
---!   that it 
---! ################################
-
+--- Bots related to Torch
+-- 
+-- TensorStorer: Stores tensors
+-- that it
 
 do
   local TensorStorer, parent = oc.class(
     'oc.bot.store.TensorStorer',
     oc.bot.store.Storer
   )
-  --! ################################
-  --! 
-  --! 
-  --!
-  --! ################################
   oc.bot.store.TensorStorer = TensorStorer
   
   function TensorStorer:__init(...)
@@ -41,15 +33,15 @@ do
     parent.resetVisited(self)
     self._tensorMap = {}
   end
-  
+
+  --- Copies an entire table into the table to update
+  -- Tensors are copied with copyTensor
+  -- updateVal from ocnn is not used in order to make
+  -- use of the TensorMap
+  -- @param toUpdate - table to update - {} or nl
+  -- @param copyTable - table to update the table with - {}
+  -- @return {}
   function TensorStorer:_copyTable(toUpdate, updateWith)
-    --! Copies an entire table into the table to update
-    --! Tensors are copied with copyTensor
-    --! updateVal from ocnn is not used in order to make
-    --! use of the TensorMap
-    --! @param toUpdate - table to update - {} or nl
-    --! @param copyTable - table to update the table with - {}
-    --! @return {}
     toUpdate = toUpdate or {}
     
     for k, v in pairs(toUpdate) do

@@ -4,9 +4,6 @@ oc.ops.table = {}
 
 
 function oc.ops.table.zip(...)
-  --!
-  --!
-  --!
   local i = 0
   local values = table.pack(...)
   
@@ -32,16 +29,16 @@ function oc.ops.table.listCopy(list)
   return res
 end
 
-
+--- Perform a deep copy on a 'table' (from torch.type)
+-- NOTE: Does not deep copy torch userdata
+--       like tensors.. Those will need to be cloned.
+-- @param toCopy - the table to copy
+-- @param alreadyCopied - tables that were already
+--       copied to prevent infinite 
+--       looping - nil or table
+-- @return {copied table}
 function oc.ops.table.deepCopy(toCopy, alreadyCopied)
-  --! Perform a deep copy on a 'table' (from torch.type)
-  --! NOTE: Does not deep copy torch userdata
-  --!       like tensors.. Those will need to be cloned.
-  --! @param toCopy - the table to copy
-  --! @param alreadyCopied - tables that were already
-  --!       copied to prevent infinite 
-  --!       looping - nil or table
-  --! @return {copied table}
+
   alreadyCopied = alreadyCopied or {}
   
   if alreadyCopied[toCopy] then
@@ -73,10 +70,11 @@ function oc.ops.table.deepCopy(toCopy, alreadyCopied)
   return copied
 end
 
+
+--- Perform a shallow 1 layer copy 
+-- on a 'table' (from torch.type)
+-- @return {copied table}
 function oc.ops.table.shallowCopy(toCopy)
-  --! @summary Perform a shallow 1 layer copy 
-  --! on a 'table' (from torch.type)
-  --! @return {copied table}
   local copied = {}
   for k, v in pairs(toCopy) do
     copied[k] = v
@@ -119,9 +117,9 @@ function oc.ops.table.updateRefs(tab, oldModule, newModule)
   end
 end
 
---! @brief Update a table with the values from another table
---! @param toUpdate - the table to update - {}
---! @param updateWith -- the table to update with - {}
+--- Update a table with the values from another table
+-- @param toUpdate - the table to update - {}
+-- @param updateWith -- the table to update with - {}
 function oc.ops.table.update(toUpdate, updateWith)
   for k, v in pairs(updateWith) do
     toUpdate[k] = v
@@ -129,10 +127,10 @@ function oc.ops.table.update(toUpdate, updateWith)
 end
 
 
---! @brief Do a full unpack of the values in a table
---!        The regular unpack will only unpack up to the first
---!        nil
---! @param input - table
+--- Do a full unpack of the values in a table
+-- The regular unpack will only unpack up to the first
+-- nil
+-- @param input - table
 function oc.ops.table.unpack(input)
   return table.unpack(input, 1, table.maxn(input))
 end
@@ -153,8 +151,8 @@ function oc.ops.table.serialize(table_)
 end
 
 
+-- erase values in to
 function oc.ops.table.copyInto(to, from)
-  -- erase values in to
   for k, v in pairs(to) do
     to[k] = nil
   end

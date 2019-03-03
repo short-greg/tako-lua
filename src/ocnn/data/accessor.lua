@@ -4,24 +4,21 @@ require 'ocnn.data.pkg'
 
 ocnn.data.accessor = ocnn.data.accessor or {}
 
---! ##########################################
---! @module ocnn.data.accessor
---! 
---! ocnn.Accessors define accessors that deal with datasets
---! used for training neural networks
---! ##########################################
+--- @module ocnn.data.accessor
+-- 
+-- ocnn.Accessors define accessors that deal with datasets
+-- used for training neural networks
 
 do
+  --- Accessor to access a dataset
+  -- 
+  -- Dataset accessor does not contain
+  -- a storage at the moment since it merely
+  -- connects to a dataset like MNIST and
   local TableAccessor, parent = oc.class(
     'ocnn.data.accessor.Table', 
     oc.data.accessor.Base
   )
-  --! Accessor to access a dataset
-  --! 
-  --! Dataset accessor does not contain
-  --! a storage at the moment since it merely
-  --! connects to a dataset like MNIST and
-  --! 
   ocnn.data.accessor.Table = TableAccessor
 
   function TableAccessor:__init(dataTable)
@@ -44,22 +41,21 @@ do
     return #self._dataTable
   end
 
+  --- there are 
+  -- data structure to 
+  -- store data on back propagation
   function TableAccessor:storage()
-    --! there are 
-    --! data structure to 
-    --! store data on back propagation
     return oc.data.NullStorage()
   end
 end
 
 
 do
+  --- Accesses a tensor for iteration
   local TensorAccessor, parent = oc.class(
     'ocnn.data.accessor.TensorAccessor', 
     oc.data.accessor.Base
   )
-  --! Accesses a tensor for iteration
-  --! 
   ocnn.data.accessor.Tensor = TensorAccessor
 
   function TensorAccessor:__init(tensor)
@@ -74,9 +70,9 @@ do
     return self._tensor:size(1)
   end
 
+  --- there are data structure to 
+  -- store data on back propagation
   function TensorAccessor:storage()
-    --! there are data structure to 
-    --! store data on back propagation
     return ocnn.data.storage.TensorStorage(self._tensor)
   end
 end

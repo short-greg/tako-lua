@@ -4,23 +4,21 @@ require 'nn'
 
 
 do
+  --- ClassArray chooses a nerve to send the input
+  -- through based on the class of the input.
+  --
+  -- @usage 
+  --    numClasses = 2
+  --    nn.Linear(2, 2) .. oc.Onto(oc.my.class) ..
+  --       ocnn.ClassArray(numClasses, nn.Linear(2, 2))
+  -- 
+  -- @input {classIndex, nerveInput}
+  -- @output moduleInput processed depending on the
+  -- class
   local ClassArray, parent = oc.class(
     'ocnn.ClassArray', oc.Nerve
   )
   ocnn.ClassArray = ClassArray
-  --!  ################################################
-  --! ClassArray chooses a nerve to send the input
-  --! through based on the class of the input.
-  --!
-  --! @example 
-  --!    numClasses = 2
-  --!    nn.Linear(2, 2) .. oc.Onto(oc.my.class) ..
-  --!       ocnn.ClassArray(numClasses, nn.Linear(2, 2))
-  --! 
-  --! @input {classIndex, nerveInput}
-  --! @output moduleInput processed depending on the
-  --!         class
-  --! ################################################
 
   function ClassArray:__init(k, nerves)
     --! @param k
@@ -151,22 +149,20 @@ end
 --!#　TODO: Container but it does not inform inputs in 
 --!          updateGradInput, accumulate
 do
+  --- Organize a tensor into a table with a list of 
+  -- indices, one associated with each input
+  -- 
+  -- @input {index, tensorToOrganize}
+  -- @output {{reversed index or nil}, 
+  --          {organized tensor or nil}}
+  --  The output reverse index makes it possible
+  --  to regenerate the input (tensorToOrganize)
+  --  if there are no entries for a particular
+  --  index the output at that index will be nil
   local IndexArray, parent = oc.class(
     'ocnn.IndexArray', oc.Nerve
   )
   ocnn.IndexArray = IndexArray
-  --! ##########################################
-  --! Organize a tensor into a table with a list of 
-  --! indices, one associated with each input
-  --! 
-  --! @input {index, tensorToOrganize}
-  --! @output {{reversed index or nil}, 
-  --!          {organized tensor or nil}}
-  --!  The output reverse index makes it possible
-  --!  to regenerate the input (tensorToOrganize)
-  --!  if there are no entries for a particular
-  --!  index the output at that index will be nil
-  --! ##########################################
 
   function IndexArray:__init(k)
     assert(k > 0, 'Argument k must be greater than 0')

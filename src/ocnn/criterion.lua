@@ -3,21 +3,19 @@ require 'oc.init'
 
 
 do
+  --- Adapter for criterions since nn.Criterion
+  --  since criterions do not inherit from nn.Module
+  --  their updateOutput method is different
+  --
+  --  @usage nn.Linear(2, 2) .. oc.Onto(oc.my.target) ..
+  --       ocnn.Criterion(nn.MSECriterion())
+  -- 
+  --  @input {output, target}
+  --  @gradOutput nil
   local Criterion, parent = oc.class(
     'ocnn.Criterion', oc.Nerve
   )
   ocnn.Criterion = Criterion
-  --!  ################################################
-  --!  Adapter for criterions since nn.Criterion
-  --!  since criterions do not inherit from nn.Module
-  --!  their updateOutput method is different
-  --!
-  --!  @example nn.Linear(2, 2) .. oc.Onto(oc.my.target) ..
-  --!       ocnn.Criterion(nn.MSECriterion())
-  --! 
-  --!  @input {output, target}
-  --!  @gradOutput nil
-  --!  ################################################
   
   function Criterion:__init(criterion, weightOnGrad)
     parent.__init(self)
@@ -33,7 +31,6 @@ do
   end
 
   function Criterion:grad(input)
-    --print(input[1]:size(), input[1]:mean(), input[2]:mean())
     local gradInput = {
       self._criterion:updateGradInput(
         input[1],

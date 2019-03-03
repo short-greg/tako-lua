@@ -6,27 +6,25 @@ require 'oc.bot.get'
 
 
 do
+  --- Wraps Torch optimizers to work in the context of a graph
+  --
+  -- @usage ocnn.Optim(
+  --    optim.adadelta, 
+  --    r(oc.my.autoencoder), -- the nerve to get parameters for
+  --    config -- The config you send to the optimizer
+  -- )
+  -- 
+  -- @input CriterionResult - float
+  -- @output CriterionResult - float
   local Optim, parent = oc.class(
     'ocnn.Optim', oc.Nerve
   )
   ocnn.Optim = Optim
-  --! ###########################################
-  --! Wraps Torch optimizers to work in the context of a graph
-  --!
-  --! @example ocnn.Optim(
-  --!    optim.adadelta, 
-  --!    r(oc.my.autoencoder), -- the nerve to get parameters for
-  --!    config -- The config you send to the optimizer
-  --! )
-  --! 
-  --! @input CriterionResult - float
-  --! @output CriterionResult - float
-  --! ############################################
 
+  --- Updates the parameters of the newtork
+  -- @param optim - the optimizer to use - optim
+  -- @param config - Config for the optimizer - {}
   function Optim:__init(optim, nerve, config, toCache)
-    --! Updates the parameters of the newtork
-    --! @param optim - the optimizer to use - optim
-    --! @param config - Config for the optimizer - {}
     parent.__init(self)
 
     local params = oc.bot.get.Param:reportFor(
@@ -54,10 +52,10 @@ do
   function Optim:setConfigVar(varname, value)
     self._config[varname] = value
   end
-  
+
+  --- TODO: NEED TO ChANGE THIS! DO not want to have to get the
+  --  second input
   function Optim:out(input)
-    -- TODO: NEED TO ChANGE THIS! DO not want to have to get the
-    --  second input
     local feval = function ()
       return input, self._dx
     end
@@ -90,24 +88,21 @@ end
 
 
 do
+  --- Wraps multiple optimizers to be used as one 
+  -- optimizer
+  -- A composite optim, whcih allows multiple optimizers 
+  -- to be executed as one or each individual optimizer to be
+  -- accessed as a member of the 
+  --
+  -- @input CriterionResult - float
+  -- @output CriterionResult - float
   local MultiOptim, parent = oc.class(
     'ocnn.MultiOptim', oc.Nerve
   )
   ocnn.MultiOptim = MultiOptim
-  --! #####################################
-  --! Wraps multiple optimizers to be used as one 
-  --! optimizer
-  --! A composite optim, whcih allows multiple optimizers 
-  --! to be executed as one or each individual optimizer to be
-  --! accessed as a member of the 
-  --!
-  --! @input CriterionResult - float
-  --! @output CriterionResult - float
-  --! #######################################
   
+  --! @param optims
   function MultiOptim:__init(optims)
-    --! @param optims
-    
     parent.__init(self)
     for k, optim in pairs(optims) do
       assert(

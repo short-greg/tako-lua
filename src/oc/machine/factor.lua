@@ -4,14 +4,13 @@ require 'oc.class'
 
 
 do
+  ---	Factor is a factorial state machine 
+  -- (i.e. it allows for multiple state
+  -- machines)
+  -- 
   local Factor = oc.class(
     'oc.machine.Factor'
   )
-  --! 
-  --!	Factor is a factorial state machine 
-  --! (i.e. it allows for multiple state
-  --! machines)
-  --! 
   oc.machine.Factor = Factor
 
   Factor.DEFAULT_SM = 'default'
@@ -20,8 +19,8 @@ do
     self._machines = machines or {}
   end
 
+  --- @param actions
   local multiaction = function(actions)
-    --! @param actions
     local execute = function (...)
       local result
       for i=1, #actions do
@@ -36,10 +35,10 @@ do
     return execute
   end
 
+  --- Send a signal to the Factor
+  --	@param	signal - string
+  --	@return action - {function}
   function Factor:signal(signal)
-    --! Send a signal to the Factor
-    --!	@param	signal - string
-    --!	@return action - {function}
     local actions = {}
     for i=1, #self._machines do
       local curAction = self._machines[i]:signal(signal)
@@ -50,8 +49,8 @@ do
     return multiaction(actions)
   end
 
+  ---	@return state - {}
   function Factor:getCurState()
-    --!	@return state - {}
     local curState = {}
     for i, machine in ipairs(self._machines) do
       curState[i] = machine:getCurState()
@@ -59,15 +58,15 @@ do
     return curState
   end
 
+  --- @param label - the name of the machine
   function Factor:retrieveMachine(label)
-    --! @param label - the name of the machine
     return self._machines[label]
   end
 
+  ---	Add a state machine to the Factor
+  --	@param label - name of the machine - string
+  -- @param machine - the machine to add - oc.machine.Factor
   function Factor:factorize(label, machine)
-    --!	Add a state machine to the Factor
-    --!	@param label - name of the machine - string
-    --! @param machine - the machine to add - oc.machine.Factor
     self._machines[label] = machine
   end
 end

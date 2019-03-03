@@ -1,25 +1,23 @@
 require 'ocnn.pkg'
 require 'oc.oc'
 
---! ########################################
---!
---! Also provide nn.Module functionality
---! to oc.Nerve
---! 
---! ########################################
+--- Also provide nn.Module functionality
+-- to oc.Nerve
 
+
+--- TODO: I don't think this is necessary
+-- @return whether or not the two tensors
+-- are of equal size
 function ocnn.tensorSizeEqual(tensor1, tensor2)
-  --! TODO: I don't think this is necessary
-  --! @return whether or not the two tensors
-  --!         are of equal size
   return tostring(tensor1:size()) == 
          tostring(tensor2:size())
 end
 
+--- @return the value cloned if it is
+-- a clonable value (i.e. mutable)
+-- Otherwise the value is just returned
 function ocnn.clone(val)
-  --! @return the value cloned if it is
-  --!         a clonable value (i.e. mutable)
-  --!         Otherwise the value is just returned
+
   if type(val) == 'userdata' or
      type(val) == 'table' then
     return torch.deserialize(torch.serialize(val))
@@ -27,12 +25,12 @@ function ocnn.clone(val)
   return val
 end
 
+--- @param into - The tensor to update - torch.Tensor
+-- @param from - The tensor to update with - torch.Tensor
+-- @post into will contain the same
+-- values as from
+-- @return torch.Tensor - the updated 'into'
 function ocnn.updateTensor(into, from)
-  --! @param into - The tensor to update - torch.Tensor
-  --! @param from - The tensor to update with - torch.Tensor
-  --! @post into will contain the same
-  --!       values as from
-  --! @return torch.Tensor - the updated 'into'
   if into == nil then
     into = from:clone()
   elseif into:isSameSizeAs(
@@ -49,16 +47,15 @@ function ocnn.updateTensor(into, from)
   return into
 end
 
-
+--- Perform a deep copy on a 'table' (from torch.type)
+-- @param toCopy - the table to copy
+-- @param alreadyCopied - tables that were already
+-- copied to prevent infinite 
+-- looping - nil or table
+-- @return {copied table}
 function ocnn.deepUpdate(
     toUpdate, updateWith, alreadyUpdated
   )
-  --! Perform a deep copy on a 'table' (from torch.type)
-  --! @param toCopy - the table to copy
-  --! @param alreadyCopied - tables that were already
-  --!       copied to prevent infinite 
-  --!       looping - nil or table
-  --! @return {copied table}
   alreadyCopied = alreadyCopied or {}
   
   if alreadyCopied[updateWith] then

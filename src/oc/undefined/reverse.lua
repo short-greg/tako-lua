@@ -4,53 +4,48 @@ require 'oc.class'
 require 'oc.undefined.base'
 require 'oc.undefined.declaration'
 
---! #############################################
---! Reverse a particular nerve 
---! (can be used in autoencoders etc)
---!
---! nn.Linear:rev(nn.Linear(2, 4)) -> this will create
---!   an nn.Linear(4, 2) upon definition
---! 
---! self.arm.encoder = nn.Linear(2, 4)
---! self.arm.decoder = self.encoder:rev()
---! 
---! self.arm.autoencode = r(oc.my.encoder) .. r(oc.my.decoder)
---! 
---! self.autoencode:stimulate(torch.randn(2, 2)) -> will
---!   output a 2 x 2 tensor
---! 
---! t:rev()
---! nn.Linear:rev() <- no module have to 
---! define dynamically overwrite the 
---!
---! DeclarationReverse is used for declarations
---! n = nn.Linear:d(2, 4)
---! n:rev() -> creates a DeclarationReverse
---! 
---! #############################################
+--- Reverse a particular nerve 
+-- (can be used in autoencoders etc)
+--
+-- nn.Linear:rev(nn.Linear(2, 4)) -> this will create
+--   an nn.Linear(4, 2) upon definition
+-- 
+-- self.arm.encoder = nn.Linear(2, 4)
+-- self.arm.decoder = self.encoder:rev()
+-- 
+-- self.arm.autoencode = r(oc.my.encoder) .. r(oc.my.decoder)
+-- 
+-- self.autoencode:stimulate(torch.randn(2, 2)) -> will
+--   output a 2 x 2 tensor
+-- 
+-- t:rev()
+-- nn.Linear:rev() <- no module have to 
+-- define dynamically overwrite the 
+--
+-- DeclarationReverse is used for declarations
+-- n = nn.Linear:d(2, 4)
+-- n:rev() -> creates a DeclarationReverse
 
 do
+  --- Reverse a particular nerve
   local Reverse, parent = oc.class(
     'oc.Reverse', oc.Undefined
   )
-  
-  --! Reverse a particular nerve
-  --!
-  --!
   oc.Reverse = Reverse
-  
+
+  --- Reverse operation for a particular nerve
+  -- The nerve should be defined within the 
+  -- same Tako.
+  --
+  -- @param nerve - The nerve (or combination of 
+  -- nerves to reverse) - oc.Nerve or {oc.Nerve}
+  -- @param dynamic - Whether or not the nerve
+  -- should be reversed with each update of the output
+  -- If it is static, then the type of Reverse will
+  -- change to the reversed nerve once it has been
+  -- defined
   function Reverse:__init(nerve, dynamic)
-    --! Reverse operation for a particular nerve
-    --! The nerve should be defined within the 
-    --! same Tako.
-    --!
-    --! @param nerve - The nerve (or combination of 
-    --!        nerves to reverse) - oc.Nerve or {oc.Nerve}
-    --! @param dynamic - Whether or not the nerve
-    --!  should be reversed with each update of the output
-    --!  If it is static, then the type of Reverse will
-    --!  change to the reversed nerve once it has been
-    --!  defined
+
     parent.__init(self)
     dynamic = dynamic or false
     --[[
@@ -77,8 +72,8 @@ do
     end
   end
 
+  --- The default is to just use the same module
   function Reverse:_defineBaseDynamic(input)
-    --! The default is to just use the same module
     local mod = self._module or self._toReverse
     mod = mod:clone()
     mod:clearState()
@@ -107,19 +102,18 @@ end
 
 
 do
+  --- Used for creating a reverse of another 
+  -- nerve which is a declaration
+  -- 
+  -- y = nn.Linear:d(2, 2)
+  -- z = y:rev()
   local DeclarationReverse, parent = oc.class(
     'oc.DeclarationReverse', oc.Declaration
   )
-  --! Used for creating a reverse of another 
-  --! nerve which is a declaration
-  --! 
-  --! y = nn.Linear:d(2, 2)
-  --! z = y:rev()
-  --! 
   oc.DeclarationReverse = DeclarationReverse
+
+  --! @param
   function DeclarationReverse:__init(nerve, dynamic)
-    --! 
-    --! @param
     assert(
       oc.isTypeOf(nerve, 'oc.Declaration'),
       'Nerve passed into declaration reverse must be '..
@@ -130,7 +124,6 @@ do
   
   function DeclarationReverse:_define(input)
     local reverser = self._mod:rev(self._dynamic)
-    
     --! will call define on reverse
     return reverser:_define(input)
   end

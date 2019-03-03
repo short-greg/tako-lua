@@ -5,16 +5,15 @@ require 'oc.data.index'
 ocnn.data.index = {}
 
 
---!
---! Expands functionality of Index to indexOn tensors and
---! to pass in a tensor of indices to the index
---! 
---! indexOnTensor <- pass a tensor to indexOn to speed up processing
---!   on tensors
---! indices <- pass a tensor of indices to create an index.Indices
---! 
---! ocnn.data.index.Indices <- a tensor of indices to 
---!   used to index multiple values
+--- Expands functionality of Index to indexOn tensors and
+-- to pass in a tensor of indices to the index
+-- 
+-- indexOnTensor <- pass a tensor to indexOn to speed up processing
+-- on tensors
+-- indices <- pass a tensor of indices to create an index.Indices
+-- 
+-- ocnn.data.index.Indices <- a tensor of indices to 
+-- used to index multiple values
 local function getRange(startingVal, frameSize)
   return torch.range(
     startingVal, startingVal + frameSize - 1
@@ -27,9 +26,9 @@ do
     error('indices() not defined.')
   end
 
+  --- @param sequence - a value that
+  --  allows for sequential access
   function oc.data.index.IndexBase:indexOnTensor(sequence)
-    --! @param sequence - a value that
-    --!        allows for sequential access
     error('indexOnTensor() not defined.')
   end
   
@@ -48,9 +47,6 @@ end
 
 
 do
-  --! 
-  --! 
-  --! 
   function oc.data.index.Index:indexOnTensor(tensor, result)
     result = result or torch.Tensor():typeAs(tensor)
     result:set(tensor:narrow(
@@ -59,9 +55,8 @@ do
     return result
   end
 
+  --- @param indices - Indices to the data - Indices
   function oc.data.index.Index:tensorIndices(indices)
-    --! 
-    --! @param indices - Indices to the data - Indices
     assert(
       indices:dim() == 1 and indices:size(1) == 1 and
       indices[1] == 1
@@ -125,20 +120,15 @@ end
 
 
 do
+  ---
   local Indices, parent = oc.class(
     'ocnn.data.index.Indices', 
     oc.data.index.IndexBase
   )
   ocnn.data.index.Indices = Indices
-  --! 
-  --! 
-  --! 
-  --! 
-  
+
+  --- @param indices - Indices to the data - Indices
   function Indices:__init(indices)
-    --! 
-    --! @param indices - Indices to the
-    --! data - Indices
     assert(
       oc.type(indices) == 'torch.LongTensor',
       'Indices must be of type LongTensor.'

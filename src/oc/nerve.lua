@@ -6,18 +6,14 @@ require 'oc.bot.call'
 require 'oc.ops.math'
 local mathops = oc.ops.math
 
---! ######################################
---!	Base nerve modules
---! 
---! oc.Nerve - Nerve forms the basis of all arms.
---!            It is essentially nn.Module
---!            however it removes all of the
---!            methods related to torch classes and
---!            adds in connectivity between nerves.
---!
---! oc.Axon - Axon connects two nerves together.
---!
---! ######################################
+---	Base nerve modules
+-- 
+-- oc.Nerve - Nerve forms the basis of all arms.
+-- It is essentially nn.Module
+-- however it removes all of the
+-- methods related to torch classes and
+-- adds in connectivity between nerves
+-- oc.Axon - Axon connects two nerves together.
 
 
 local function rethrowErrors(self, methodName, output)
@@ -39,53 +35,51 @@ local Axon
 
 
 do
+  --- Very similar to nn.Module in 
+  -- torch to allow for modules to be 
+  -- concatenated into procress streams 
+  -- and to be bound to a  tentacle.  
+  --
+  -- 
+  -- A module can have one 
+  -- incoming stream and multiple outgoing 
+  -- streams. In addition there is other 
+  -- functionality such as being able to
+  -- label the module. oc.Nerve should be used 
+  -- for as the parent for all modules which
+  -- are not guaranteed to have a tensor 
+  -- output (i.e. most modules in the oc namespace)
+  --
+  -- nerve:inform(input) <- Tells the nerve what
+  -- its input is
+  --
+  -- nerve:probe() <- Asks the nerve what
+  -- its output is.  If the nerve has
+  -- been informed and not updated it will call
+  -- updateOutput
+  -- 
+  -- probeGrad() and informGrad() work the same
+  --   but for backpropagations
+  -- 
+  -- nerve:relax() <- Tells the nerve that it needs
+  -- to update its output.
+  --
+  -- nerve:stimulate(input) <- Convenience function
+  -- that executes inform(input) and probe(input)
+  -- for that nerve
+  --
+  -- nerve:accumulate() - Calls accGradParameters
+  -- with the current input and gradOutput
+  -- and accumulates gradient on all outgoing
+  -- nerves (I may want to remove this part)
+
   local Nerve = oc.class('oc.Nerve')
   oc.Nerve = Nerve
-  --! #########################
-  --! 
-  --! Very similar to nn.Module in 
-  --! torch to allow for modules to be 
-  --! concatenated into procress streams 
-  --! and to be bound to a  tentacle.  
-  --!
-  --! 
-  --! A module can have one 
-  --! incoming stream and multiple outgoing 
-  --! streams. In addition there is other 
-  --! functionality such as being able to
-  --! label the module. oc.Nerve should be used 
-  --! for as the parent for all modules which
-  --! are not guaranteed to have a tensor 
-  --! output (i.e. most modules in the oc namespace)
-  --!
-  --! nerve:inform(input) <- Tells the nerve what
-  --!     its input is
-  --!
-  --! nerve:probe() <- Asks the nerve what
-  --!     its output is.  If the nerve has
-  --!     been informed and not updated it will call
-  --!     updateOutput
-  --! 
-  --! probeGrad() and informGrad() work the same
-  --!   but for backpropagations
-  --! 
-  --! nerve:relax() <- Tells the nerve that it needs
-  --!     to update its output.
-  --!
-  --! nerve:stimulate(input) <- Convenience function
-  --!     that executes inform(input) and probe(input)
-  --!     for that nerve
-  --!
-  --! nerve:accumulate() - Calls accGradParameters
-  --!     with the current input and gradOutput
-  --!     and accumulates gradient on all outgoing
-  --!     nerves (I may want to remove this part)
-  --! 
-  --! ###################################
 
+
+  --- Initialize the module
+  -- @param  name - label to assign the module - string
   function Nerve.__init(self)
-    --! Initialize the module
-    --! @param  name - label to assign the module - string
     self._inAxon = nil
     self._outAxons = {}
     self._relaxed = true
@@ -106,34 +100,34 @@ do
     return nil
   end
 
+  ---	Convenience function to set 
+  -- label when declaring a process stream
+  --	@param	name	- New name of the module - string
+  -- @return self
   function Nerve:label(name)
-    --!	Convenience function to set 
-    --! label when declaring a process stream
-    --!	@param	name	- New name of the module - string
-    --! @return self
     rawset(self, 'name', name)
     return self
   end
 
+  --- Relax the nerve (set input, gradOutput to nil)
+  -- @post input/gradOuput = nil, module ready to probe
   function Nerve:relax()
-    --! Relax the nerve (set input, gradOutput to nil)
-    --! @post input/gradOuput = nil, module ready to probe
     self._relaxed = true
     self._relaxedGrad = true
     self.input = nil
     self.gradOutput = nil
   end
 
+  --- Reset the emissions (gradInput, output) of the module
   function Nerve:clearState()
-    --! Reset the emissions (gradInput, output) of the module
     self:relax()
     self.gradInput = self:getDefaultGradInput()
     self.output = self:getDefaultOutput()
   end
 
+  --- Check whether or not module is relaxed 
+  -- (i.e. output is not defined)
   function Nerve:relaxed()
-    --! Check whether or not module is relaxed 
-    --! (i.e. output is not defined)
     return self._relaxed
   end
   
@@ -154,29 +148,30 @@ do
     self.gradInput = self:grad(input, gradOutput)
     return self.gradInput
   end
-  
+
+  --- Update the gradients of any local parameters 
+  -- that influence the output
   function Nerve:accGradParameters(input, gradOutput)
-    --! Update the gradients of any local parameters 
-    --! that influence the output
+
   end
-  
+
+  --- Check whether or not the gradient is ]
+  -- relaxed (defined)
+  -- @return boolean
   function Nerve:relaxedGrad()
-    --! Check whether or not the gradient is ]
-    --! relaxed (defined)
-    --! @return boolean
     return self._relaxedGrad
   end
 
+  --- Set a gradFunc to process the 
+  -- gradient outputs
+  -- @param gradFunc - Function to compute the
+  -- gradient based on the gradOutputs
   function Nerve:gradFunc(gradFunc)
-    --! Set a gradFunc to process the 
-    --! gradient outputs
-    --! @param gradFunc - Function to compute the
-    --! gradient based on the gradOutputs
     self._gradFunc = gradFunc
   end
 
+  --- Relax self and all dependent nerves
   function Nerve:relaxStream(deep)
-    --! Relax self and all dependent nerves
     local bot = oc.bot.call:relax()
     if not deep then
       bot:shallowDiver()
@@ -184,57 +179,57 @@ do
     bot:forward(self)
   end
 
+  --- Convenience function to do inform and probe 
+  -- in one call.
+  -- @param input - Input to the module
+  -- @param toForce - whether to force updating
+  -- @return output - by probing the module
   function Nerve:stimulate(input, deepRelax)
-    --! Convenience function to do inform and probe 
-    --! in one call.
-    --! @param input - Input to the module
-    --! @param toForce - whether to force updating
-    --! @return output - by probing the module
     self:inform(input, deepRelax)
     return self:probe()
   end
 
+  --- Convenience function to do informGrad 
+  -- and probe Grad in one call.
+  -- @param gradOuput - gradOutput of outer module
+  -- @return gradInput
   function Nerve:stimulateGrad(gradOutput)
-    --! Convenience function to do informGrad 
-    --! and probe Grad in one call.
-    --! @param gradOuput - gradOutput of outer module
-    --! @return gradInput
     self:informGrad(gradOutput)
     local gradInput = self:probeGrad()
     return gradInput
   end
 
+  ---	Inform the module of the new input
+  --	@param	input - The value to set the 
+  -- input to the nerve
   function Nerve:inform(input, deepRelax)
-    --!	Inform the module of the new input
-    --!	@param	input - The value to set the 
-    --! input to the nerve
     self:relaxStream(deepRelax)
     rawset(self, 'input', input)
   end
 
+  --- Set the gradInput of the module.
   function Nerve:setGradInput(gradInput)
-    --! Set the gradInput of the module.
     rawset(self, 'gradInput', gradInput)
     self._relaxedGrad = false
   end
 
+  --- Set the output of the module. 
+  -- I am not sure if this is being used still. 
   function Nerve:setOutput(output)
-    --! Set the output of the module. 
-    --! I am not sure if this is being used still. 
     rawset(self, 'output', output)
     self._relaxed = false
   end
 
+  --- Inform the module what the gradOutput is
+  -- @param gradOutput - value of the output gradient
   function Nerve:informGrad(gradOutput)
-    --! Inform the module what the gradOutput is
-    --! @param gradOutput - value of the output gradient
     self._relaxed = false
     self.gradOutput = gradOutput
   end
 
+  --- Get the input into the module
+  -- @return  Input to the module
   function Nerve:getInput()
-    --! Get the input into the module
-    --! @return  Input to the module
     local input
     if self.input ~= nil then
       input = self.input
@@ -244,10 +239,10 @@ do
     return input
   end
 
+  --- Get the gradient of the outgoing nodes
+  -- If a gradFunction has been supplied use that
+  -- @return gradOutput
   function Nerve:getGradOutput()
-    --! Get the gradient of the outgoing nodes
-    --! If a gradFunction has been supplied use that
-    --! @return gradOutput
     local gradOutput = self.gradOutput
     if gradOutput == nil then
       local gradOutputs = {}
@@ -263,11 +258,11 @@ do
     end
     return gradOutput
   end
-  
+
+  ---	Probe output of the module if not 
+  -- defined will update it
+  -- @retrun output
   function Nerve:probe()
-    --!	Probe output of the module if not 
-    --! defined will update it
-    --! @retrun output
     local output
     if self._relaxed == true then
       local input_ = self:getInput()
@@ -285,10 +280,10 @@ do
     return output
   end
 
+  --- Retrieve the gradient of this 
+  -- module.  If not defined will update it
+  -- @return gradient
   function Nerve:probeGrad()
-    --! Retrieve the gradient of this 
-    --! module.  If not defined will update it
-    --! @return gradient
     local gradInput = self.gradInput
     -- self._relaxedGrad and 
     -- (not self._relaxed or self.gradOutput)
@@ -313,11 +308,11 @@ do
     end
   end
 
+  --- Accumulate gradients on this module and 
+  -- all outgoing modules if accumulation
+  -- of gradients and backpropagation of 
+  -- gradients is turned on
   function Nerve:accumulate()
-    --! Accumulate gradients on this module and 
-    --! all outgoing modules if accumulation
-    --! of gradients and backpropagation of 
-    --! gradients is turned on
     if self._acc then
       local input_ = self:getInput()
       local gradOutput = self:getGradOutput()
@@ -333,11 +328,11 @@ do
     end
   end
   
-  --! Nerve state related functions
+  --- Nerve state related functions
+  -- Turn the gradient back propagation off 
+  -- (returns nil) 
+  -- @return self (to use in a strand)
   function Nerve:gradOn(state)
-    --! Turn the gradient back propagation off 
-    --! (returns nil) 
-    --! @return self (to use in a strand)
     state = state or true
     assert(
       type(state) == 'boolean',
@@ -347,10 +342,10 @@ do
     return self
   end
 
+  --- Turn the accumulation of the gradient 
+  -- off (returns nil) 
+  -- @return self (to use in a strand)
   function Nerve:accOn(state)
-    --! Turn the accumulation of the gradient 
-    --! off (returns nil) 
-    --! @return self (to use in a strand)
     state = state or true
     assert(
       type(state) == 'boolean',
@@ -359,28 +354,29 @@ do
     self._acc = state
     return self
   end
-  
+
+  --- Turn the accumulation of the gradient 
+  -- off (returns nil) 
+  -- @return self (to use in a strand)
   function Nerve:backOn(state)
-    --! Turn the accumulation of the gradient 
-    --! off (returns nil) 
-    --! @return self (to use in a strand)
     state = state or true
     self:gradOn(state)
     self:accOn(state)
     return self
   end
 
-  --! Connection related functions
-  --! 
+  --- Connection related functions
+  -- 
+  -- Retrieve the incoming nerve
   function Nerve:incoming()
-    --! Retrieve the incoming nerve
     if self._inAxon then
       return self._inAxon:incoming()
     end
   end
-  
+
+
+  --- @return Nerve if not the root - {Nerve}
   function Nerve:outgoing()
-    --! @return Nerve if not the root - {Nerve}
     local outgoing = {}
     for i=1, #self._outAxons do
       table.insert(
@@ -390,20 +386,21 @@ do
     return outgoing
   end
 
+  ---	Replace an nn.Module in an arm with another 
+  -- module
+  -- @param replaceWith - Module to replace 
+  -- self with - nn.Module
+  -- @param toReplace - Module to replace 
+  -- itself with - nn.Module
   function Nerve.rewire(replaceWith, toReplace) 
-    
-    --!	Replace an nn.Module in an arm with another 
-    --! module
-    --! @param replaceWith - Module to replace 
-    --! self with - nn.Module
-    --! @param toReplace - Module to replace 
-    --! itself with - nn.Module
     replaceWith:rewireIn(toReplace)
     replaceWith:rewireOut(toReplace)
   end
 
+  --- Rewire the outoing nerves
+  -- @param replaceWith - the Nerve to wire into the spot
+  -- @param toReplace - the Nerve to replace
   function Nerve.rewireOut(replaceWith, toReplace)
-    --! 
     for i=1, #toReplace._outAxons do
       toReplace._outAxons[i]:replaceIn(replaceWith)
     end
@@ -416,6 +413,9 @@ do
     toReplace._outAxons = {}
   end
 
+  --- Rewire the incoming nerve
+  -- @param replaceWith - the Nerve to wire into the spot
+  -- @param toReplace - the Nerve to replace
   function Nerve.rewireIn(replaceWith, toReplace)
     if toReplace._inAxon then
       assert(
@@ -429,26 +429,26 @@ do
     end
   end
 
+  --- Disconnect all out modules from this module
   function Nerve:disconnectOut()
-    --! Disconnect all out modules from this module
     for i=1, #self._outAxons do
       self._outAxons[i]:disconnectIn()
     end
     self._outAxons = {}
   end
 
+  --- Disconnect the incoming module 
+  -- from this module
   function Nerve:disconnectIn(lhs)
-    --! Disconnect the incoming module 
-    --! from this module
     self._inAxon:disconnect()
     self._inAxon = nil
   end
-  
+
+  --- Connect two nerves together to form a strand
+  -- @param from - nn.Module
+  -- @param to - nn.Module
+  -- @return oc.Strand
   function Nerve.connect(from, to)
-    --! Connect two nerves together to form a strand
-    --! @param from - nn.Module
-    --! @param to - nn.Module
-    --! @return oc.Strand
     assert(
       not rawget(to, '_inAxon'),
       'A node cannot have more than one '.. 
@@ -461,19 +461,19 @@ do
     return oc.Strand(from, to)
   end
 
+  --- Connect the axon leading into this module
+  -- @param axon
   function Nerve:connectInAxon(axon)
-    --! Connect the axon leading into this module
-    --! @param axon
     self._inAxon = axon
   end
 
+  --- TODO: USE ITERATOR TO LOOP OVER INTERNALS
+  -- Also, the base oc.Nerve should not retrieve anything
+  -- Retrieve all of the child nerves for the 
+  -- nerve.  Child nerves should be in either
+  -- self.modules, self._modules or self._module
+  -- @return  {oc.Nerve}
   function Nerve:internals()
-    --! TODO: USE ITERATOR TO LOOP OVER INTERNALS
-    --! Retrieve all of the child nerves for the 
-    --! nerve.  Child nerves should be in either
-    --! self.modules, self._modules or self._module
-    --! @return  {oc.Nerve}
-    --! @protected
     if self._modules then
       return self._modules
     elseif self.modules then
@@ -484,12 +484,12 @@ do
     return {}
   end
   
-    --! TODO: Change getSeq in strand to use this (probably)
+  --- Get a sequence of modules to a particular 
+  -- module from another module
+  -- @param to - The end of the sequence - oc.Nerve
+  -- @param from - The beginning of the sequence - oc.Nerve
+  -- TODO: Change getSeq in strand to use this (probably
   function Nerve.getSeq(to, from)
-    --! Get a sequence of modules to a particular 
-    --! module from another module
-    --! @param to
-    --! @param from
     local modules
     local found
     if to == from or
@@ -507,29 +507,26 @@ do
     end
     return modules, found
   end
-  
-  --! TODO USED BY connectsTo <- so remove
+
+  --- @return Whether or not there is an incoming nerve - boolean
+  -- TODO USED BY connectsTo <- so remove
   function Nerve:connectedIn()
-    --! Whether or not 
-    --! @return boolean
     return self._inAxon ~= nil
   end
   
-    --! TODO: USE BOT
+  --- See if the nerve connects out to another nerve.
+  -- @param nerve - oc.Nerve
+  -- @return boolean
+  -- TODO: USE BOT
   function Nerve.connected(nerve1, nerve2)
-    --! See if the nerve connects out to another nerve.
-    --! @param nerve - nn.Module
-    --! @return boolean
     return nerve2:incoming() == nerve1
-         --[[
-           torch.isequal(
-             nerve2:inAxon:incoming(), nerve1
-          )
-          --]]
   end
-  
+
+  --- @param to - The end of the sequence - oc.Nerve
+  -- @param from - The beginning of the sequence - oc.Nerve
+  -- @return - Get the length of a sequence
+  -- Todo: use bot (set stopping criteria to 'to'
   function Nerve.getLength(to, from)
-    --! Todo: use bot (set stopping criteria to 'to'
     if to == from or (not to._inAxon and from == nil) then
       return 1
     elseif not to._inAxon then
@@ -539,9 +536,9 @@ do
     end
   end
 
+  --- Just returns self since it is already a module
+  -- And no processing is needed
   function Nerve:__nerve__()
-    --! Just returns self since it is already a module
-    --! And no processing is needed
     return self
   end
 end
@@ -561,10 +558,10 @@ do
       return 1 + to._inAxon:incoming():getLength(from)
     end
   end
-  
+
+  --- TODO: Don't use this
+  -- add functions outgoing, incoming
   function oc.ops.nerve.isRoot(nerve)
-    --! TODO: Don't use this
-    --! add functions outgoing, incoming
     return nerve:incoming() == nil
   end
 
@@ -574,13 +571,10 @@ do
 end
 
 do
+  --- Object connecting two nerves
   Axon = oc.class(
     'oc.Axon', oc.Object
   )
-  --! #############################################
-  --! Object connecting two nerves
-  --! #############################################
-
   oc.Axon = Axon
 
   function Axon:__init(incoming, outgoing)
@@ -611,10 +605,10 @@ do
   function Axon:replaceOut(outgoing)
     self._outgoing = outgoing
   end
-  
+
+  --- Remove an out axon from this model
+  -- @param axon - 
   local function disconnectOutAxon(nerve, axon)
-    --! Remove an out axon from this model
-    --! @param axon - 
     for i=1, #nerve._outAxons do
       if nerve._outAxons[i] == axon then
         table.remove(nerve._outAxons, i)
@@ -623,9 +617,9 @@ do
     end
     error('The axon passed in does not exist')
   end
-  
+
+  --- Remove the incoming axon from this module
   local function disconnectInAxon(nerve)
-    --! Remove the incoming axon from this module
     nerve._inAxon = nil
   end
 
@@ -636,21 +630,21 @@ do
     self._outgoing = nil
   end
 
+  --- @return true if incoming is relazed, false if not
+  -- nil if no incoming - bool or nil
   function Axon:inRelaxed()
-    --! @return true if incoming is relazed, false if not
-    --!         nil if no incoming - bool or nil
     if self._incoming then
       return self._incoming:relaxed()
     end
   end
 
+  --- @return incoming nerve - nerve
   function Axon:incoming()
-    --! @return incoming nerve - nerve
     return self._incoming
   end
 
+  --- @return outgoing nerves - {nerve}
   function Axon:outgoing()
-    --! @return outgoing nerves - {nerve}
     return self._outgoing
   end
 

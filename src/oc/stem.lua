@@ -6,31 +6,28 @@ require 'oc.undefined.arg'
 
 
 do
+  --- Stems are used for creating 
+  -- commonly used compound nerves
+  -- (or arms) with ease.
+  -- 
+  -- ArgStem is a type of stem added for 
+  -- convenience to  stems easily
+  -- 
+  -- sigmoidLayer = oc.stem(
+  --    nn.Linear:d(oc.my.X, oc.my.Y) ..
+  --      nn.Sigmoid:d() 
+  -- )
+  --
+  -- Then to create a sigmoid layer the 
+  -- following layer can be used.
+  -- 
+  -- sigmoidLayer{X=1, Y=2} 
+  -- 
+  -- creates a sigmoid layer with the Linear size being 1 
+  -- for the input and 2 for the output
   oc.Stem = oc.class(
     'oc.Stem'
   )
-  --! ######################################
-  --! Stems are used for creating 
-  --! commonly used compound nerves
-  --! (or arms) with ease.
-  --! 
-  --! ArgStem is a type of stem added for 
-  --! convenience to  stems easily
-  --! 
-  --! sigmoidLayer = oc.stem(
-  --!    nn.Linear:d(oc.my.X, oc.my.Y) ..
-  --!      nn.Sigmoid:d() 
-  --! )
-  --!
-  --! Then to create a sigmoid layer the 
-  --! following layer can be used.
-  --! 
-  --! sigmoidLayer{X=1, Y=2} 
-  --! 
-  --! creates a sigmoid layer with the Linear size being 1 
-  --! for the input and 2 for the output
-  --!
-  --! ##########################################
 
   function oc.Stem:__init(cls, args)
     assert(
@@ -96,6 +93,7 @@ function oc.Nerve:subclass(name, members)
     oc.isInstance(self) == false,
     'Cannot subcass an instance.'
   )
+
   local cls, parent = oc.class(name, self)
   
   if members ~= nil then
@@ -103,6 +101,6 @@ function oc.Nerve:subclass(name, members)
       cls[k] = v
     end
   end
-  
+
   return cls, parent
 end

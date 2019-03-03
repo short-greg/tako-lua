@@ -13,9 +13,8 @@ do
     self._sequence = sequence
   end
 
+  --- TODO: need to fix this
   function TableAccessor:get(indexWith)
-    --! 
-    --! TODO: need to fix this
     return indexWith:indexOn(
       self._sequence
     )
@@ -29,17 +28,17 @@ do
     return #self._sequence
   end
 
+  --- storage defines a 
+  -- data structure to 
+  -- store data on back propagation
   function TableAccessor:data()
-    --! storage defines a 
-    --! data structure to 
-    --! store data on back propagation
     return self._sequence
   end
 
+  --- storage defines a 
+  -- data structure to 
+  -- store data on back propagation
   function TableAccessor:storage()
-    --! storage defines a 
-    --! data structure to 
-    --! store data on back propagation
     return oc.data.TableStorage(self._table)
   end
 end
@@ -59,21 +58,21 @@ do
   function TableStorage:__len__()
     return table.maxn(self._data)
   end
-  
+
+  --- Empty out the data being stored
+  -- 
+  -- @post - The data should be reset to the initial state
   function TableStorage:empty()
-    --! Empty out the data being stored
-    --! 
-    --! @post - The data should be reset to the initial state
     self._data = {}
   end
   
   function TableStorage:setData(index, val)
     index:indexUpdate(self._data, val)
   end
-  
+
+  --- ensure that only data up
+  -- is included
   function TableStorage:data()
-    --! ensure that only data up
-    --! is included
     return table.pack(
       table.unpack(self._data, 1, #self)
     )

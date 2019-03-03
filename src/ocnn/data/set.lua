@@ -2,13 +2,11 @@ require 'oc.init'
 require 'ocnn.data.index'
 
 
---!
---!
 do
+  --- for storing tables of Tensors
   local DataTable, parent = oc.class(
     'ocnn.data.Table'
   )
-  --! for storing tables of Tensors
   ocnn.data.Table = DataTable
   
   function DataTable:__init(data)

@@ -3,23 +3,23 @@ require 'oc.class'
 
 
 do
+  ---	Finite State Machine
+  -- A standard finite state machine class 
+  -- in which state transitions occur
+  -- due to signals.  Each state can also 
+  -- emit an action.
   local FSM = oc.class(
     'oc.machine.FSM'
   )
-  --!	Finite State Machine
-  --! A standard finite state machine class 
-  --! in which state transitions occur
-  --! due to signals.  Each state can also 
-  --! emit an action.
   oc.machine.FSM = FSM
 
+  --- 
+  -- @param initialState - 
+  -- @param stateMap - 
+  -- @param actionMap -
   function FSM:__init(
     initialState, stateMap, actionMap
   )
-    --! 
-    --! @param initialState - 
-    --! @param stateMap - 
-    --! @param actionMap -
     self._stateMap = {}
     self._actionMap = actionMap or {}
     
@@ -30,10 +30,11 @@ do
     self._initialState = initialState
   end
 
+  ---	Assert that the state passed is valid
+  -- @param state - a state to test if 
+  -- in the state machine (hopefully)
   function FSM:_assertState(state)
-    --!	Assert that the state passed is valid
-    --! @param state - a state to test if 
-    --!   in the state machine (hopefully)
+
     assert(
       self._stateMap[state],
       string.format(
@@ -42,9 +43,9 @@ do
     )
   end
 
+  --- Send a signal to the state machine
+  -- @return {function}
   function FSM:signal(signal)
-    --! Send a signal to the state machine
-    --! @return {function}
     if self._stateMap[self._curState][signal] then
       self._curState = 
         self._stateMap[self._curState][signal]
@@ -55,11 +56,11 @@ do
     -- How to deal with invalid signals
   end
 
+  --- Add a mapping between states
+  -- @param mapping  {{fromStates}, toState, signal}
   function FSM:connectStates(
     fromStates, toState, signal
   )
-    --! Add a mapping between states
-    --! @param mapping  {{fromStates}, toState, signal}
     for i=1, #fromStates do      
       local curState = fromStates[i]
       self._stateMap[curState] = 
@@ -81,12 +82,12 @@ do
     end
   end
 
+  --- Disconnect states from one another
+  -- @param fromStates - States of the tail 
+  -- of the edge to disconnect - [state]
+  -- @param toState - state at the head of the 
+  -- edge to disconnect - state
   function FSM:disconnectState(fromState, toState)
-    --! Disconnect states from one another
-    --! @param fromStates - States of the tail 
-    --!   of the edge to disconnect - [state]
-    --! @param toState - state at the head of the 
-    --!   edge to disconnect - state
     self:_assertState(toState)
     self:_assertState(fromState)
     for signal, state in pairs(self._stateMap[fromState]) do

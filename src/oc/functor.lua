@@ -4,46 +4,44 @@ require 'oc.class'
 
 
 do
+  --- Function object (a function that can contain state)
+  -- Along with the potential to do back propagation
+  -- Useful for defining nerves 'on-the-fly' 
+  -- within a given arm or tako
+  --
+  -- @example nerve1 .. 
+  --          oc.Functor{
+  --            out=function (self, input) return input + 1 end,
+  --            grad=function (self, input, gradOutput) 
+  --              return gradOutput end
+  --          }
+  -- 
+  -- @example nerve1 ..
+  --          oc.Functor{
+  --            grad=
+  --             function (self, input, gradOutput) 
+  --               return gradOutput * 100
+  --             end
+  --          }
+  -- -- Amplify the gradient
+  -- 
+  -- @input  Depends on the user's definition
+  -- @output Depends on the user's definition
   local Functor, parent = oc.class(
     'oc.Functor', oc.Nerve
   )
-  --! ######################################
-  --! Function object (a function that can contain state)
-  --! Along with the potential to do back propagation
-  --! Useful for defining nerves 'on-the-fly' 
-  --! within a given arm or tako
-  --!
-  --! @example nerve1 .. 
-  --!          oc.Functor{
-  --!            out=function (self, input) return input + 1 end,
-  --!            grad=function (self, input, gradOutput) 
-  --!              return gradOutput end
-  --!          }
-  --! 
-  --! @example nerve1 ..
-  --!          oc.Functor{
-  --!            grad=
-  --!             function (self, input, gradOutput) 
-  --!               return gradOutput * 100
-  --!             end
-  --!          }
-  --! -- Amplif the gradient
-  --! 
-  --! @input  Depends on the user's definition
-  --! @output Depends on the user's definition
-  --! ######################################
+
   
   oc.Functor = Functor
-
+  --- @param args - Arguments defining the update methods
+  -- for the nerve
+  -- @param args.out - used for updateOutput
+  -- function - (optional)
+  -- @param args.grad - used for updateGradInput 
+  -- function - (optional)
+  -- @param args.acc - used for accGradParameters
+  -- function - (optional)
   function Functor:__init(args)
-    --! @param args - Arguments defining the update methods
-    --!               for the nerve
-    --! @param args.out - used for updateOutput
-    --!                   function - (optional)
-    --! @param args.grad - used for updateGradInput 
-    --!                   function - (optional)
-    --! @param args.acc - used for accGradParameters
-    --!                   function - (optional)
     parent.__init(self)
     if args.init then
       for k, v in pairs(args.init) do
@@ -54,10 +52,10 @@ do
     self.grad = args.grad or self.baseGrad
     self.acc = args.acc or self.baseAcc
   end
-  
+
+  --- Set the 'owner' of the module
+  -- @param  owner 
   function Functor:setOwner(owner)
-    --! Set the 'owner' of the module
-    --! @param  owner 
     if owner ~= nil and not self._owner then
       self._owner = owner
       return true

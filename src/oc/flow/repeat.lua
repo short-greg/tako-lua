@@ -4,31 +4,27 @@ require 'oc.class'
 
 
 do
+  --- Repeat a process until the process outputs false
+  -- It is possible to update the gradient of
+  -- the process through updateOutput if 
+  -- gradOn is set to true.  The stream will 
+  -- repeatedly be informed by the input that 
+  -- is passed in.  Repeat executes
+  -- backpropagation and accumulation as 
+  -- well if they are turned on.
+  -- @input Whatever the inner process takes
+  -- @output nil
+  -- @usage oc.Repeat(
+  --             oc.ref.getResponse():eq('Finished')
+  --        )
   local Repeat, parent = oc.class(
     'oc.Repeat', oc.Nerve
   )
-  --! ########################################
-  --! Repeat a process until the process outputs false
-  --! It is possible to update the gradient of
-  --! the process through updateOutput if 
-  --! gradOn is set to true.  The stream will 
-  --! repeatedly be informed by the input that 
-  --! is passed in.  Repeat executes
-  --! backpropagation and accumulation as 
-  --! well if they are turned on.
-  --! @input Whatever the inner process takes
-  --! @output nil
-  --! @usage oc.Repeat(
-  --!             oc.ref.getResponse():eq('Finished')
-  --!        )
-  --! @backpropagate TODO: Add in backpropagation?
-  --!
-  --! ########################################
   oc.Repeat = Repeat
-  
+
+  --- @param strand
+  -- @param gradOn
   function Repeat:__init(strand, gradOn)
-    --! @param strand
-    --! @param gradOn
     parent.__init(self)
     if gradOn == nil then
       gradOn = true

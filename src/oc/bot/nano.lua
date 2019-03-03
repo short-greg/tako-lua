@@ -3,40 +3,40 @@ require 'oc.class'
 
 
 do
+  --- The base class for Nanobots.  Nanobots are objects that 
+  -- get passed through a process graph and perform 
+  -- some operation on some or all of the nerves 
+  -- in the process graph. 
   local Nano, parent = oc.class(
     'oc.bot.Nano'
   )
-  --! The base class for Nanobots.  Nanobots are objects that 
-  --! get passed through a process graph and perform 
-  --! some operation on some or all of the nerves 
-  --! in the process graph. 
   oc.bot.Nano = Nano
 
+  --- @param shallow - Whether the bot should dive
+  -- below the current layer (i.e. act on modules that
+  -- are members of the current module) - boolean
   function Nano:__init(shallow)
-    --! @param shallow - Whether the bot should dive
-    --! below the current layer (i.e. act on modules that
-    --! are members of the current module) - boolean
     self:reset()
     self._deepDive = shallow ~= true
   end
 
+  --- Reset the state of the bot
+  -- @post  All of the nerves are set 
+  -- to as being not visited
   function Nano:reset()
-    --! Reset the state of the bot
-    --! @post  All of the nerves are set 
-    --! to as being not visited
-
     self:resetVisited()
   end
 
-  --! @return Whether a particular nerve has been been
-  --!         visited by the bot - True or False
+  --- @return Whether a particular nerve has been been
+  --         visited by the bot - True or False
   function Nano:hasVisited(nerve)
     return self._visited[nerve] == true
   end
 
+  --- Report on the results of the
+  -- nerves that have been visited
   function Nano:report()
-    --! Report on the results of the
-    --! nerves that have been visited
+    --
   end
 
   function Nano:resetVisited()
@@ -46,11 +46,10 @@ do
   
   function Nano:toVisit(nerve)
     return not oc.isTypeOf(nerve, 'oc.Strand')
-    --return self._visited[nerve] == nil
   end
 
+  --! @param nerve - 'Visit' a particular nerve
   function Nano:__call__(nerve, deep)
-    --! @param nerve - 'Visit' a particular nerve
     if self._visited[nerve] == true then
       return false
     end
@@ -96,54 +95,54 @@ do
     )
   end
 
+  --- Convenience function to visit the nerve 
+  -- and all of the nerves downstream and report
+  -- @param Nerve to call the bot on
   function Nano:exec(nerve)
-    --! Convenience function to visit the nerve 
-    --! and all of the nerves downstream and report
-    --! @param Nerve to call the bot on
     self:forward(nerve)
     return self:report()
   end
-  
+
+  --- Convenience function to visit the a 
+  -- set of nervesnerve 
+  -- and all of the nerves downstream and report
+  -- @param Nerves to call the bot on - {<key>=<nerve>}
   function Nano:execBatch(nerves)
-    --! Convenience function to visit the a 
-    --! set of nervesnerve 
-    --! and all of the nerves downstream and report
-    --! @param Nerves to call the bot on - {<key>=<nerve>}
     for i=1, #nerves do
       self:forward(nerves[i])
     end
     return self:report()
   end
 
+  --- Report for a particular module by passing the bot
+  -- specified for the module through cls
+  -- @param mod - The module to report for - oc.Nerve
+  -- @return report from the module - {} 
   function Nano.reportFor(cls, mod)
-    --! Report for a particular module by passing the bot
-    --! specified for the module through cls
-    --! @param mod - The module to report for - oc.Nerve
-    --! @return report from the module - {} 
     return cls():exec(mod)
   end
 
+  --- @return Whether the bot should dive deep
   function Nano:isDeepDiver()
-    --! @return Whether the bot should dive deep
     return self._deepDive
   end
 
+  --- Set the bot to dive deep
   function Nano:deepDiver()
-    --! Set the bot to dive deep
     self._deepDive = true
   end
 
+  --- Set the bot to dive shallow
   function Nano:shallowDiver()
-    --! Set the bot to dive shallow
     self._deepDive = false
   end
   
   Nano.clearState = Nano.reset
   
+  --- Send the bot forward through a stream starting
+  -- with nerve
+  -- @param nerve - The nerve to send the bot through
   function Nano:forward(nerve, deep)
-    --! Send the bot forward through a stream starting
-    --! with nerve
-    --! @param nerve - The nerve to send the bot through
     local visited = false
     visited = self(
       nerve, self._deepDive or deep
@@ -155,10 +154,10 @@ do
     end
   end
 
+  --- Send the bot backwrad through a stream starting
+  -- with nerve
+  -- @param nerve - The nerve to send the bot through
   function Nano:backward(nerve, deep)
-    --! Send the bot backwrad through a stream starting
-    --! with nerve
-    --! @param nerve - The nerve to send the bot through
     local visited = self(
       nerve, self._deepDiver or deep
     )

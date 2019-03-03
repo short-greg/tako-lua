@@ -4,22 +4,22 @@ require 'oc.class'
 require 'oc.oc'
 require 'oc.nerve'
 
---!
---! Nanobots that alter the state of the
---! nerves or alter the nerve itself that they
---! visit
---!
+---
+-- Nanobots that alter the state of the
+-- nerves or alter the nerve itself that they
+-- visit
 
 oc.bot.store = {}
 require 'oc.bot.nano'
 
 do
+  --- Stores emissions from each nerve
+  -- it is passed through.
   local Storer, parent = oc.class(
     'oc.bot.store.Storer', oc.bot.Nano
   )
   oc.bot.store.Storer = Storer
-  --! Stores emissions from each nerve
-  --! it is passed through.
+
   function Storer:__init(...)
     parent.__init(self, ...)
     self._execFunc = nil

@@ -2,30 +2,30 @@ require 'oc.class'
 
 
 do
+  --- Generate a tensor
+  -- The  methods of objects of this class depend on the 
+  -- state of the class.  Various types of tensors can be
+  -- generated with objects of this type
+  -- 
+  -- Calls to tensor transformations will result in the
+  -- the calls being added to the Call List and
+  -- executed when resetting.
+  -- 
+  -- @usage
+  -- Tensor():dynamic() <- the tensor will be updated with
+  -- each call to updateOutput
+  -- Tensor():static() <- the output tensor will be
+  -- updated only on reset or initialization
+  -- Tensor():trainable() <- makes a static tensor so 
+  -- where gradients will be accumulated
+  -- Tensor():double() <- 
+  -- 
+  -- @input nil
+  -- @output Tensor
   local Tensor = oc.class(
     'ocnn.Tensor'
   )
-  --! ###################################################
-  --! Class to generate a tensor
-  --! The  methods of objects of this class depend on the 
-  --! state of the class.  Various types of tensors can be
-  --! generated with objects of this type
-  --! 
-  --! Calls to tensor transformations will result in the
-  --! the calls being added to the Call List and
-  --! executed when resetting.
-  --!  
-  --! Tensor():dynamic() <- the tensor will be updated with
-  --!    each call to updateOutput
-  --! Tensor():static() <- the output tensor will be
-  --!    updated only on reset or initialization
-  --! Tensor():trainable() <- makes a static tensor so 
-  --!    where gradients will be accumulated
-  --! Tensor():double() <- 
-  --! 
-  --! @input nil
-  --! @output Tensor
-  --! ###################################################
+  ocnn.Tensor = Tensor
 
   function Tensor:__init(generator, genArgs)
     self._generator = generator
@@ -83,52 +83,57 @@ do
       callList, {'resize', table.pack(...)}
     )
   end
-  
+
+  --- @param val - integer value to offset tensor by number
   function Tensor:add(val)
-    --! @param val - integer value to offset tensor by 
-    --!             - number
     table.insert(
       callList, {'add', {val}}
     )
   end
-  
+
+  --- @param val - integer value to scale output by - number
   function Tensor:mul(val)
-    --! @param val - integer value to scale output by - number
     table.insert(
       callList, {'mul', {val}}
     )
   end
-  
+
+  --- Convert to double
   function Tensor:double()
     table.insert(
       callList, {'double', {}}
     )
   end
-  
+
+  --- Convert to byte
   function Tensor:byte()
     table.insert(
       callList, {'byte', {}}
     )
   end
-  
+
+  --- Convert to long
   function Tensor:long()
     table.insert(
       callList, {'long', {}}
     )
   end
-  
+
+  --- Convert to static
   function Tensor:static()
     self.out = staticOut
     self.grad = nonTrainableGrad
     self.acc = acc
   end
-  
+
+  --- Convert to dynamic
   function Tensor:dynamic()
     self.out = dynamicOut
     self.grad = nonTrainableGrad
     self.acc = acc
   end
-  
+
+  --- Convert to trainable tensor
   function Tensor:trainable()
     self.out = staticOut
     self.grad = trainableGrad

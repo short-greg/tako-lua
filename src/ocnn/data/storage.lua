@@ -6,12 +6,11 @@ require 'ocnn.data.set'
 
 
 do
+  --- Accesses a tensor for iteration
   local TensorStorage, parent = oc.class(
     'ocnn.data.TensorStorage', 
     oc.data.Storage
   )
-  --! Accesses a tensor for iteration
-  --! 
   ocnn.data.TensorStorage = TensorStorage
   
   function TensorStorage:__init(tensor)

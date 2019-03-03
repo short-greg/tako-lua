@@ -6,35 +6,33 @@ require 'oc.arm'
 
 
 do
+  --- Multi sends an input through several 
+  -- processing
+  -- 
+  -- @input - value (will be sent through each stream)
+  -- @output - []
+  -- 
+  -- @example oc.Var(1) .. oc.Multi{n=3}
+  -- Probing will result in the output {1, 1, 1}
+  -- The number of processes is specified to be
+  -- 3 but they are all Noops
+  --
+  -- @example oc.Var(1) .. oc.Multi{p1, p2, p3}
+  -- Here the output will be {
+  --   p1:stimulate(1),
+  --   p2:stimulate(1),
+  --   p3:stimulate(1)
+  -- }
   local Multi, parent = oc.class(
     'oc.Multi', oc.Nerve
   )
-  --! ########################################
-  --! Multi sends an input through several 
-  --! processing
-  --! 
-  --! @input - value (will be sent through each stream)
-  --! @output - []
-  --! 
-  --! @example oc.Var(1) .. oc.Multi{n=3}
-  --! Probing will result in the output {1, 1, 1}
-  --! The number of processes is specified to be
-  --! 3 but they are all Noops
-  --!
-  --! @example oc.Var(1) .. oc.Multi{p1, p2, p3}
-  --! Here the output will be {
-  --!   p1:stimulate(1),
-  --!   p2:stimulate(1),
-  --!   p3:stimulate(1)
-  --! }
-  --! ########################################
   oc.Multi = Multi
 
+  ---	@constructor	
+  -- @param streams - {oc.Strand or oc.Nerve}
+  -- @param streams.n - number of modules (if not defined will
+  -- be table.maxn of streams)
   function Multi:__init(streams)
-    --!	@constructor	
-    --! @param streams - {oc.Strand or oc.Nerve}
-    --! @param streams.n - number of modules (if not defined will
-    --! be table.maxn of streams)
     parent.__init(self)
     self._modules = {
       root=streams.root or oc.Noop()

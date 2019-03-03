@@ -5,32 +5,30 @@ require 'oc.nerve'
 local DEFAULT = 'default'
 
 do
+  --- @abstract
+  --
+  -- Control module that sends data
+  -- through a single process amongst several 
+  -- processes.  There are two types of routers: 
+  -- Switch and Case.  
+  -- 
+  -- Case works like an IfElse block and
+  -- where the first Case to succeed gets output
+  -- Switch has a nerve which outputs the 
+  -- path to be taken.
+  -- TODO: Some unit tests are broken.. 
+  -- Need to look into this problem
   local Router, parent = oc.class(
     'oc.Router', 
     oc.Nerve
   )
-  --! ########################################
-  --! @abstract
-  --!
-  --! Control module that sends data
-  --! through a single process amongst several 
-  --! processes.  There are two types of routers: 
-  --! Switch and Case.  
-  --! 
-  --! Case works like an IfElse block and
-  --! where the first Case to succeed gets output
-  --! Switch has a nerve which outputs the 
-  --! path to be taken.
-  --! TODO: Some unit tests are broken.. 
-  --! Need to look into this problem
-  --! ########################################
   oc.Router = Router
 
   Router.DEFAULT = 'default'
 
+  --- @constructor
+  -- @param - nerves - {nervable}
   function Router:__init(nerves)
-    --! @constructor
-    --! @param - nerves - {nervable}
     parent.__init(self)
     assert(
       oc.type(self) ~= 'oc.Router',
@@ -61,9 +59,9 @@ do
     )
   end
 
+  --- Backgpropagates the grad output through the path
+  -- that was chosen in updateOutput
   function Router:grad(input, gradOutput)
-    --! Backgpropagates the grad output through the path
-    --! that was chosen in updateOutput
     local gradInput
     local path = self.output[1]
     if path then
@@ -85,36 +83,34 @@ end
 
 
 do
+  --- Control module that sends data
+  -- through a function which routes the input
+  -- to one of n nerves where n is the number
+  -- of processes.
+  --
+  -- @usage oc.Switch(
+  --   router,
+  --   {p1, p2, p3}
+  -- )
+  -- This Switch will send the input through
+  -- router which outputs a number representing
+  -- the path to take.  If p2 is chosen the output
+  --　will be {path, p2.output}
+  --
+  -- @input depends on the nerves
+  -- @output {path, nerve[path].output[2]}
+  --
+  
+  -- TODO: the switch backpropagation is
+  -- not correct right now.  If the default value
+  -- is output... it should still output the
+  -- actual value that is output and not 'defualt'
+  -- i think
   local Switch, parent = oc.class(
     'oc.Switch',
     oc.Router
   )
-  --! ####################################
-  --! Control module that sends data
-  --! through a function which routes the input
-  --! to one of n nerves where n is the number
-  --! of processes.
-  --!
-  --! @example oc.Switch(
-  --!   router,
-  --!   {p1, p2, p3}
-  --! )
-  --! This Switch will send the input through
-  --! router which outputs a number representing
-  --! the path to take.  If p2 is chosen the output
-  --! will be {path, p2.output}
-  --!
-  --! @input depends on the nerves
-  --! @output {path, nerve[path].output[2]}
-  --! 
-  --! ####################################
   oc.Switch = Switch
-
-  --! TODO: the switch backpropagation is
-  --! not correct right now.  If the default value
-  --! is output... it should still output the
-  --! actual value that is output and not 'defualt'
-  --! i think
 
   function Switch:__init(router, nerves)
     --! @constructor
@@ -124,11 +120,11 @@ do
     self._modules.router = oc.nerve(router)
   end
 
+  --- Sends the input through each possible branch
+  -- Then sends that output through the condition nerve
+  -- and routes the path output by that 
+  -- nerve to the output of the module
   function Switch:out(input)
-    --! Sends the input through each possible branch
-    --! Then sends that output through the condition nerve
-    --! and routes the path output by that 
-    --! nerve to the output of the module
     local output = {}
     local path = self._modules.router:stimulate(input[1])
 
@@ -179,39 +175,37 @@ end
 
 
 do
+  --- Control module that sends the input
+  -- through processes one by one 
+  -- if the process outputs success then
+  -- that output will become the output of
+  -- the Case
+  --
+  -- @usage oc.Case{
+  --   oc.Gate{p1, p2},
+  --   oc.Gate{p3, p4},
+  --   default=p5
+  -- }
+  -- This Case will send through Gate1 and
+  -- if its first output is true then it will 
+  -- the {path, p2.output}
+  --
+  -- @input depends on the nerves
+  -- @output {path, nerve[path].output[2]}
+  --     
+  -- TODO: Some unit tests are broken.. 
+  -- Need to look into this problem
   local Case, parent = oc.class(
     'oc.Case', 
     oc.Router
   )
-  --! ####################################
-  --! Control module that sends the input
-  --! through processes one by one 
-  --! if the process outputs success then
-  --! that output will become the output of
-  --! the Case
-  --!
-  --! @example oc.Case{
-  --!   oc.Gate{p1, p2},
-  --!   oc.Gate{p3, p4},
-  --!   default=p5
-  --! }
-  --! This Case will send through Gate1 and
-  --! if its first output is true then it will 
-  --! the {path, p2.output}
-  --!
-  --! @input depends on the nerves
-  --! @output {path, nerve[path].output[2]}
-  --!     
-  --! TODO: Some unit tests are broken.. 
-  --! Need to look into this problem
-  --! ####################################
   oc.Case = Case
 
+  --- Sends the input through each possible branch
+  -- Then sends that output through the condition nerve
+  -- and routes the path output by that 
+  -- nerve to the output of the module
   function Case:out(input)
-    --! Sends the input through each possible branch
-    --! Then sends that output through the condition nerve
-    --! and routes the path output by that 
-    --! nerve to the output of the module
     local output
     local path
     for i=1, #self._modules do

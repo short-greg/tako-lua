@@ -4,13 +4,11 @@ require 'ocnn.pkg'
 
 
 do
+  --- Clones a nerve k times 
+  -- and creates a Diverge nerve
   local DivergeClone, parent = oc.class(
     'ocnn.DivergeClone', oc.Diverge
   )
-  --! ################################
-  --! Clones a nerve k times 
-  --! and creates a Diverge nerve
-  --! ################################
   
   function DivergeClone:__init(k, nerve)
     local modules = {}

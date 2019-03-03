@@ -1,16 +1,14 @@
 require 'oc.nerve'
 
---! ########################################
---! Extends nn.Module by making it 
---! inherit all of the methods from oc.Nerve
---! And update the constructor so that 
---! the oc.Nerve constructor will be
---! executed.
---!
---! Also provide nn.Module functionality
---! to oc.Nerve
---! 
---! ########################################
+
+--- Extends nn.Module by making it 
+-- inherit all of the methods from oc.Nerve
+-- And update the constructor so that 
+-- the oc.Nerve constructor will be
+-- executed.
+--
+-- Also provide nn.Module functionality
+-- to oc.Nerve
 
 local moduleMeta = getmetatable(nn.Module)
 setmetatable(moduleMeta, oc.Nerve)
@@ -21,11 +19,12 @@ function nn.Module:__init(...)
   oldInit(self, ...)
 end
 
+
+---	Module (index) <- add indexing support
+-- Index the module. Indexing is done with tables
+-- so as not to have conflict with 
+-- 'members' of the module nerve[{1}][{2}]
 function nn.Module:__index__(key)
-  --!	Module (index) <- add indexing support
-  --! Index the module. Indexing is done with tables
-  --! so as not to have conflict with 
-  --! 'members' of the module nerve[{1}][{2}]
   local res = rawget(self, key)
   
   if res then

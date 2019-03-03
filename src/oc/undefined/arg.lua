@@ -15,17 +15,18 @@ require 'oc.undefined.base'
 -- t()
 
 do
+  --- Arg is used in declaration to create a variable
+  -- argument.  The main use for this is
+  -- in order to create an arm of nerves
+  -- using oc.stem.
+  -- oc.stem(
+  --   oc.Linear:d(2, oc.arg.Z) .. oc.Linear(oc.arg.Z, 4)
+  -- )
   local Arg = oc.class(
     'oc.Arg'
   )
   oc.Arg = Arg
-  --! Arg is used in declaration to create a variable
-  --! argument.  The main use for this is
-  --! in order to create an arm of nerves
-  --! using oc.stem.
-  --! oc.stem(
-  --!   oc.Linear:d(2, oc.arg.Z) .. oc.Linear(oc.arg.Z, 4)
-  --! )
+
   function Arg:__init(argName)
     self._argName = argName
   end
@@ -52,21 +53,21 @@ end
 
 
 do
+
+  --- ArgNerve is used in declaration to 
+  -- create a variable nerve
+  -- argument.  The main use for this is
+  -- in order to create an arm of nerves
+  -- using oc.stem.
+  -- arm = oc.stem(
+  --   oc.Linear:d(2, 4) .. oc.ArgNerve('X')
+  -- )
+  -- when creating the arm just pass in the 
+  -- nerve.  arm(nn.Linear(4, 2))
   local ArgNerve, parent = oc.class(
     'oc.ArgNerve', oc.Undefined
   )
   oc.ArgNerve = ArgNerve
-  --! ArgNerve is used in declaration to 
-  --! create a variable nerve
-  --! argument.  The main use for this is
-  --! in order to create an arm of nerves
-  --! using oc.stem.
-  --! arm = oc.stem(
-  --!   oc.Linear:d(2, 4) .. oc.ArgNerve('X')
-  --! )
-  --! when creating the arm just pass in the 
-  --! nerve.  arm(nn.Linear(4, 2))
-  --! 
 
   function ArgNerve:__init(argName)
     parent.__init(self)
@@ -75,16 +76,14 @@ do
   end
 
   function ArgNerve:_define()
-    --! The default 
     return self._module
     --mod:relaxGrad()
   end
-  
+
+  --- Set the values for the Arg Variables
+  -- for the declaration
+  -- {string=<value>}
   function ArgNerve:updateArgs(argVals)
-    --! Set the values for the Arg Variables
-    --! for the declaration
-    --! {string=<value>}
-    --! 
     for argName, val in pairs(argVals) do
       if argName == self._argName then
         local nerve = oc.nerve(val)

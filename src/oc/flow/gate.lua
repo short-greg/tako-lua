@@ -8,37 +8,32 @@ require 'oc.arm'
 
 
 do
+  --- Control structure that passes the outputs based on
+  -- whether a condition is passed 
+  -- (similar to an if-statement)
+  --
+  -- Nerve: Can be set to probe or stimulate with the input
+  -- Function: Can be set to send the input through 
+  --            the function
+  -- format: function (self, input) ... end
+  --
+  -- @input - The value that gets passed in
+  -- @output - {passed?, <stream output>} - 
+  --            {boolean, <stream output>} - 
+  -- 
+  -- @usage  oc.Gate(
+  --   function (self, input) return input ~= nil end,
+  --   nn.Linear(2, 2)
+  -- )
   local Gate, parent = oc.class(
     'oc.Gate', oc.Nerve
   )
-  --! ########################################
-  --! Control structure that passes the outputs based on
-  --! whether a condition is passed 
-  --! (similar to an if-statement)
-  --!
-  --! Nerve: Can be set to probe or stimulate with the input
-  --! Function: Can be set to send the input through 
-  --!            the function
-  --! format: function (self, input) ... end
-  --!
-  --! @input - The value that gets passed in
-  --! @output - {passed?, <stream output>} - 
-  --!            {boolean, <stream output>} - 
-  --! 
-  --! @example  oc.Gate(
-  --!   function (self, input) return input ~= nil end,
-  --!   nn.Linear(2, 2)
-  --! )
-  --! 
-  --! ########################################
   oc.Gate = Gate
 
+  --- @param condition - Condition for passing the input
+  --   through the stream
+  -- @param nerve - a nervable
   function Gate:__init(condition, nerve)
-    --! 
-    --! @param condition - Condition for passing the input
-    --!   through the stream
-    --! @param nerve - a nervable
-    --! 
     parent.__init(self)
     self._modules = {}
     condition = condition or oc.Noop()
@@ -47,9 +42,9 @@ do
     self._modules.stream = oc.nerve(nerve)
   end
 
+  ---  If the condition passes then output
+  --  the result of the internal module
   function Gate:out(input)
-    --!  If the condition passes then output
-    --!  the result of the internal module
     local output = {}
     self._input = input
     output[1] = self._modules.cond:stimulate(input[1])
@@ -60,9 +55,9 @@ do
     return output
   end
 
+  --- If the condition has passed on the forward
+  -- pass then backpropagate the 
   function Gate:grad(input, gradOutput)
-    --! If the condition has passed on the forward
-    --! pass then backpropagate the 
     local gradInput = {}
     --local pass = self._condition:probe()
     gradOutput[1] = self._modules.cond:stimulateGrad(

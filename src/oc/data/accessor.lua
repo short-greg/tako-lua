@@ -81,10 +81,9 @@ do
   function Accessor:__nerve__()
     return oc.data.accessor.Nerve(self)
   end
-  
+
+  ---
   function Accessor:toIter(gradOn)
-    --! 
-    --!
     local grad
     if gradOn then
       grad = oc.BackwardIterator(self:storage())
@@ -104,23 +103,23 @@ do
       'defined for base class.'
     ) 
   end
-  
+
+  --- storage defines a 
+  -- data structure to 
+  -- store data on back propagation
   function Accessor:storage()
-    --! storage defines a 
-    --! data structure to 
-    --! store data on back propagation
     error(
       'Method storage() not '..
       'defined for base class.'
     )
   end
   
-  --! Allow nerve declartions for accessor as well
+  --- Allow nerve declartions for accessor as well
+  -- @param cls
+  -- @param args - Args for construction
+  -- @return oc.Nerve (will create an 
+  -- AccessorNerve on definition)
   Accessor.d = oc.declaration
-  --! @param cls
-  --! @param args - Args for construction
-  --! @return oc.Nerve (will create an 
-  --! AccessorNerve on definition)
   
   Accessor.__concat__ = oc.concat
 end
@@ -133,36 +132,33 @@ do
   )
   oc.data.accessor.Meta = MetaAccessor
 
+  --- @param accessor - Accessor or nil
   function MetaAccessor:__init(accessor)
-    --! 
-    --! @param accessor - Accessor or nil
     self._meta = accessor
   end
 
+  --- @param accessor - Accessor or nil
   function MetaAccessor:setMeta(accessor)
-    --! 
-    --! @param accessor - Accessor or nil
     self._meta = accessor
   end
   
   function MetaAccessor:getMeta()
     return self._meta
   end
-  
+
+  --- storage defines a 
+  -- data structure to 
+  -- store data on back propagation
+  --
+  -- MetaAccessor itself should
+  -- not have accesss to a storage
   function MetaAccessor:storage()
-    --! storage defines a 
-    --! data structure to 
-    --! store data on back propagation
-    --!
-    --! MetaAccessor itself should
-    --! not have accesss to a storage
     return self._meta:storage()
   end
-  
+
+  --- MetaAccessor itself should
+  -- not have accesss to a storage
   function MetaAccessor:data()
-    --!
-    --! MetaAccessor itself should
-    --! not have accesss to a storage
     return self._meta:data()
   end
   

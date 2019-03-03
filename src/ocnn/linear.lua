@@ -4,19 +4,18 @@ require 'ocnn.module'
 
 
 do
+  --- Modifies nn.Linear so that
+  -- the weights and biases are passed
+  -- in as inputs rather than treated as values
+  -- stored in the Linear nerve.
+  --
+  -- @input {input, weight, bias}
+  --   - {torch.Tensor, torch.Tensor, torch.Tensor}
+  -- @output torch.Tensor
   local Linear, parent = oc.class(
     'ocnn.Linear', oc.Nerve
   )
-  --! ########################################
-  --! Modifies nn.Linear so that
-  --! the weights and biases are passed
-  --! in as inputs rather than treated as values
-  --! stored in the Linear nerve.
-  --!
-  --! @input {input, weight, bias}
-  --!   - {torch.Tensor, torch.Tensor, torch.Tensor}
-  --! @output torch.Tensor
-  --! ########################################
+  ocnn.Linear = Linear
 
   function Linear:__init(bias)
     bias = bias or true

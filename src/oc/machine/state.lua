@@ -3,11 +3,10 @@ require 'oc.class'
 
 
 do
+  --!
   local State = oc.class(
     'oc.machine.State'
   )
-  --!	State
-  --!
   oc.machine.State = State
 
   function State:__init(initialState, states)

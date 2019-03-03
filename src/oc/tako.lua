@@ -4,50 +4,45 @@ require 'oc.pkg'
 
 local createBaseMeta = require 'oc.basemeta'
 
---! ######################################
---! Tako is a type of Class presently with the 
---! ability to define arms (or processing
---! nerves for the tako). The Tako will
---! be set as the 'owner' of any nerves
---! which require one 
---! (such as functor, oc.my etc)
---!
---! An arm is a pipeline of function calls.
---!
---! @example
---!
---! self.arm.trainStep = oc.my.forward .. 
---!   oc.my.backward .. oc.my.optimize
---! self.arm.predict = nn.Linear(<num>, <num>):d() .. 
---!   nn.SoftMax():d()
---! self.arm.evaluate = oc.my.predict .. 
---!   oc.Onto(oc.my.target) ..
---!    ocnn.Criterion(nn.MSECriterion())
---! 
---! Tako example
---!
---! @example y = oc.Tako('y')
---!          y.arm.t = nn.Linear:d() <- will create 
---!            an arm (or nerve) that contains
---!            a Linear declaration
---! 
---! @example p1[1] will output the first
---!    value of the p1 nerve.
---!
---! ##########################################
+--- Tako is a type of Class presently with the 
+-- ability to define arms (or processing
+-- nerves for the tako). The Tako will
+-- be set as the 'owner' of any nerves
+-- which require one 
+-- (such as functor, oc.my etc)
+--
+-- An arm is a pipeline of function calls.
+--
+-- @usage
+--
+-- self.arm.trainStep = oc.my.forward .. 
+--   oc.my.backward .. oc.my.optimize
+-- self.arm.predict = nn.Linear(<num>, <num>):d() .. 
+--   nn.SoftMax():d()
+-- self.arm.evaluate = oc.my.predict .. 
+--   oc.Onto(oc.my.target) ..
+--    ocnn.Criterion(nn.MSECriterion())
+-- 
+-- Tako example
+--
+-- @usage y = oc.Tako('y')
+--          y.arm.t = nn.Linear:d() <- will create 
+--            an arm (or nerve) that contains
+--            a Linear declaration
+-- 
+-- @usage p1[1] will output the first
+--    value of the p1 nerve.
 
 local ArmCreator, makeArmCreator
 do
-  --! ########################################
-  --! Utility used for adding an arm to a particular tako
-  --! Normally the user will not interact 
-  --! directly with this
-  --! 
-  --! @usage <tako>.arm.y = <strand> or <nerve>
-  --! The index 'arm' will create a new arm creator
-  --! And the index y will add an arm 'y' to the tako (an
-  --! arm that can be indexed with 'y')
-  --! ########################################
+  --- Utility used for adding an arm to a particular tako
+  -- Normally the user will not interact 
+  -- directly with this
+  -- 
+  -- @usage <tako>.arm.y = <strand> or <nerve>
+  -- The index 'arm' will create a new arm creator
+  -- And the index y will add an arm 'y' to the tako (an
+  -- arm that can be indexed with 'y')
   local takos = {}
   local armindexes = {}
   ArmCreator = {}
@@ -60,11 +55,11 @@ do
     )
     armindexes[self] = index
   end
-  
+
+  --- Add a new index in the 
+  -- @param key - 
+  -- @param value - 
   function ArmCreator.__newindex(self, key, value)
-    --! Add a new index in the 
-    --! @param key - 
-    --! @param value - 
     assert(
       not armindexes[self],
       'An index has already been attached to this value.'
@@ -102,24 +97,25 @@ do
     end
     takos[self] = nil
   end
-  
+
+  --- Make an ArmCreator for a given tako 
+  -- in order to add an arm to the tako
+  -- @param  The tako to create the arm for - Tako
+  -- @return ArmCreator
   function makeArmCreator(tako)
-    --! Make an ArmCreator for a given tako 
-    --! in order to add an arm to the tako
-    --! @param  The tako to create the arm for - Tako
-    --! @return ArmCreator
     local result = {}
     setmetatable(result, ArmCreator)
     takos[result] = tako
     return result
   end
-  
+
+  --- need to create a wrap
+  -- have to think about how to do this exactly
+  -- Wrap <- The __arms for an instance does not 
+  -- exist atm.  The problem is that there is no
+  -- owner available until being set.
   function ArmCreator:__nerve__()
-    --! need to create a wrap
-    --! have to think about how to do this exactly
-    --! Wrap <- The __arms for an instance does not 
-    --! exist atm.  The problem is that there is no
-    --! owner available until being set.
+
   end
   
   ArmCreator.__concat__ = oc.concat
@@ -128,18 +124,16 @@ end
 
 local makeArmCluster
 local makeParentArmCluster
---! ########################################
---! MakeArmCluster is a utility class used to 
---! access arms within a tako
---!
---! The purpose of the ArmCluster is to
---! be able maintain inheritance heirarchies
---! in the Tako since declaration nerves have to
---! be instantiated
---! 
---! The user does not really interact directly
---! with the ArmCluster
---! ########################################
+--- MakeArmCluster is a utility class used to 
+-- access arms within a tako
+--
+-- The purpose of the ArmCluster is to
+-- be able maintain inheritance heirarchies
+-- in the Tako since declaration nerves have to
+-- be instantiated
+-- 
+-- The user does not really interact directly
+-- with the ArmCluster
 do
   local baseMeta = {}
   
@@ -152,31 +146,31 @@ do
     end
     return result
   end
-  
+
+  --- Retrieve an arm from the ArmCluster
+  -- @param key - the name of the arm to retrieve
+  -- @return Arm or Nerve (if one exists)
   baseMeta.__index = function (self, key)
-    --! Retrieve an arm from the ArmCluster
-    --! @param key - the name of the arm to retrieve
-    --! @return Arm or Nerve (if one exists)
     local val = rawget(baseMeta, key)
     if val == nil and rawget(self, '__parent') then
       val = self.__parent[key]
     end
     return val
   end
-  
+
+  --- Add a new arm to the arm cluster
+  -- @param - key - The key to index - string
+  -- @param - value - The value to set to the ArmCluster
   baseMeta.__newindex = function (self, key, value)
-    --! Add a new arm to the arm cluster
-    --! @param - key - The key to index - string
-    --! @param - value - The value to set to the ArmCluster
     rawset(self, key, value)
   end
 
+  --- Create an arm cluster for the parent class of
+  -- a tako class
+  -- @param instance - The Tako instance to create for - Tako
+  -- @param cls - The Tako class to create for - TakoClass
+  -- @return ArmCluster
   function makeParentArmCluster(instance, cls)
-    --! Create an arm cluster for the parent class of
-    --! a tako class
-    --! @param instance - The Tako instance to create for - Tako
-    --! @param cls - The Tako class to create for - TakoClass
-    --! @return ArmCluster
     local result = oc.ops.table.deepCopy(
       cls.__basearms  
     )
@@ -203,13 +197,13 @@ do
     
     return result
   end
-  
+
+  --- Make an ArmCluster and all its parent
+  -- classes for a Tako instance
+  -- @param instance - Tako instance
+  -- @param cls - Tako class
+  -- @param result - table
   function makeArmCluster(instance, cls, result)
-    --! Make an ArmCluster and all its parent
-    --! classes for a Tako instance
-    --! @param instance - Tako instance
-    --! @param cls - Tako class
-    --! @param result - table
     result = result or {}
     
     if not cls then 
@@ -240,28 +234,28 @@ end
   
 
 do
-  --! Methods used to build a Tako class and 
-  --! instantiate Takos from that class
-  --! 
+  --- Methods used to build a Tako class and 
+  -- instantiate Takos from that class
+  -- Instantiate each of the arms in the tako
+  -- @param instance - The tako to instantiate
   local instantiateArms = function (
     cls, instance
   )
-    --! Instantiate each of the arms in the tako
-    --! @param instance - The tako to instantiate
 
   end
 
+  --- Create an index function for a newly created tako
+  -- 
+  -- @param child - The child tako (subclass) - Tako
+  -- @param parent - The parent tako - Tako
+  -- @return closure for the index function
   local createIndexFunc = function (child)
-    --! Create an index function for a newly created tako
-    --! 
-    --! @param child - The child tako (subclass) - Tako
-    --! @param parent - The parent tako - Tako
-    --! @return closure for the index function
+  
+    --- @param index - the index to the 
+    -- @return
     local __index = function (
       self, index
     )
-      --! @param index - the index to the 
-      --! @return
       local result = rawget(child, index)
       local parent = getmetatable(child)
       
@@ -295,15 +289,15 @@ do
     end
     return __index
   end
-  
+
+  --- Function to create a new tako
+  --
+  -- @param cls - The tako class
+  -- @param ... - Arguments to the __init function
+  -- @return Tako
   local new = function (
     cls, ...
   )
-    --! Function to create a new tako
-    --!
-    --! @param cls - The tako class
-    --! @param ... - Arguments to the __init function
-    --! @return Tako
     local result = {
       __instance=true, 
       __typename=cls.__typename,
@@ -334,15 +328,15 @@ do
         end
       end
     )
-    
+  
+    --- newindex function for basemeta
+    -- 
+    -- @param index - The index to update
+    -- @param val - The value to update it with
+    -- 
     rawset(vals, '__newindex', function (
         self, index, val
       )
-        --! newindex function for basemeta
-        --! 
-        --! @param index - The index to update
-        --! @param val - The value to update it with
-        --! 
         if index == 'arm' then
           error('The index arm is reserved.')
         end
@@ -394,13 +388,13 @@ do
   end
   --]]
 
+  --- Create a new tako class
+  -- @param className - The name for the tako - string
+  -- @param parent - The super class for the new tako class - Tako
+  -- @return Tako class
   oc.tako = function (
     className, parent  
   )
-    --! Create a new tako class
-    --! @param className - The name for the tako - string
-    --! @param parent - The super class for the new tako class - Tako
-    --! @return Tako class
     local result = {
       __instance=false,
       __typename=className,
@@ -424,14 +418,13 @@ do
 end
 
 
+--- Call a tako's signal function
+-- @param tako - The tako to signal - Tako
+-- @param signal - The signal to send to the tako - Signal
+-- @return response from the signal
 function oc.signal(tako, signal)
-  --! Call a tako's signal function
-  --! @param tako - The tako to signal - Tako
-  --! @param signal - The signal to send to the tako - Signal
-  --! @return response from the signal
   return tako.__signal(signal)
 end
-
 
 --! @return Receptor
 --[[
@@ -440,5 +433,3 @@ function oc.ops.tako.receptor(tako)
 	return oc.Receptor(tako)
 end
 --]]
-
-
