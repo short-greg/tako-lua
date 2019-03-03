@@ -168,8 +168,8 @@ do
   end
 end
 
-
---! Nerves for iteration
+--! ##########################################
+--! The following nerves allow for iteration
 --!
 --! <object> .. oc.ToIter() .. oc.Iter()
 --! Object must have an toIter function which
@@ -178,6 +178,7 @@ end
 --! 
 --! The iterator must be a callable
 --! like typical iterators in Lua
+--! ##########################################
 
 do
   local ToIter, parent = oc.class(
@@ -253,7 +254,7 @@ do
   end
   
   function Iterate:grad(input, gradOutput)
-    --! @parma input 
+    --! @param input 
     --! @param gradOutput A table of gradients
     input.grad:set(gradOutput)
     input.grad:adv()

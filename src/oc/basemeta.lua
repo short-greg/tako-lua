@@ -1,16 +1,5 @@
 local basemeta = {}
 
---[[
-basemeta.createCallFunction = function (child)
-  rawset(child, '__call', function (
-      self, ...
-    )
-      return child['__call__'](self, ...)
-    end
-  )
-end
---]]
-
 
 basemeta.createNewIndexFunction = function (
   child

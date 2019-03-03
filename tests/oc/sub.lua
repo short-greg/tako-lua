@@ -2,7 +2,6 @@ require 'oc.nerve'
 require 'oc.sub'
 require 'oc.strand'
 require 'oc.noop'
--- require 'torch'
 
 
 function octest.nerve_sub_with_one_probe_second()
@@ -39,6 +38,7 @@ function octest.nerve_sub_with_two_probe_second()
   )
 end
 
+
 function octest.nerve_sub_with_one_probeGrad_second()
   local input = {
   	torch.randn(2, 2),
@@ -58,6 +58,7 @@ function octest.nerve_sub_with_one_probeGrad_second()
     'Net grad should equal'
   )
 end
+
 
 function octest.nerve_sub_with_two_probeGrad_second()
   local input = {

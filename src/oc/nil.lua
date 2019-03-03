@@ -8,10 +8,9 @@ do
     'oc.ToNil', oc.Nerve
   )
   --! ######################################
-  --!	ToNil
-  --! 
-  --! oc.ToNil - Conver the input to a nil value
-  --!
+  --! Convert the input to a nil value
+  --! @input - anything
+  --! @output - nil
   --! ######################################
   oc.ToNil = ToNil
   

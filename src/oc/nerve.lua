@@ -123,13 +123,10 @@ do
     self._relaxedGrad = true
     self.input = nil
     self.gradOutput = nil
-    -- self.output = nil
-    -- self.gradInput = nil
   end
 
   function Nerve:clearState()
-    --! Reset the emissions (gradInput, output) of the module 
-    --! TODO: Check if using this ror relax
+    --! Reset the emissions (gradInput, output) of the module
     self:relax()
     self.gradInput = self:getDefaultGradInput()
     self.output = self:getDefaultOutput()
@@ -248,7 +245,6 @@ do
     return input
   end
 
-  --! TODO: Currently being used by Diction (up i think)
   function Nerve:getGradOutput()
     --! Get the gradient of the outgoing nodes
     --! If a gradFunction has been supplied use that
@@ -268,19 +264,13 @@ do
     end
     return gradOutput
   end
-
-  local function toUpdateGradInput(self)
-    --! Whether or not to update the grad input
-    --! @return boolean
-    return self._relaxedGrad
-  end
   
   function Nerve:probe()
     --!	Probe output of the module if not 
     --! defined will update it
     --! @retrun output
     local output
-    if self:relaxed() then
+    if self._relaxed == true then
       local input_ = self:getInput()
       local status
       status, output = pcall(
@@ -303,7 +293,7 @@ do
     local gradInput = self.gradInput
     -- self._relaxedGrad and 
     -- (not self._relaxed or self.gradOutput)
-    if toUpdateGradInput(self) then
+    if self._relaxedGrad == true then
       self._relaxedGrad = false
       local status
       local input_ = self:getInput()
@@ -329,7 +319,6 @@ do
     --! all outgoing modules if accumulation
     --! of gradients and backpropagation of 
     --! gradients is turned on
-    --! TODO: Do I want to change the conditions?
     if self._acc then
       local input_ = self:getInput()
       local gradOutput = self:getGradOutput()
@@ -380,21 +369,6 @@ do
     self:gradOn(state)
     self:accOn(state)
     return self
-  end
-
-  function Nerve:setSuper(super)
-    --! Set the super class of the 'owner' of the module
-    --! @param  owner 
-    if super ~= nil and not self._super then
-      self._super = super
-      return true
-    end
-    return false
-  end
-  
-  function Nerve:super()
-    --! only used by super ref
-    return self._super
   end
 
   --! Connection related functions
@@ -488,17 +462,14 @@ do
     return oc.Strand(from, to)
   end
 
-  --! TODO: I don't think this is necessary
   function Nerve:connectInAxon(axon)
     --! Connect the axon leading into this module
     --! @param axon
     self._inAxon = axon
   end
-  
-  --! TODO: decide whether to use this
-  --! or getChildNerves
+
   function Nerve:internals()
-    --! TODO: RENAME AND USE ITERATOR
+    --! TODO: USE ITERATOR TO LOOP OVER INTERNALS
     --! Retrieve all of the child nerves for the 
     --! nerve.  Child nerves should be in either
     --! self.modules, self._modules or self._module
@@ -667,23 +638,23 @@ do
   end
 
   function Axon:inRelaxed()
+    --! @return true if incoming is relazed, false if not
+    --!         nil if no incoming - bool or nil
     if self._incoming then
       return self._incoming:relaxed()
     end
   end
 
   function Axon:incoming()
-    --! Retrieve the incoming nerve
+    --! @return incoming nerve - nerve
     return self._incoming
   end
 
   function Axon:outgoing()
-    --! Retrieve the outgoing nerve
+    --! @return outgoing nerves - {nerve}
     return self._outgoing
   end
 
-  --! accumulate the gradients of all 
-  --! of the outgoing modules
   function Axon:accumulate()
     self._outgoing:accumulate()
   end

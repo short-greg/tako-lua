@@ -7,13 +7,31 @@ do
   local Functor, parent = oc.class(
     'oc.Functor', oc.Nerve
   )
+  --! ######################################
   --! Function object (a function that can contain state)
   --! Along with the potential to do back propagation
   --! Useful for defining nerves 'on-the-fly' 
   --! within a given arm or tako
+  --!
+  --! @example nerve1 .. 
+  --!          oc.Functor{
+  --!            out=function (self, input) return input + 1 end,
+  --!            grad=function (self, input, gradOutput) 
+  --!              return gradOutput end
+  --!          }
+  --! 
+  --! @example nerve1 ..
+  --!          oc.Functor{
+  --!            grad=
+  --!             function (self, input, gradOutput) 
+  --!               return gradOutput * 100
+  --!             end
+  --!          }
+  --! -- Amplif the gradient
   --! 
   --! @input  Depends on the user's definition
   --! @output Depends on the user's definition
+  --! ######################################
   
   oc.Functor = Functor
 
@@ -54,11 +72,8 @@ do
   function Functor:baseOut(input)
     return input
   end
-  
-  function Functor:updateGradInput(input, gradOutput)
-    local gradInput = self:grad(input, gradOutput)
-    self.gradInput = gradInput
-    return gradInput
+
+  function Functor:baseGrad(input, gradOutput)
   end
 
   function Functor:baseAcc(input, gradOutput)

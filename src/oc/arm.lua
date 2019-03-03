@@ -40,7 +40,6 @@ do
     self._accOn = nerve._accOn
   end
   
-  
   function Arm:out(input)
     self._modules.root:inform(input)
     return self._modules.leaf:probe()
@@ -50,11 +49,12 @@ do
     local gradInput
     self._modules.leaf:informGrad(gradOutput)
     gradInput = self._modules.root:probeGrad()
-    self.gradInput = gradInput
     return gradInput
   end
   
-  function Arm:accGradParameters(input, gradOutput)
+  function Arm:accGradParameters(
+    input, gradOutput
+  )
     self._modules.root:accumulate()
   end
   
@@ -82,6 +82,9 @@ do
   end
 
   function Arm:getByName(name)
+    --! Get a nerve by its name
+    --! Probably better to use a bot
+    --! @param name
     local modules = self._modules.leaf:getSeq()
     for i=1, #modules do
       if modules[i].name == name then
@@ -91,15 +94,16 @@ do
     return nil
   end
 
-  function Arm.fromNerve(nerve)
-    --! Convert a nerve into an arm
-    --! @return Arm
-    return oc.Arm(oc.Strand(nerve))
-  end
-
   function Arm:__len__()
     --! Retrieve the length of the arm
     --! @return int
     return self._modules.leaf:getLength()
+  end
+
+  function Arm.fromNerve(nerve)
+    --! @static
+    --! Constructs an arm from a nerve
+    --! @return Arm
+    return oc.Arm(oc.Strand(nerve))
   end
 end

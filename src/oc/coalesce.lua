@@ -52,7 +52,13 @@ do
     return gradOutput
   end
   
-  --TODO: Coalesce has no 'owner' yet
+  function Coalesce:setOwner(owner)
+    if self.evalDefault == placeholderDefault then
+      return placeholderDefault:setOwner(owner)
+    end
+    return false
+  end
+
   placeholderDefault = function (self)
     return self.default:eval(
       self._owner, self.default
