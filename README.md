@@ -1,12 +1,29 @@
-# tako
-Extension to Torch for more flexible creation of information systems, especially neural networks.
+# Tako
+
+Tako is an extension to Torch for more flexible creation of information systems, especially neural networks. It divides classes into three components.
+
+- Members
+- Methods
+- Processes
+
 
 ```
-local GAN
+local Autoencoder = oc.tako('oc.Autoencoder')
+
+Autoencoder.arm.encode = nn.Linear:d(2, 4) .. nn.Sigmoid:d()
+Autoencoder.arm.decode = nn.Linear:d(4, 2) .. nn.Sigmoid:d()
+Autoencoder.arm.autoencode = oc.r(oc.my.encode) .. oc.r(oc.my.decode)
+
+local autoencoder = Autoencoder()
+autoencoder.regenerate:stimulate(torch.rand(2))
 ```
+
+It also includes other ways to flexibly define information networks and to traverse those networks.
+
 
 # Info
-Usage of Tako is explained in the Wiki pages.
+
+The usage of Tako is explained more in depth in the Wiki pages.
 [Wiki](https://github.com/short-greg/tako/wiki)
 
 ## Installation
