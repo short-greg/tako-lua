@@ -144,7 +144,7 @@ end
 -- Index the module. Indexing is done with tables
 -- so as not to have conflict with 
 -- 'members' of the module nerve[{1}][{2}]
-function oc.Nerve:__index__(key)#
+function oc.Nerve:__index__(key)
   local res = rawget(self, key)
   
   if res then

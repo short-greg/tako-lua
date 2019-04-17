@@ -56,7 +56,10 @@ do
     'oc.data.accessor.Base'
   )
   oc.data.accessor.Base = Accessor
-  
+
+  --- Get data from the source
+  -- @param indices - the indices to set - oc.DataIndex
+  -- @return the data that being accessed
   function Accessor:get(indexWith)
     error(
       'Method get() is not implemented in the '.. 
@@ -64,6 +67,9 @@ do
     )
   end
   
+  --- Set data in the source
+  -- @param indices - the indices to set the source - oc.DataIndex
+  -- @param data - the data to set to 
   function Accessor:put(indices, data)
     error(
       'Method put() is not implemented in the '.. 
@@ -71,18 +77,21 @@ do
     )
   end
   
+  --- @return number of elements to iterator over - int
   function Accessor:__len__()
     error(
       'Method __len__() is not implemented in the '.. 
       'base accessor class.'
     )
   end
-  
+
+  --- @return oc.data.accessor.Nerve
   function Accessor:__nerve__()
     return oc.data.accessor.Nerve(self)
   end
 
-  ---
+  --- @param gradOn - whether the gradient is on for the iterator
+  -- @return oc.Iterator
   function Accessor:toIter(gradOn)
     local grad
     if gradOn then
@@ -96,7 +105,8 @@ do
       grad=grad
     }
   end
-  
+
+  --- @return the source data
   function Accessor:data()
     error(
       'Method data() not '..
@@ -104,8 +114,7 @@ do
     ) 
   end
 
-  --- storage defines a 
-  -- data structure to 
+  --- storage defines a data structure to 
   -- store data on back propagation
   function Accessor:storage()
     error(

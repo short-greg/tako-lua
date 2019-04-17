@@ -5,29 +5,39 @@ oc.data.index = oc.data.index or {}
 
 
 do
-  --- IndexBatch
+  --- The base index class
+  -- Used for retrieving data
   local IndexBase, parent = oc.class(
     'oc.data.index.IndexBase'
   )
-  
   oc.data.index.IndexBase = IndexBase
 
+  --- 
   function IndexBase._expandHelper(value, expandBy)
     return (value - 1) * expandBy + 1
   end
 
+  --- Reverse the index
+  -- @return reversed index
   function IndexBase:rev(size)
     error('rev() not defined.')
   end
 
+  --- Expand the index by some value to retrieve
+  -- multiple values
+  -- @return oc.RangeIndex
   function IndexBase:expand(expandBy)
     error('expand() not defined.')
   end
   
+  --- Increment the index by 1
+  -- @return oc.DataIndex
   function IndexBase:incr()
     error('incr() not defined.')
   end
-  
+
+  --- Decrement the index by 1
+  -- @return oc.DataIndex
   function IndexBase:decr()
     error('decr() not defined.')
   end
@@ -41,8 +51,8 @@ end
 
 
 do
-  --! Index
-  --! 
+  --! The main index class. It points to one
+  --! data point.
   local Index, parent = oc.class(
     'oc.data.index.Index', 
     oc.data.index.IndexBase
@@ -54,6 +64,10 @@ do
     self._index = index
   end
   
+  --- Allow retrieval with the index operator
+  -- The base index only has one value so it
+  -- should be accessed with 1
+  -- @return the value of the index - int
   function Index:__index__(index)
     if type(index) == 'number' then
       assert(
@@ -64,15 +78,22 @@ do
     end
   end
   
+  --- The current value of the index
+  -- @return int
   function Index:val()
     return self._index
   end
-  
+
+  --- The reversed index based on the size
+  -- parameter passed in.
+  -- @return int
   function Index:rev(size)
     return Index(size - self._index + 1)
   end
 
-  --
+  --- Expand the index by parameter passed in.
+  -- @param expandBy - the amount to expand the index by
+  -- @return oc.RangeIndex
   function Index:expand(expandBy)
     return oc.data.index.IndexRange(
       self._expandHelper(self._index, expandBy),
@@ -80,14 +101,21 @@ do
     )
   end
   
+  --- @post The index is incremented by one
   function Index:incr()
     self._index = self._index + 1
   end
   
+  --- @post The index is decremented by one
   function Index:decr()
     self._index = self._index - 1
   end
   
+  --- Access the value in the sequence specified
+  -- by the index
+  -- @param sequence 
+  -- @return - The value in the sequence
+  -- at the index
   function Index:indexOn(sequence)
     return sequence[self._index]
   end
